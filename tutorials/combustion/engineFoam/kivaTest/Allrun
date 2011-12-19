@@ -1,0 +1,42 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# Get application name
+application=`getApplication`
+
+runKivaToFoam()
+{
+    if [ -f log.kivaToFoam ]
+    then
+        echo "kivaToFoam already run: remove log file to re-run"
+    else
+        echo "kivaToFoam: converting kiva file"
+        kivaToFoam -file $1 > log.kivaToFoam 2>&1
+    fi
+}
+
+
+restartApplication()
+{
+    if [ -f log-2.$1 ]
+    then
+        echo "$1 already run: remove log file to re-run"
+    else
+        echo "Running $1"
+        $1 > log-2.$1 2>&1
+    fi
+}
+
+
+runKivaToFoam otape17
+
+cp system/controlDict.1st system/controlDict
+runApplication $application
+
+cp system/controlDict.2nd system/controlDict
+restartApplication $application
+
+# ----------------------------------------------------------------- end-of-file

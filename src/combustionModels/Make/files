@@ -1,0 +1,27 @@
+combustionModel/combustionModel.C
+
+psiCombustionModel/psiCombustionModel.C
+psiCombustionModel/psiCombustionModelNew.C
+
+rhoCombustionModel/rhoCombustionModel.C
+rhoCombustionModel/rhoCombustionModelNew.C
+
+infinitelyFastChemistry/infinitelyFastChemistrys.C
+
+psiChemistryCombustionModel/psiChemistryCombustionModel.C
+psiChemistryCombustionModel/psiChemistryCombustionModelNew.C
+
+rhoChemistryCombustionModel/rhoChemistryCombustionModel.C
+rhoChemistryCombustionModel/rhoChemistryCombustionModelNew.C
+
+PaSR/PaSRs.C
+
+FSD/reactionRateFlameAreaModels/consumptionSpeed/consumptionSpeed.C
+FSD/reactionRateFlameAreaModels/reactionRateFlameArea/reactionRateFlameArea.C
+FSD/reactionRateFlameAreaModels/reactionRateFlameArea/reactionRateFlameAreaNew.C
+FSD/reactionRateFlameAreaModels/relaxation/relaxation.C
+
+FSD/FSDs.C
+
+LIB = $(FOAM_LIBBIN)/libcombustionModels
+

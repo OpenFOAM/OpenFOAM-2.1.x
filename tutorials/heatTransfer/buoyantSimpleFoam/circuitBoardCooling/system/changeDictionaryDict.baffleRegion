@@ -1,0 +1,149 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      changeDictionaryDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dictionaryReplacement
+{
+    alphat
+    {
+        boundaryField
+        {
+            "region0_to_.*"
+            {
+                type            alphatWallFunction;
+                value           uniform 0;
+            }
+        }
+    }
+    epsilon
+    {
+        boundaryField
+        {
+            "region0_to_.*"
+            {
+                type            compressible::epsilonWallFunction;
+                value           uniform 0.01;
+            }
+        }
+    }
+    k
+    {
+        boundaryField
+        {
+            "region0_to_.*"
+            {
+                type            compressible::kqRWallFunction;
+                value           uniform 0.01;
+            }
+
+        }
+    }
+    mut
+    {
+        boundaryField
+        {
+            "region0_to_.*"
+            {
+                type            mutkWallFunction;
+                value           uniform 0.0;
+            }
+        }
+    }
+    p
+    {
+        boundaryField
+        {
+            "region0_to_.*"
+            {
+                type            calculated;
+                value           $internalField;
+            }
+        }
+    }
+    p_rgh
+    {
+        boundaryField
+        {
+            "region0_to_.*"
+            {
+                type            buoyantPressure;
+                value           $internalField;
+            }
+
+        }
+    }
+    T
+    {
+        boundaryField
+        {
+
+            "region0_to.*"
+            {
+                type                compressible::temperatureThermoBaffle;
+
+                // Coupled BC.
+                neighbourFieldName  T;
+                K                   basicThermo;
+                KName               none;
+
+
+                // Thermo baffle model
+                thermoBaffleModel   thermoBaffle2D;
+                regionName          baffleRegion;
+                infoOutput          yes;
+                active              yes;
+                thermoBaffle2DCoeffs
+                {
+                }
+
+
+                // Solid thermo
+                thermoType constSolidThermo;
+
+                constSolidThermoCoeffs
+                {
+                    //- thermo properties
+                    rho rho [1 -3  0  0 0 0 0]              80;
+                    Cp  Cp  [0  2 -2 -1 0 0 0]              15;
+                    K   K   [1  1 -3 -1 0 0 0]              0.01;
+
+                    //- radiative properties
+                    kappa kappa [0 -1 0 0 0 0 0]            0;
+                    sigmaS sigmaS [0 -1 0 0 0 0 0]          0;
+                    emissivity  emissivity  [0 0 0 0 0 0 0] 1;
+
+                    //- chemical properties
+                    Hf  Hf  [0  2 -2  0 0 0 0]              0;
+                }
+
+                value               uniform 300;
+            }
+        }
+    }
+    U
+    {
+        boundaryField
+        {
+            "region0_to_.*"
+            {
+                type            fixedValue;
+                value           uniform (0 0 0);
+            }
+
+        }
+    }
+}
+
+// ************************************************************************* //

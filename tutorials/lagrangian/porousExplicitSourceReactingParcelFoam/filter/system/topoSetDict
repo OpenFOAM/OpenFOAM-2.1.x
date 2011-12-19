@@ -1,0 +1,103 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+actions
+(
+    // filter
+    {
+        name    filter;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (1.5 -10 -10) (2 10 10);
+        }
+    }
+
+    {
+        name    leftFluid;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (-10 -10 -10) (1.5 10 10);
+        }
+    }
+    {
+        name    rightFluid;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        sourceInfo
+        {
+            box (2 -1 -1) (10 10 10);
+        }
+    }
+
+
+    // cycLeft
+    {
+        name    cycLeft;
+        type    faceSet;
+        action  new;
+        source  cellToFace;
+        sourceInfo
+        {
+            set     filter;
+            option  all;
+        }
+    }
+    {
+        name    cycLeft;
+        type    faceSet;
+        action  subset;
+        source  cellToFace;
+        sourceInfo
+        {
+            set     leftFluid;
+            option  all;
+        }
+    }
+
+    // cycRight
+    {
+        name    cycRight;
+        type    faceSet;
+        action  new;
+        source  cellToFace;
+        sourceInfo
+        {
+            set     filter;
+            option  all;
+        }
+    }
+    {
+        name    cycRight;
+        type    faceSet;
+        action  subset;
+        source  cellToFace;
+        sourceInfo
+        {
+            set     rightFluid;
+            option  all;
+        }
+    }
+);
+
+// ************************************************************************* //

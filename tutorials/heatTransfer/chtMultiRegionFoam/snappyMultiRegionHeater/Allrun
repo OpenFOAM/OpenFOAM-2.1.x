@@ -1,0 +1,71 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # run from this directory
+
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+rm -rf constant/polyMesh/sets
+
+runApplication blockMesh
+runApplication surfaceFeatureExtract -includedAngle 150 constant/triSurface/bottomAir.stl bottomAir
+mv log.surfaceFeatureExtract log.surfaceFeatureExtract.bottom
+runApplication surfaceFeatureExtract -includedAngle 150 constant/triSurface/heater.stl heater
+mv log.surfaceFeatureExtract log.surfaceFeatureExtract.heater
+runApplication surfaceFeatureExtract -includedAngle 150 constant/triSurface/leftSolid.stl leftSolid
+mv log.surfaceFeatureExtract log.surfaceFeatureExtract.leftSolid
+runApplication surfaceFeatureExtract -includedAngle 150 constant/triSurface/rightSolid.stl rightSolid
+mv log.surfaceFeatureExtract log.surfaceFeatureExtract.rightSolid
+runApplication surfaceFeatureExtract -includedAngle 150 constant/triSurface/topAir.stl topAir
+mv log.surfaceFeatureExtract log.surfaceFeatureExtract.topAir
+
+runApplication snappyHexMesh -overwrite
+runApplication splitMeshRegions -cellZones -overwrite
+
+# remove fluid fields from solid regions (important for post-processing)
+for i in heater leftSolid rightSolid
+do
+   rm -f 0*/$i/{mut,alphat,epsilon,k,p,U,p_rgh}
+done
+
+# No solid fields to remove from fluid regions (important for post-processing)
+for i in bottomAir topAir
+do
+   rm -f 0*/$i/{Ypmma, Ychar}
+done
+
+for i in bottomAir topAir heater leftSolid rightSolid
+do
+   changeDictionary -region $i > log.changeDictionary.$i 2>&1
+done
+
+
+#-- Run on single processor
+runApplication `getApplication`
+
+
+## Decompose
+#for i in bottomAir topAir heater leftSolid rightSolid
+#do
+#   decomposePar -region $i > log.decomposePar.$i 2>&1
+#done
+#
+## Run
+#runParallel `getApplication` 4
+#
+## Reconstruct
+#for i in bottomAir topAir heater leftSolid rightSolid
+#do
+#   reconstructPar -region $i > log.reconstructPar.$i 2>&1
+#done
+
+
+echo
+echo "creating files for paraview post-processing"
+echo
+for i in bottomAir topAir heater leftSolid rightSolid
+do
+   paraFoam -touch -region $i
+done
+
+# ----------------------------------------------------------------- end-of-file

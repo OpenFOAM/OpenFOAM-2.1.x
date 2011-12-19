@@ -1,0 +1,13 @@
+basicSolidThermo/basicSolidThermo.C
+basicSolidThermo/basicSolidThermoNew.C
+
+constSolidThermo/constSolidThermo.C
+directionalKSolidThermo/directionalKSolidThermo.C
+interpolatedSolidThermo/interpolatedSolidThermo.C
+interpolatedSolidThermo/interpolateSolid/interpolateSolid.C
+isotropicKSolidThermo/isotropicKSolidThermo.C
+
+solidMixtureThermo/mixtures/basicSolidMixture/basicSolidMixture.C
+solidMixtureThermo/solidMixtureThermo/solidMixtureThermos.C
+
+LIB = $(FOAM_LIBBIN)/libbasicSolidThermo

@@ -1,0 +1,3 @@
+redistributePar.C
+
+EXE = $(FOAM_APPBIN)/redistributePar

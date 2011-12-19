@@ -1,0 +1,12 @@
+EXE_INC = \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/parallel/decompose/decompositionMethods/lnInclude
+
+EXE_LIBS = \
+    -lmeshTools \
+    -ldynamicMesh \
+    -lfiniteVolume \
+    -lgenericPatchFields \
+    -ldecompositionMethods

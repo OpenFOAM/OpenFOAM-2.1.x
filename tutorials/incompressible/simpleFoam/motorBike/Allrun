@@ -1,0 +1,14 @@
+#!/bin/sh
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# copy motorbike surface from resources folder
+cp $FOAM_TUTORIALS/resources/geometry/motorBike.obj.gz constant/triSurface/
+
+cp -r 0.org 0 > /dev/null 2>&1
+
+runApplication blockMesh
+runApplication snappyHexMesh -overwrite
+
+runApplication potentialFoam -noFunctionObjects -writep
+runApplication `getApplication`

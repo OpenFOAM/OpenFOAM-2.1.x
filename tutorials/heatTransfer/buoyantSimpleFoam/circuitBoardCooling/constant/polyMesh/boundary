@@ -1,0 +1,132 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       polyBoundaryMesh;
+    location    "constant/polyMesh";
+    object      boundary;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+9
+(
+    floor
+    {
+        type            wall;
+        nFaces          50;
+        startFace       3882;
+    }
+    ceiling
+    {
+        type            wall;
+        nFaces          50;
+        startFace       3932;
+    }
+    inlet
+    {
+        type            patch;
+        nFaces          40;
+        startFace       3982;
+    }
+    outlet
+    {
+        type            patch;
+        nFaces          40;
+        startFace       4022;
+    }
+    fixedWalls
+    {
+        type            empty;
+        nFaces          4000;
+        startFace       4062;
+    }
+    baffle1Wall_0
+    {
+        type            mappedWall;
+        nFaces          14;
+        startFace       8062;
+        sampleMode      nearestPatchFace;
+        sampleRegion    region0;
+        samplePatch     baffle1Wall_1;
+        offsetMode      uniform;
+        offset          (0 0 0);
+    }
+    baffle1Wall_1
+    {
+        type            mappedWall;
+        nFaces          14;
+        startFace       8076;
+        sampleMode      nearestPatchFace;
+        sampleRegion    region0;
+        samplePatch     baffle1Wall_0;
+        offsetMode      uniform;
+        offset          (0 0 0);
+    }
+    region0_to_baffleRegion_baffleFaces2_top
+    {
+        type            mappedWall;
+        nFaces          14;
+        startFace       8090;
+        sampleMode      nearestPatchFace;
+        sampleRegion    baffleRegion;
+        samplePatch     region0_to_baffleRegion_baffleFaces2_top;
+        offsetMode      nonuniform;
+        offsets         
+14
+(
+(0.02 8.67362e-19 -0)
+(0.02 -0 -0)
+(0.02 -0 -0)
+(0.02 -6.93889e-18 -0)
+(0.02 -6.93889e-18 -0)
+(0.02 -0 -0)
+(0.02 -0 -0)
+(0.02 -0 -0)
+(0.02 -0 -0)
+(0.02 -0 -0)
+(0.02 -0 -0)
+(0.02 -0 -0)
+(0.02 -0 -0)
+(0.02 -2.77556e-17 -0)
+)
+;
+    }
+    region0_to_baffleRegion_baffleFaces2_bottom
+    {
+        type            mappedWall;
+        nFaces          14;
+        startFace       8104;
+        sampleMode      nearestPatchFace;
+        sampleRegion    baffleRegion;
+        samplePatch     region0_to_baffleRegion_baffleFaces2_bottom;
+        offsetMode      nonuniform;
+        offsets         
+14
+(
+(1.11022e-16 8.67362e-19 -0)
+(1.11022e-16 -3.46945e-18 -0)
+(-1.11022e-16 -0 -0)
+(-1.11022e-16 -6.93889e-18 1.11022e-16)
+(-1.11022e-16 -1.38778e-17 -0)
+(-1.11022e-16 1.38778e-17 -0)
+(-1.11022e-16 -0 -0)
+(-0 -0 -0)
+(-1.11022e-16 -0 -0)
+(-1.11022e-16 -0 -0)
+(-0 -0 -0)
+(-0 -2.77556e-17 -0)
+(-0 -0 -0)
+(-0 -2.77556e-17 -0)
+)
+;
+    }
+)
+
+// ************************************************************************* //

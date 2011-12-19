@@ -1,0 +1,3 @@
+porousBafflePressure/porousBafflePressureFvPatchFields.C
+
+LIB = $(FOAM_LIBBIN)/libturbulenceDerivedFvPatchFields

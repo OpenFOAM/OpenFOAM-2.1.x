@@ -1,0 +1,131 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      changeDictionaryDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dictionaryReplacement
+{
+    alphat
+    {
+        boundaryField
+        {
+            "baffle1.*"
+            {
+                type            alphatWallFunction;
+                value           uniform 0;
+            }
+        }
+    }
+    epsilon
+    {
+        boundaryField
+        {
+            "baffle1.*"
+            {
+                type            compressible::epsilonWallFunction;
+                value           uniform 0.01;
+            }
+        }
+    }
+    k
+    {
+        boundaryField
+        {
+            "baffle1.*"
+            {
+                type            compressible::kqRWallFunction;
+                value           uniform 0.01;
+            }
+        }
+    }
+    mut
+    {
+        boundaryField
+        {
+            "baffle1.*"
+            {
+                type            mutkWallFunction;
+                value           uniform 0.0;
+            }
+        }
+    }
+    p
+    {
+        boundaryField
+        {
+            "baffle1.*"
+            {
+                type            calculated;
+                value           $internalField;
+            }
+        }
+    }
+    p_rgh
+    {
+        boundaryField
+        {
+            "baffle1.*"
+            {
+                type            buoyantPressure;
+                value           $internalField;
+            }
+        }
+    }
+    T
+    {
+        boundaryField
+        {
+            "baffle1Wall.*"
+            {
+                type   compressible::temperatureThermoBaffle1D<constSolidThermoPhysics>;
+                baffleActivated yes;
+                thickness       uniform 0.005;  // thickness [m]
+                Qs              uniform 300;    // heat flux [W/m2]
+                transport
+                {
+                    K               1.0;
+                }
+                radiation
+                {
+                    sigmaS          0;
+                    kappa           0;
+                    emissivity      0;
+                }
+                thermodynamics
+                {
+                    Hf              0;
+                    Cp              10;
+                }
+                density
+                {
+                    rho             10;
+                }
+                value           uniform 300;
+            }
+        }
+    }
+    U
+    {
+        boundaryField
+        {
+            "baffle1.*"
+            {
+                type            fixedValue;
+                value           uniform (0 0 0);
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,65 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phase1
+{
+    rho             2500;
+    rho0            2500;
+    R               1e10;
+    Cp              6000;
+
+    nu              1e-06;
+    kappa           0.613;
+
+    diameterModel constant;
+    constantCoeffs
+    {
+        d               3e-4;
+    }
+}
+
+phase2
+{
+    rho             1.2;
+    rho0            0;
+    R               287;
+    Cp              721;
+
+    nu              1.5e-05;
+    kappa           2.63e-2;
+
+    diameterModel constant;
+    constantCoeffs
+    {
+        d               1;
+    }
+}
+
+// Virtual-mass ceofficient
+Cvm             0;
+
+// Lift coefficient
+Cl              0;
+
+// Dispersed-phase turbulence coefficient
+Ct              0;
+
+// Minimum allowable pressure
+pMin            10000;
+
+
+// ************************************************************************* //

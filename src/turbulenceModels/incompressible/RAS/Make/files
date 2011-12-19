@@ -1,0 +1,56 @@
+RASModel/RASModel.C
+
+laminar/laminar.C
+kEpsilon/kEpsilon.C
+RNGkEpsilon/RNGkEpsilon.C
+realizableKE/realizableKE.C
+kOmega/kOmega.C
+kOmegaSST/kOmegaSST.C
+SpalartAllmaras/SpalartAllmaras.C
+LRR/LRR.C
+LaunderGibsonRSTM/LaunderGibsonRSTM.C
+LaunderSharmaKE/LaunderSharmaKE.C
+qZeta/qZeta.C
+LienCubicKE/LienCubicKE.C
+LienCubicKELowRe/LienCubicKELowRe.C
+NonlinearKEShih/NonlinearKEShih.C
+LienLeschzinerLowRe/LienLeschzinerLowRe.C
+LamBremhorstKE/LamBremhorstKE.C
+kkLOmega/kkLOmega.C
+
+/* Wall functions */
+wallFunctions = derivedFvPatchFields/wallFunctions
+
+nutWallFunctions = $(wallFunctions)/nutWallFunctions
+$(nutWallFunctions)/nutkRoughWallFunction/nutkRoughWallFunctionFvPatchScalarField.C
+$(nutWallFunctions)/nutkWallFunction/nutkWallFunctionFvPatchScalarField.C
+$(nutWallFunctions)/nutURoughWallFunction/nutURoughWallFunctionFvPatchScalarField.C
+$(nutWallFunctions)/nutUSpaldingWallFunction/nutUSpaldingWallFunctionFvPatchScalarField.C
+$(nutWallFunctions)/nutUWallFunction/nutUWallFunctionFvPatchScalarField.C
+$(nutWallFunctions)/nutUTabulatedWallFunction/nutUTabulatedWallFunctionFvPatchScalarField.C
+$(nutWallFunctions)/nutLowReWallFunction/nutLowReWallFunctionFvPatchScalarField.C
+
+epsilonWallFunctions = $(wallFunctions)/epsilonWallFunctions
+$(epsilonWallFunctions)/epsilonWallFunction/epsilonWallFunctionFvPatchScalarField.C
+
+omegaWallFunctions = $(wallFunctions)/omegaWallFunctions
+$(omegaWallFunctions)/omegaWallFunction/omegaWallFunctionFvPatchScalarField.C
+
+kqRWallFunctions = $(wallFunctions)/kqRWallFunctions
+$(kqRWallFunctions)/kqRWallFunction/kqRWallFunctionFvPatchFields.C
+
+kappatWallFunctions = $(wallFunctions)/kappatWallFunctions
+$(kappatWallFunctions)/kappatJayatillekeWallFunction/kappatJayatillekeWallFunctionFvPatchScalarField.C
+
+
+/* Patch fields */
+derivedFvPatchFields/turbulentHeatFluxTemperature/turbulentHeatFluxTemperatureFvPatchScalarField.C
+derivedFvPatchFields/turbulentMixingLengthDissipationRateInlet/turbulentMixingLengthDissipationRateInletFvPatchScalarField.C
+derivedFvPatchFields/turbulentMixingLengthFrequencyInlet/turbulentMixingLengthFrequencyInletFvPatchScalarField.C
+derivedFvPatchFields/fixedShearStress/fixedShearStressFvPatchVectorField.C
+derivedFvPatchFields/atmBoundaryLayerInletEpsilon/atmBoundaryLayerInletEpsilonFvPatchScalarField.C
+derivedFvPatchFields/atmBoundaryLayerInletVelocity/atmBoundaryLayerInletVelocityFvPatchVectorField.C
+
+backwardsCompatibility/wallFunctions/backwardsCompatibilityWallFunctions.C
+
+LIB = $(FOAM_LIBBIN)/libincompressibleRASModels

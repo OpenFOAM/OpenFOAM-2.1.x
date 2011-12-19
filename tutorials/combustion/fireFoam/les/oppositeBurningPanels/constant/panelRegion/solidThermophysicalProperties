@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      solidThermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+thermoType
+solidMixtureThermo<reactingSolidMixture<constSolidTransport<constSolidRad<constSolidThermo<constRho>>>>>;
+
+solidComponents
+(
+    v char
+);
+
+vCoeffs
+{
+    transport
+    {
+        K           0.135;
+    }
+    radiation
+    {
+        sigmaS      0.0;
+        kappa       0.0;  //opaque
+        emissivity  0.17;
+    }
+    thermodynamics
+    {
+        Cp          696;
+        Hf          -1.41e6;
+    }
+    density
+    {
+        rho         114.7;
+    }
+};
+
+charCoeffs
+{
+    transport
+    {
+        K           0.4;
+    }
+    radiation
+    {
+        sigmaS      0.0;
+        kappa       0.0;
+        emissivity  0.85;
+    }
+    thermodynamics
+    {
+        Cp          611;
+        Hf          0;
+    }
+    density
+    {
+        rho         11.5;
+    }
+};
+
+// ************************************************************************* //

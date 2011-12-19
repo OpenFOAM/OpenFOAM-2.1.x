@@ -1,0 +1,145 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      reactingCloud1Properties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solution
+{
+    active          true;
+    coupled         no;
+    transient       yes;
+    cellValueSourceCorrection no;
+
+    sourceTerms
+    {
+        schemes
+        {
+            rho             explicit 1;
+            U               explicit 1;
+            Yi              explicit 1;
+            hs              explicit 1;
+        }
+    }
+
+    interpolationSchemes
+    {
+        rho             cell;
+        U               cellPoint;
+        mu              cell;
+        T               cell;
+        Cp              cell;
+        p               cell;
+    }
+
+    integrationSchemes
+    {
+        U               Euler;
+        T               analytical;
+    }
+}
+
+constantProperties
+{
+    parcelTypeId    1;
+
+    rhoMin          1e-15;
+    TMin            200;
+    pMin            1000;
+    minParticleMass 1e-15;
+
+    rho0            1000;
+    T0              300;
+    Cp0             4187;
+
+    youngsModulus   1e9;
+    poissonsRatio   0.35;
+
+    epsilon0        1;
+    f0              0.5;
+    Pr              0.7;
+    Tvap            273;
+    Tbp             373;
+
+    constantVolume  false;
+}
+
+subModels
+{
+    particleForces
+    {
+        sphereDrag;
+        gravity;
+    }
+
+    injectionModel  reactingLookupTableInjection;
+
+    dispersionModel none;
+
+    patchInteractionModel standardWallInteraction;
+
+    heatTransferModel none;
+
+    compositionModel singlePhaseMixture;
+
+    phaseChangeModel none;
+
+    surfaceFilmModel thermoSurfaceFilm;
+
+    radiation       off;
+
+    reactingLookupTableInjectionCoeffs
+    {
+        massTotal       0.1;
+        parcelBasisType mass;
+        SOI             0.01;
+        inputFile       "parcelInjectionProperties";
+        duration        10.0;
+        parcelsPerSecond 200;
+    }
+
+    standardWallInteractionCoeffs
+    {
+        type            rebound;
+    }
+
+    singlePhaseMixtureCoeffs
+    {
+        phases
+        (
+            liquid
+            {
+                H2O          1;
+            }
+        );
+    }
+
+    thermoSurfaceFilmCoeffs
+    {
+        interactionType splashBai;
+        deltaWet        0.0005;
+        dMinSplash      1e-5;
+        dMaxSplash      1e-3;
+        Adry            2630;
+        Awet            1320;
+        Cf              0.6;
+    }
+}
+
+
+cloudFunctions
+{}
+
+
+// ************************************************************************* //

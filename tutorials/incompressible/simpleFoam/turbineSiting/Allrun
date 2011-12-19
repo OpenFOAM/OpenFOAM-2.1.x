@@ -1,0 +1,42 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+runApplication blockMesh
+cp system/decomposeParDict-nonPar system/decomposeParDict
+runApplication decomposePar
+
+#runApplication snappyHexMesh -overwrite
+#runApplication setSet -batch makeZones
+#runApplication setsToZones -noFlipMap
+#runApplication `getApplication`
+
+cp system/decomposeParDict-par system/decomposeParDict
+runParallel snappyHexMesh 2 -overwrite
+
+# Add wildcard entries for meshed patches since not preserved
+# by decomposePar. Notice -literalRE option to add wildcard itself
+# without evaluation.
+runParallel changeDictionary 2 -literalRE -enableFunctionEntries
+
+cp system/decomposeParDict-4proc system/decomposeParDict
+# Unset floating point trapping since creating processor directories
+unset FOAM_SIGFPE
+unset FOAM_SETNAN
+runParallel redistributePar 4 -overwrite
+runParallel renumberMesh 4 -overwrite
+
+# Add wildcard entries for meshes patches since not preserved
+# by decomposePar. Notice -literalRE option to add wildcard itself
+# without evaluation.
+#runParallel changeDictionary 4 -literalRE
+
+runParallel topoSet 4
+runParallel `getApplication` 4
+
+runApplication reconstructParMesh -constant
+runApplication reconstructPar
+
+# ----------------------------------------------------------------- end-of-file

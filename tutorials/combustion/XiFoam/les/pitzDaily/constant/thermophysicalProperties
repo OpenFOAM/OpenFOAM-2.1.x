@@ -1,0 +1,67 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      thermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+thermoType      hhuMixtureThermo<homogeneousMixture<sutherlandTransport<specieThermo<janafThermo<perfectGas>>>>>;
+
+stoichiometricAirFuelMassRatio stoichiometricAirFuelMassRatio [ 0 0 0 0 0 0 0 ] 15.675;
+
+reactants
+{
+    specie
+    {
+        nMoles          1;
+        molWeight       29.2068;
+    }
+    thermodynamics
+    {
+        Tlow            100;
+        Thigh           5000;
+        Tcommon         1000;
+        highCpCoeffs    ( 3.20495 0.00165359 -5.55661e-07 8.62503e-11 -4.93973e-15 -1347.25 4.81241 );
+        lowCpCoeffs     ( 3.52181 -9.21936e-05 1.77427e-06 -6.2049e-10 -1.99209e-13 -1352.32 3.48856 );
+    }
+    transport
+    {
+        As              1.67212e-06;
+        Ts              170.672;
+    }
+}
+
+products
+{
+    specie
+    {
+        nMoles          1;
+        molWeight       28.5396;
+    }
+    thermodynamics
+    {
+        Tlow            100;
+        Thigh           5000;
+        Tcommon         1000;
+        highCpCoeffs    ( 3.10383 0.00156927 -5.22523e-07 8.06527e-11 -4.60363e-15 -6892.54 5.21744 );
+        lowCpCoeffs     ( 3.53318 7.81943e-05 5.77097e-07 6.68595e-10 -6.30433e-13 -6964.71 3.15336 );
+    }
+    transport
+    {
+        As              1.67212e-06;
+        Ts              170.672;
+    }
+}
+
+
+// ************************************************************************* //

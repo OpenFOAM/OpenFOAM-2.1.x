@@ -1,0 +1,58 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # run from this directory
+makeType=${1:-libso}
+
+# get SCOTCH_VERSION, SCOTCH_ARCH_PATH
+if settings=`$WM_PROJECT_DIR/bin/foamEtcFile config/scotch.sh`
+then
+    . $settings
+    echo "using SCOTCH_ARCH_PATH=$SCOTCH_ARCH_PATH"
+else
+    echo
+    echo "Error: no config/scotch.sh settings"
+    echo
+fi
+
+
+#
+# define how to create an mpi-versioned library of $makeType
+# compile into qualified directory
+# use sentinel file to handle version changes
+#
+wmakeMpiLib()
+{
+    set +x
+    for libName
+    do
+    (
+        WM_OPTIONS="$WM_OPTIONS$WM_MPLIB"
+        whichmpi="$libName/Make/$WM_OPTIONS/using:$FOAM_MPI"
+        whichscotch="$libName/Make/$WM_OPTIONS/using:$SCOTCH_VERSION"
+        [ -e "$whichmpi" -a -e "$whichscotch" ] || wclean $libName
+        echo "wmake $makeType $libName"
+        wmake $makeType $libName
+        touch "$whichmpi" "$whichscotch"
+    )
+    done
+    set -x
+}
+
+set -x
+
+wmakeLnInclude decompositionMethods
+
+if [ -n "$SCOTCH_ARCH_PATH" ]
+then
+    wmake $makeType scotchDecomp
+    [ -d "$FOAM_LIBBIN/$FOAM_MPI" ] && wmakeMpiLib ptscotchDecomp
+else
+    echo
+    echo "Skipping scotchDecomp (ptscotchDecomp)"
+    echo
+fi
+
+wmake $makeType decompositionMethods
+
+wmake $makeType decompose
+
+# ----------------------------------------------------------------- end-of-file

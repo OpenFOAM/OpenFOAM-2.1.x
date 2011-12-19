@@ -1,0 +1,92 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "fanFvPatchFields.H"
+#include "addToRunTimeSelectionTable.H"
+#include "volFields.H"
+#include "surfaceFields.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+makeTemplatePatchTypeField
+(
+    fvPatchScalarField,
+    fanFvPatchScalarField
+);
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+//- Specialisation of the jump-condition for the pressure
+template<>
+void Foam::fanFvPatchField<Foam::scalar>::updateCoeffs()
+{
+    if (updated())
+    {
+        return;
+    }
+
+    // Note that the neighbour side jump_ data is never actually used; the
+    // jump() function just calls the owner side jump().
+
+    // Constant
+    jump_ = f_[0];
+
+    if (f_.size() > 1)
+    {
+        const surfaceScalarField& phi =
+            db().lookupObject<surfaceScalarField>("phi");
+
+        const fvsPatchField<scalar>& phip =
+            patch().patchField<surfaceScalarField, scalar>(phi);
+
+        scalarField Un(max(phip/patch().magSf(), scalar(0)));
+
+        if (phi.dimensions() == dimDensity*dimVelocity*dimArea)
+        {
+            Un /= patch().lookupPatchField<volScalarField, scalar>("rho");
+        }
+
+        for (label i=1; i<f_.size(); i++)
+        {
+            jump_ += f_[i]*pow(Un, i);
+        }
+
+        jump_ = max(jump_, scalar(0));
+    }
+
+    fixedJumpFvPatchField<scalar>::updateCoeffs();
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace Foam
+
+// ************************************************************************* //

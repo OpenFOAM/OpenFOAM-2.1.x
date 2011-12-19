@@ -1,0 +1,4 @@
+nas/NASCore.C
+starcd/STARCDCore.C
+
+LIB = $(FOAM_LIBBIN)/libfileFormats
