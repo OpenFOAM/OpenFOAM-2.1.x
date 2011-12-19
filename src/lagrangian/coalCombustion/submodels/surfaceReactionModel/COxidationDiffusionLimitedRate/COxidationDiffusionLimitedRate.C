@@ -90,7 +90,8 @@ Foam::COxidationDiffusionLimitedRate<CloudType>::COxidationDiffusionLimitedRate
     O2GlobalId_(srm.O2GlobalId_),
     CO2GlobalId_(srm.CO2GlobalId_),
     WC_(srm.WC_),
-    WO2_(srm.WO2_)
+    WO2_(srm.WO2_),
+    HcCO2_(srm.HcCO2_)
 {}
 
 
