@@ -23,49 +23,64 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "DataEntry.H"
+#include "CompatibilityConstant.H"
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::autoPtr<Foam::DataEntry<Type> > Foam::DataEntry<Type>::New
+Foam::CompatibilityConstant<Type>::CompatibilityConstant
 (
-    const word& entryName,
-    const dictionary& dict
+    const word& entryName, const dictionary& dict
 )
+:
+    DataEntry<Type>(entryName),
+    value_(pTraits<Type>::zero)
 {
-    Istream& is(dict.lookup(entryName));
-
-    token firstToken(is);
-
-    word DataEntryType;
-    if (firstToken.isWord())
-    {
-        DataEntryType = firstToken.wordToken();
-    }
-    else
-    {
-        is.putBack(firstToken);
-//        DataEntryType = CompatibilityConstant<Type>::typeName;
-        DataEntryType = "CompatibilityConstant";
-    }
-
-    typename dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(DataEntryType);
-
-    if (cstrIter == dictionaryConstructorTablePtr_->end())
-    {
-        FatalErrorIn("DataEntry<Type>::New(const word&, const dictionary&)")
-            << "Unknown DataEntry type "
-            << DataEntryType << " for DataEntry "
-            << entryName << nl << nl
-            << "Valid DataEntry types are:" << nl
-            << dictionaryConstructorTablePtr_->sortedToc() << nl
-            << exit(FatalError);
-    }
-
-    return autoPtr<DataEntry<Type> >(cstrIter()(entryName, dict));
+    dict.lookup(entryName)  >> value_;
 }
+
+
+template<class Type>
+Foam::CompatibilityConstant<Type>::CompatibilityConstant
+(
+    const CompatibilityConstant<Type>& cnst
+)
+:
+    DataEntry<Type>(cnst),
+    value_(cnst.value_)
+{}
+
+
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+template<class Type>
+Foam::CompatibilityConstant<Type>::~CompatibilityConstant()
+{}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+template<class Type>
+Type Foam::CompatibilityConstant<Type>::value(const scalar x) const
+{
+    return value_;
+}
+
+
+template<class Type>
+Type Foam::CompatibilityConstant<Type>::integrate
+(
+    const scalar x1,
+    const scalar x2
+) const
+{
+    return (x2 - x1)*value_;
+}
+
+
+// * * * * * * * * * * * * * *  IOStream operators * * * * * * * * * * * * * //
+
+#include "CompatibilityConstantIO.C"
 
 
 // ************************************************************************* //

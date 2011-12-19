@@ -25,46 +25,44 @@ License
 
 #include "DataEntry.H"
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * IOstream Operators  * * * * * * * * * * * * //
 
 template<class Type>
-Foam::autoPtr<Foam::DataEntry<Type> > Foam::DataEntry<Type>::New
+Foam::Ostream& Foam::operator<<
 (
-    const word& entryName,
-    const dictionary& dict
+    Ostream& os,
+    const CompatibilityConstant<Type>& cnst
 )
 {
-    Istream& is(dict.lookup(entryName));
-
-    token firstToken(is);
-
-    word DataEntryType;
-    if (firstToken.isWord())
+    if (os.format() == IOstream::ASCII)
     {
-        DataEntryType = firstToken.wordToken();
+        os  << static_cast<const DataEntry<Type>& >(cnst)
+            << token::SPACE << cnst.value_;
     }
     else
     {
-        is.putBack(firstToken);
-//        DataEntryType = CompatibilityConstant<Type>::typeName;
-        DataEntryType = "CompatibilityConstant";
+        os  << static_cast<const DataEntry<Type>& >(cnst);
+        os.write
+        (
+            reinterpret_cast<const char*>(&cnst.value_),
+            sizeof(cnst.value_)
+        );
     }
 
-    typename dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(DataEntryType);
+    // Check state of Ostream
+    os.check
+    (
+        "Ostream& operator<<(Ostream&, const CompatibilityConstant<Type>&)"
+    );
 
-    if (cstrIter == dictionaryConstructorTablePtr_->end())
-    {
-        FatalErrorIn("DataEntry<Type>::New(const word&, const dictionary&)")
-            << "Unknown DataEntry type "
-            << DataEntryType << " for DataEntry "
-            << entryName << nl << nl
-            << "Valid DataEntry types are:" << nl
-            << dictionaryConstructorTablePtr_->sortedToc() << nl
-            << exit(FatalError);
-    }
+    return os;
+}
 
-    return autoPtr<DataEntry<Type> >(cstrIter()(entryName, dict));
+
+template<class Type>
+void Foam::CompatibilityConstant<Type>::writeData(Ostream& os) const
+{
+    os.writeKeyword(this->name_) << value_ << token::END_STATEMENT << nl;
 }
 
 
