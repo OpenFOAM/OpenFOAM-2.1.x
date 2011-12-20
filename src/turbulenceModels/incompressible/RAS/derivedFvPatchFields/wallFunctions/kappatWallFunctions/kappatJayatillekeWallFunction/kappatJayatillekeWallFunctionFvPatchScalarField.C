@@ -207,7 +207,9 @@ void kappatJayatillekeWallFunctionFvPatchScalarField::updateCoeffs()
     const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
     const scalar Cmu25 = pow(Cmu_, 0.25);
     const scalarField& y = rasModel.y()[patchI];
-    const scalarField& nuw = rasModel.nu()().boundaryField()[patchI];
+    const tmp<volScalarField> tnu = rasModel.nu();
+    const volScalarField& nu = tnu();
+    const scalarField& nuw = nu.boundaryField()[patchI];
     const tmp<volScalarField> tk = rasModel.k();
     const volScalarField& k = tk();
 

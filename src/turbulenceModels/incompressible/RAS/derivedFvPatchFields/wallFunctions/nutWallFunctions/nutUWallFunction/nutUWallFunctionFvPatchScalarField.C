@@ -47,7 +47,9 @@ tmp<scalarField> nutUWallFunctionFvPatchScalarField::calcNut() const
     const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
     const fvPatchVectorField& Uw = rasModel.U().boundaryField()[patchI];
     const scalarField magUp(mag(Uw.patchInternalField() - Uw));
-    const scalarField& nuw = rasModel.nu()().boundaryField()[patchI];
+    const tmp<volScalarField> tnu = rasModel.nu();
+    const volScalarField& nu = tnu();
+    const scalarField& nuw = nu.boundaryField()[patchI];
 
     tmp<scalarField> tyPlus = calcYPlus(magUp);
     scalarField& yPlus = tyPlus();
@@ -77,7 +79,9 @@ tmp<scalarField> nutUWallFunctionFvPatchScalarField::calcYPlus
 
     const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
     const scalarField& y = rasModel.y()[patchI];
-    const scalarField& nuw = rasModel.nu()().boundaryField()[patchI];
+    const tmp<volScalarField> tnu = rasModel.nu();
+    const volScalarField& nu = tnu();
+    const scalarField& nuw = nu.boundaryField()[patchI];
 
     tmp<scalarField> tyPlus(new scalarField(patch().size(), 0.0));
     scalarField& yPlus = tyPlus();
