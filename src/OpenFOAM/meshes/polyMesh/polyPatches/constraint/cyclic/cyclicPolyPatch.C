@@ -266,7 +266,7 @@ void Foam::cyclicPolyPatch::calcTransforms
             // Calculate using the given rotation axis and centre. Do not
             // use calculated normals.
             vector n0 = findFaceMaxRadius(half0Ctrs);
-            vector n1 = findFaceMaxRadius(half1Ctrs);
+            vector n1 = -findFaceMaxRadius(half1Ctrs);
             n0 /= mag(n0) + VSMALL;
             n1 /= mag(n1) + VSMALL;
 
@@ -424,7 +424,7 @@ void Foam::cyclicPolyPatch::getCentresAndAnchors
         case ROTATIONAL:
         {
             vector n0 = findFaceMaxRadius(half0Ctrs);
-            vector n1 = findFaceMaxRadius(half1Ctrs);
+            vector n1 = -findFaceMaxRadius(half1Ctrs);
             n0 /= mag(n0) + VSMALL;
             n1 /= mag(n1) + VSMALL;
 
