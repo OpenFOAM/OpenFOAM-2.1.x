@@ -528,7 +528,7 @@ int main(int argc, char *argv[])
                         << "Cell number should be between 0 and "
                         << mesh.nCells()-1 << nl
                         << "On this mesh the particle should be in cell "
-                        <<  mesh.findCell(iter().position())
+                        << mesh.findCell(iter().position())
                         << exit(FatalError);
                 }
 
@@ -789,6 +789,14 @@ int main(int argc, char *argv[])
 
 
         // Point fields
+        if
+        (
+            pointScalarFields.size()
+         || pointVectorFields.size()
+         || pointSphericalTensorFields.size()
+         || pointSymmTensorFields.size()
+         || pointTensorFields.size()
+        )
         {
             labelIOList pointProcAddressing
             (
