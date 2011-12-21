@@ -43,7 +43,7 @@ Foam::scalar Foam::streamLineParticle::calcSubCycleDeltaT
     const vector& U
 ) const
 {
-    streamLineParticle testParticle(*this);
+    particle testParticle(*this);
 
     bool oldKeepParticle = td.keepParticle;
     bool oldSwitchProcessor = td.switchProcessor;
