@@ -25,33 +25,136 @@ Application
     wallShearStress
 
 Description
-    Calculates and writes the wall shear stress, for the specified times.
+    Calculates and reports wall shear stress for all patches, for the
+    specified times when using RAS turbulence models.
+
+    Default behaviour assumes operating in incompressible mode.
+    Use the -compressible option for compressible RAS cases.
 
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+
 #include "incompressible/singlePhaseTransportModel/singlePhaseTransportModel.H"
-#include "RASModel.H"
+#include "incompressible/RAS/RASModel/RASModel.H"
+
+#include "basicPsiThermo.H"
+#include "compressible/RAS/RASModel/RASModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+void calcIncompressible
+(
+    const fvMesh& mesh,
+    const Time& runTime,
+    const volVectorField& U,
+    volVectorField& wallShearStress
+)
+{
+    #include "createPhi.H"
+
+    singlePhaseTransportModel laminarTransport(U, phi);
+
+    autoPtr<incompressible::RASModel> model
+    (
+        incompressible::RASModel::New(U, phi, laminarTransport)
+    );
+
+    const volSymmTensorField Reff(model->devReff());
+
+    forAll(wallShearStress.boundaryField(), patchI)
+    {
+        wallShearStress.boundaryField()[patchI] =
+        (
+           -mesh.Sf().boundaryField()[patchI]
+           /mesh.magSf().boundaryField()[patchI]
+        ) & Reff.boundaryField()[patchI];
+    }
+}
+
+
+void calcCompressible
+(
+    const fvMesh& mesh,
+    const Time& runTime,
+    const volVectorField& U,
+    volVectorField& wallShearStress
+)
+{
+    IOobject rhoHeader
+    (
+        "rho",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::NO_WRITE
+    );
+
+    if (!rhoHeader.headerOk())
+    {
+        Info<< "    no rho field" << endl;
+        return;
+    }
+
+    Info<< "Reading field rho\n" << endl;
+    volScalarField rho(rhoHeader, mesh);
+
+    #include "compressibleCreatePhi.H"
+
+    autoPtr<basicPsiThermo> pThermo
+    (
+        basicPsiThermo::New(mesh)
+    );
+    basicPsiThermo& thermo = pThermo();
+
+    autoPtr<compressible::RASModel> model
+    (
+        compressible::RASModel::New
+        (
+            rho,
+            U,
+            phi,
+            thermo
+        )
+    );
+
+    const volSymmTensorField Reff(model->devRhoReff());
+
+    forAll(wallShearStress.boundaryField(), patchI)
+    {
+        wallShearStress.boundaryField()[patchI] =
+        (
+           -mesh.Sf().boundaryField()[patchI]
+           /mesh.magSf().boundaryField()[patchI]
+        ) & Reff.boundaryField()[patchI];
+    }
+}
+
 
 int main(int argc, char *argv[])
 {
     timeSelector::addOptions();
+
+    #include "addRegionOption.H"
+
+    argList::addBoolOption
+    (
+        "compressible",
+        "calculate compressible wall shear stress"
+    );
+
     #include "setRootCase.H"
     #include "createTime.H"
     instantList timeDirs = timeSelector::select0(runTime, args);
-    #include "createMesh.H"
+    #include "createNamedMesh.H"
+
+    const bool compressible = args.optionFound("compressible");
 
     forAll(timeDirs, timeI)
     {
         runTime.setTime(timeDirs[timeI], timeI);
         Info<< "Time = " << runTime.timeName() << endl;
         mesh.readUpdate();
-
-        #include "createFields.H"
-
-        volSymmTensorField Reff(RASModel->devReff());
 
         volVectorField wallShearStress
         (
@@ -67,19 +170,41 @@ int main(int argc, char *argv[])
             dimensionedVector
             (
                 "wallShearStress",
-                Reff.dimensions(),
+                sqr(dimLength)/sqr(dimTime),
                 vector::zero
             )
         );
 
-        forAll(wallShearStress.boundaryField(), patchi)
+        IOobject UHeader
+        (
+            "U",
+            runTime.timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        );
+
+        if (UHeader.headerOk())
         {
-            wallShearStress.boundaryField()[patchi] =
-            (
-                -mesh.Sf().boundaryField()[patchi]
-                /mesh.magSf().boundaryField()[patchi]
-            ) & Reff.boundaryField()[patchi];
+            Info<< "Reading field U\n" << endl;
+            volVectorField U(UHeader, mesh);
+
+            if (compressible)
+            {
+                calcCompressible(mesh, runTime, U, wallShearStress);
+            }
+            else
+            {
+                calcIncompressible(mesh, runTime, U, wallShearStress);
+            }
         }
+        else
+        {
+            Info<< "    no U field" << endl;
+        }
+
+        Info<< "Writing wall shear stress to field " << wallShearStress.name()
+            << nl << endl;
 
         wallShearStress.write();
     }

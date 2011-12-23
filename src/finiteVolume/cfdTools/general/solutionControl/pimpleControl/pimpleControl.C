@@ -196,9 +196,10 @@ bool Foam::pimpleControl::loop()
     bool completed = false;
     if (criteriaSatisfied())
     {
-        Info<< algorithmName_ << ": converged in " << corr_ << " iterations"
+        Info<< algorithmName_ << ": converged in " << corr_ - 1 << " iterations"
             << endl;
         completed = true;
+        corr_ = 0;
     }
     else
     {
