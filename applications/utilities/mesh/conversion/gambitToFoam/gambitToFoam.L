@@ -433,7 +433,7 @@ mtype                 {space}"MTYPE:"{space}
         }
         else
         {
-            curGroupID = readLabel(groupStream);;
+            curGroupID = readLabel(groupStream);
         }
 
         BEGIN(cellStreams);
