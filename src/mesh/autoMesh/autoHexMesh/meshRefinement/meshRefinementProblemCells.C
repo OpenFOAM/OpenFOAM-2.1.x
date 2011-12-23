@@ -287,6 +287,10 @@ bool Foam::meshRefinement::isCollapsedFace
     const label faceI
 ) const
 {
+    // Severe nonorthogonality threshold
+    const scalar severeNonorthogonalityThreshold =
+        ::cos(degToRad(maxNonOrtho));
+
     vector s = mesh_.faces()[faceI].normal(points);
     scalar magS = mag(s);
 
@@ -302,11 +306,11 @@ bool Foam::meshRefinement::isCollapsedFace
     if (mesh_.isInternalFace(faceI))
     {
         label nei = mesh_.faceNeighbour()[faceI];
-        vector d = ownCc - mesh_.cellCentres()[nei];
+        vector d = mesh_.cellCentres()[nei] - ownCc;
 
         scalar dDotS = (d & s)/(mag(d)*magS + VSMALL);
 
-        if (dDotS < maxNonOrtho)
+        if (dDotS < severeNonorthogonalityThreshold)
         {
             return true;
         }
@@ -321,11 +325,11 @@ bool Foam::meshRefinement::isCollapsedFace
 
         if (mesh_.boundaryMesh()[patchI].coupled())
         {
-            vector d = ownCc - neiCc[faceI-mesh_.nInternalFaces()];
+            vector d = neiCc[faceI-mesh_.nInternalFaces()] - ownCc;
 
             scalar dDotS = (d & s)/(mag(d)*magS + VSMALL);
 
-            if (dDotS < maxNonOrtho)
+            if (dDotS < severeNonorthogonalityThreshold)
             {
                 return true;
             }
@@ -338,7 +342,7 @@ bool Foam::meshRefinement::isCollapsedFace
         {
             // Collapsing normal boundary face does not cause problems with
             // non-orthogonality
-            return true;
+            return false;
         }
     }
 }
@@ -664,7 +668,8 @@ Foam::labelList Foam::meshRefinement::markFacesOnProblemCells
                 )
                 {
                     nPrevented++;
-                    //Pout<< "Preventing collapse of 8 anchor point cell "
+                    //Pout<< "Preventing baffling/removal of 8 anchor point"
+                    //    << " cell "
                     //    << cellI << " at " << mesh_.cellCentres()[cellI]
                     //    << " since new volume "
                     //    << mesh_.cells()[cellI].mag(newPoints, mesh_.faces())
@@ -748,7 +753,7 @@ Foam::labelList Foam::meshRefinement::markFacesOnProblemCells
                     )
                     {
                         nPrevented++;
-                        //Pout<< "Preventing collapse of 7 anchor cell "
+                        //Pout<< "Preventing baffling of 7 anchor cell "
                         //    << cellI
                         //    << " at " << mesh_.cellCentres()[cellI]
                         //    << " since new volume "
@@ -854,7 +859,8 @@ Foam::labelList Foam::meshRefinement::markFacesOnProblemCells
                 )
                 {
                     nPrevented++;
-                    //Pout<< "Preventing collapse of face " << faceI
+                    //Pout<< "Preventing baffling (to avoid collapse) of face "
+                    //    << faceI
                     //    << " with all boundary edges "
                     //    << " at " << mesh_.faceCentres()[faceI]
                     //    << endl;
@@ -910,7 +916,7 @@ Foam::labelList Foam::meshRefinement::markFacesOnProblemCells
                         )
                         {
                             nPrevented++;
-                            //Pout<< "Preventing collapse of coupled face "
+                            //Pout<< "Preventing baffling of coupled face "
                             //    << faceI
                             //    << " with all boundary edges "
                             //    << " at " << mesh_.faceCentres()[faceI]
@@ -944,7 +950,7 @@ Foam::labelList Foam::meshRefinement::markFacesOnProblemCells
     {
         Info<< "markFacesOnProblemCells : prevented "
             << returnReduce(nPrevented, sumOp<label>())
-            << " internal faces fom getting converted into baffles."
+            << " internal faces from getting converted into baffles."
             << endl;
     }
 
