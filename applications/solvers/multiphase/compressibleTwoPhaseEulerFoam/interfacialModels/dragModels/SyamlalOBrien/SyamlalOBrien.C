@@ -73,15 +73,11 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::SyamlalOBrien::K
 {
     volScalarField beta(max(scalar(1) - alpha_, scalar(1.0e-6)));
     volScalarField A(pow(beta, 4.14));
-    volScalarField B(0.8*pow(beta, 1.28));
-
-    forAll (beta, celli)
-    {
-        if (beta[celli] > 0.85)
-        {
-            B[celli] = pow(beta[celli], 2.65);
-        }
-    }
+    volScalarField B
+    (
+        neg(beta - 0.85)*(0.8*pow(beta, 1.28))
+      + pos(beta - 0.85)*(pow(beta, 2.65))
+    );
 
     volScalarField Re(max(Ur*phase1_.d()/phase2_.nu(), scalar(1.0e-3)));
 
