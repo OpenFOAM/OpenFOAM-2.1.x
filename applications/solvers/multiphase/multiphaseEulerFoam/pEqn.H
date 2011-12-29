@@ -37,8 +37,10 @@
 
         U0s.set(phasei, new volVectorField(phase.U()));
         phi0s.set(phasei, new surfaceScalarField(phase.phi()));
+        mrfZones.absoluteFlux(phi0s[phasei]);
 
         phasei++;
+
     }
 
     surfaceScalarField phi0
@@ -67,6 +69,8 @@
 
         phase.U() = rAUs[phasei]*UEqns[phasei].H();
 
+        phase.phi().oldTime();
+        mrfZones.absoluteFlux(phase.phi().oldTime());
         mrfZones.absoluteFlux(phase.phi());
         phase.phi() =
         (
@@ -74,7 +78,8 @@
           + fvc::ddtPhiCorr(rAUs[phasei], alpha, phase.U(), phase.phi())
         );
         mrfZones.relativeFlux(phase.phi());
-        surfaceScalarField pphi0("pphi0", phase.phi());
+        mrfZones.relativeFlux(phase.phi().oldTime());
+        surfaceScalarField pphi0("pphi0", 1.0*phase.phi());
         pphi0 += rAlphaAUfs[phasei]*(g & mesh.Sf());
 
         multiphaseSystem::dragModelTable::const_iterator dmIter =
@@ -196,7 +201,7 @@
             p.relax();
             mSfGradp = pEqnIncomp.flux()/Dp;
 
-            U =  dimensionedVector("U", dimVelocity, vector::zero);
+            U = dimensionedVector("U", dimVelocity, vector::zero);
 
             phasei = 0;
             forAllIter(PtrDictionary<phaseModel>, fluid.phases(), iter)
@@ -254,9 +259,17 @@
                             phasej++;
                         }
 
-                        phase.U() +=
-                            (1.0/phase.rho())
-                           *rAUs[phasei]*(*dcIter())*U0s[phasej];
+                        // phase.U() +=
+                        //     (1.0/phase.rho())*rAUs[phasei]*(*dcIter())
+                        //    *U0s[phasej];
+
+                        phase.U() += fvc::reconstruct
+                        (
+                            fvc::interpolate
+                            (
+                                (1.0/phase.rho())*rAUs[phasei]*(*dcIter())
+                            )*phi0s[phasej]
+                        );
                     }
                 }
 

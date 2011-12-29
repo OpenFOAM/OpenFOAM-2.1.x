@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
             rho = fluid.rho();
             #include "zonePhaseVolumes.H"
 
-            //#include "interfacialCoeffs.H"
             //#include "TEqns.H"
             #include "UEqns.H"
 
