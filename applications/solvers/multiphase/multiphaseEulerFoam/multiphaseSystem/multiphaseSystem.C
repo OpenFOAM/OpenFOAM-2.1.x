@@ -629,8 +629,9 @@ Foam::multiphaseSystem::dragCoeffs() const
             (
                 max
                 (
-                    fvc::average(dm.phase1())*fvc::average(dm.phase2()),
-                    //dm.phase1()*dm.phase2(),
+                    //fvc::average(dm.phase1()*dm.phase2()),
+                    //fvc::average(dm.phase1())*fvc::average(dm.phase2()),
+                    dm.phase1()*dm.phase2(),
                     dm.residualPhaseFraction()
                 )
                *dm.K
