@@ -11,28 +11,51 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      setFieldsDict;
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-defaultFieldValues
-(
-    volScalarFieldValue alphaair 1
-    volScalarFieldValue alphawater 0
-);
+ddtSchemes
+{
+    default         Euler;
+}
 
-regions
-(
-    boxToCell
-    {
-        box (0 0 -0.1) (0.15 0.701 0.1);
-        fieldValues
-        (
-            volScalarFieldValue alphaair 0
-            volScalarFieldValue alphawater 1
-        );
-    }
-);
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    "div\(phi,alpha.*\)"    Gauss vanLeer;
+    "div\(phir,alpha.*,alpha.*\)"   Gauss vanLeer;
+
+    "div\(phiAlpha.*,U.*\)" Gauss limitedLinearV 1;
+    div(Rc)                 Gauss linear;
+    "div\(phi.*,U.*\)"      Gauss limitedLinearV 1;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+fluxRequired
+{
+    default         no;
+    p;
+    pcorr;
+}
 
 
 // ************************************************************************* //

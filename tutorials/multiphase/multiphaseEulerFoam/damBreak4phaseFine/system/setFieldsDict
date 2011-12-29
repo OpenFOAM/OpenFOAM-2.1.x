@@ -19,17 +19,44 @@ defaultFieldValues
 (
     volScalarFieldValue alphaair 1
     volScalarFieldValue alphawater 0
+    volScalarFieldValue alphaoil 0
+    volScalarFieldValue alphamercury 0
+    volVectorFieldValue U ( 0 0 0 )
 );
 
 regions
 (
     boxToCell
     {
-        box (0 0 -0.1) (0.15 0.701 0.1);
+        box ( 0 0 -1 ) ( 0.1461 0.292 1 );
         fieldValues
         (
-            volScalarFieldValue alphaair 0
             volScalarFieldValue alphawater 1
+            volScalarFieldValue alphaoil 0
+            volScalarFieldValue alphamercury 0
+            volScalarFieldValue alphaair 0
+        );
+    }
+    boxToCell
+    {
+        box ( 0.1461 0 -1 ) ( 0.2922 0.292 1 );
+        fieldValues
+        (
+            volScalarFieldValue alphawater 0
+            volScalarFieldValue alphaoil 1
+            volScalarFieldValue alphamercury 0
+            volScalarFieldValue alphaair 0
+        );
+    }
+    boxToCell
+    {
+        box ( 0 0 -1 ) ( 0.1461 0.1 1 );
+        fieldValues
+        (
+            volScalarFieldValue alphawater 0
+            volScalarFieldValue alphaoil 0
+            volScalarFieldValue alphamercury 1
+            volScalarFieldValue alphaair 0
         );
     }
 );

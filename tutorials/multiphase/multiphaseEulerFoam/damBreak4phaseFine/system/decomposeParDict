@@ -11,28 +11,35 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      setFieldsDict;
+    object      decomposeParDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-defaultFieldValues
-(
-    volScalarFieldValue alphaair 1
-    volScalarFieldValue alphawater 0
-);
+numberOfSubdomains 4;
 
-regions
-(
-    boxToCell
-    {
-        box (0 0 -0.1) (0.15 0.701 0.1);
-        fieldValues
-        (
-            volScalarFieldValue alphaair 0
-            volScalarFieldValue alphawater 1
-        );
-    }
-);
+method          simple;
+
+simpleCoeffs
+{
+    n               ( 2 2 1 );
+    delta           0.001;
+}
+
+hierarchicalCoeffs
+{
+    n               ( 1 1 1 );
+    delta           0.001;
+    order           xyz;
+}
+
+manualCoeffs
+{
+    dataFile        "";
+}
+
+distributed     no;
+
+roots           ( );
 
 
 // ************************************************************************* //
