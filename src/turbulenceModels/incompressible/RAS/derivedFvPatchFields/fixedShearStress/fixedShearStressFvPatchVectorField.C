@@ -118,7 +118,9 @@ void fixedShearStressFvPatchVectorField::updateCoeffs()
 
     const scalarField& ry = patch().deltaCoeffs();
 
-    tmp<scalarField> nuEffw = rasModel.nuEff()().boundaryField()[patchI];
+    tmp<volScalarField> tnuEff = rasModel.nuEff();
+    const volScalarField& nuEff = tnuEff();
+    const scalarField& nuEffw = nuEff.boundaryField()[patchI];
 
     tmp<vectorField> UwUpdated =
         tauHat*(tauHat & (tau0_*(1.0/(ry*nuEffw)) + Ui));
