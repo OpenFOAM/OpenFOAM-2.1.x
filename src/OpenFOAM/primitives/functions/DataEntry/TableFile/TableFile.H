@@ -29,7 +29,7 @@ Description
 
     \verbatim
         <entryName>   tableFile;
-        tableCoeffs
+        tableFileCoeffs
         {
             fileName        dataFile;   // name of data file
             outOfBounds     clamp;      // optional out-of-bounds handling
