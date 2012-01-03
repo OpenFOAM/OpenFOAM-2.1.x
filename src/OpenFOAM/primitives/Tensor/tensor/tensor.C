@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -183,17 +183,17 @@ vector eigenValues(const tensor& t)
 
 
     // Sort the eigenvalues into ascending order
-    if (mag(i) > mag(ii))
+    if (i > ii)
     {
         Swap(i, ii);
     }
 
-    if (mag(ii) > mag(iii))
+    if (ii > iii)
     {
         Swap(ii, iii);
     }
 
-    if (mag(i) > mag(ii))
+    if (i > ii)
     {
         Swap(i, ii);
     }
@@ -384,17 +384,17 @@ vector eigenValues(const symmTensor& t)
 
 
     // Sort the eigenvalues into ascending order
-    if (mag(i) > mag(ii))
+    if (i > ii)
     {
         Swap(i, ii);
     }
 
-    if (mag(ii) > mag(iii))
+    if (ii > iii)
     {
         Swap(ii, iii);
     }
 
-    if (mag(i) > mag(ii))
+    if (i > ii)
     {
         Swap(i, ii);
     }
