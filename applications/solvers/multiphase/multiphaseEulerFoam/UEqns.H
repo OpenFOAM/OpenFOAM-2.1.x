@@ -21,16 +21,27 @@ forAllIter(PtrDictionary<phaseModel>, fluid.phases(), iter)
               + fvm::div(phase.phiAlpha(), U)
               - fvm::Sp(fvc::ddt(alpha) + fvc::div(phase.phiAlpha()), U)
             )
-            - fvm::laplacian(alpha*nuEff, U)
-            - fvc::div
-              (
-                  alpha*(nuEff*dev(T(fvc::grad(U))) /*- ((2.0/3.0)*I)*k*/),
-                  "div(Rc)"
-              )
-          ==
-            - fvm::Sp(fluid.dragCoeff(phase, dragCoeffs())/phase.rho(), U)
-          //- (alpha*phase.rho())*fluid.lift(phase)
-            + (alpha/phase.rho())*fluid.Svm(phase)
+          - fvm::laplacian(alpha*nuEff, U)
+          - fvc::div
+            (
+                alpha*(nuEff*dev(T(fvc::grad(U))) /*- ((2.0/3.0)*I)*k*/),
+                "div(Rc)"
+            )
+         ==
+          - fvm::Sp(fluid.dragCoeff(phase, dragCoeffs())/phase.rho(), U)
+        //- (alpha*phase.rho())*fluid.lift(phase)
+          + (alpha/phase.rho())*fluid.Svm(phase)
+          - fvm::Sp
+            (
+                slamDampCoeff
+               *max
+                (
+                    mag(U.dimensionedInternalField()) - maxSlamVelocity,
+                    dimensionedScalar("U0", dimVelocity, 0)
+                )
+               /pow(mesh.V(), 1.0/3.0),
+                U
+            )
         )
     );
     mrfZones.addCoriolis(alpha, UEqns[phasei]);

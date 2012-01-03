@@ -164,6 +164,9 @@ tmp<Field<symmTensor> > transformFieldMask<symmTensor>
 
 UNARY_OPERATOR(vector, symmTensor, *, hdual)
 
+BINARY_OPERATOR(tensor, symmTensor, symmTensor, &, dot)
+BINARY_TYPE_OPERATOR(tensor, symmTensor, symmTensor, &, dot)
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

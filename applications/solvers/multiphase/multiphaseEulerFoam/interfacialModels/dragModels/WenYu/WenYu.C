@@ -74,15 +74,11 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::WenYu::K
     volScalarField bp(pow(beta, -2.65));
 
     volScalarField Re(max(Ur*phase1_.d()/phase2_.nu(), scalar(1.0e-3)));
-    volScalarField Cds(24.0*(scalar(1) + 0.15*pow(Re, 0.687))/Re);
-
-    forAll(Re, celli)
-    {
-        if (Re[celli] > 1000.0)
-        {
-            Cds[celli] = 0.44;
-        }
-    }
+    volScalarField Cds
+    (
+        neg(Re - 1000)*(24.0*(1.0 + 0.15*pow(Re, 0.687))/Re)
+      + pos(Re - 1000)*0.44
+    );
 
     return 0.75*Cds*phase2_.rho()*Ur*bp/phase1_.d();
 }

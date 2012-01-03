@@ -40,12 +40,14 @@ SourceFiles
 
 #include "Vector.H"
 #include "SphericalTensor.H"
-#include "SymmTensor.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+
+template<class Cmpt>
+class SymmTensor;
 
 /*---------------------------------------------------------------------------*\
                            Class Tensor Declaration

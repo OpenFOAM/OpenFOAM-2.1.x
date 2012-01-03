@@ -55,6 +55,9 @@ UNARY_FUNCTION(symmTensor, symmTensor, inv)
 
 UNARY_OPERATOR(vector, symmTensor, *, hdual)
 
+BINARY_OPERATOR(tensor, symmTensor, symmTensor, &, dot)
+BINARY_TYPE_OPERATOR(tensor, symmTensor, symmTensor, &, dot)
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

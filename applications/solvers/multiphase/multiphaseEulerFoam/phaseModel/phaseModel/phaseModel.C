@@ -212,10 +212,10 @@ bool Foam::phaseModel::read(const dictionary& phaseDict)
 
     //if (nuModel_->read(phaseDict_))
     {
-        phaseDict_.lookup("nu") >> nu_;
-        phaseDict_.lookup("kappa") >> kappa_;
-        phaseDict_.lookup("Cp") >> Cp_;
-        phaseDict_.lookup("rho") >> rho_;
+        phaseDict_.lookup("nu") >> nu_.value();
+        phaseDict_.lookup("kappa") >> kappa_.value();
+        phaseDict_.lookup("Cp") >> Cp_.value();
+        phaseDict_.lookup("rho") >> rho_.value();
 
         return true;
     }

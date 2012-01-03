@@ -109,6 +109,9 @@ int main(int argc, char *argv[])
         surfaceScalarField phiv_pos(U_pos & mesh.Sf());
         surfaceScalarField phiv_neg(U_neg & mesh.Sf());
 
+        fvc::makeRelative(phiv_pos, U);
+        fvc::makeRelative(phiv_neg, U);
+
         volScalarField c(sqrt(thermo.Cp()/thermo.Cv()*rPsi));
         surfaceScalarField cSf_pos
         (
@@ -161,17 +164,9 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         mesh.movePoints(motionPtr->newPoints());
-        phiv_pos = U_pos & mesh.Sf();
-        phiv_neg = U_neg & mesh.Sf();
-        fvc::makeRelative(phiv_pos, U);
-        fvc::makeRelative(phiv_neg, U);
-        phiv_neg -= mesh.phi();
-        phiv_pos *= a_pos;
-        phiv_neg *= a_neg;
-        aphiv_pos = phiv_pos - aSf;
-        aphiv_neg = phiv_neg + aSf;
 
-        surfaceScalarField phi("phi", aphiv_pos*rho_pos + aphiv_neg*rho_neg);
+        phi = aphiv_pos*rho_pos + aphiv_neg*rho_neg;
+        Info<< phi.boundaryField()[0] << endl;
 
         surfaceVectorField phiUp
         (
@@ -183,6 +178,7 @@ int main(int argc, char *argv[])
         (
             aphiv_pos*(rho_pos*(e_pos + 0.5*magSqr(U_pos)) + p_pos)
           + aphiv_neg*(rho_neg*(e_neg + 0.5*magSqr(U_neg)) + p_neg)
+          + mesh.phi()*(a_pos*p_pos + a_neg*p_neg)
           + aSf*p_pos - aSf*p_neg
         );
 
