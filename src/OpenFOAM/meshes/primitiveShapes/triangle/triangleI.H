@@ -277,9 +277,9 @@ Foam::scalar Foam::triangle<Point, PointRef>::barycentric
 
     bary.setSize(3);
 
-    bary[0] = (d11*d20 - d01*d21)/denom;
-    bary[1] = (d00*d21 - d01*d20)/denom;
-    bary[2] = 1.0 - bary[0] - bary[1];
+    bary[1] = (d11*d20 - d01*d21)/denom;
+    bary[2] = (d00*d21 - d01*d20)/denom;
+    bary[0] = 1.0 - bary[1] - bary[2];
 
     return denom;
 }

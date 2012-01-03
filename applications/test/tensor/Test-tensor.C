@@ -50,9 +50,13 @@ int main()
         << (t1 & t7 & t1.T()) << " " << transform(t1, t7) << endl;
 
     symmTensor st1(1, 2, 3, 4, 5, 6);
+    symmTensor st2(7, 8, 9, 10, 11, 12);
 
     Info<< "Check symmetric transformation "
         << transform(t1, st1) << endl;
+
+    Info<< "Check for dot product of symmetric tensors "
+        << (st1 & st2) << endl;
 
     vector v1(1, 2, 3);
 

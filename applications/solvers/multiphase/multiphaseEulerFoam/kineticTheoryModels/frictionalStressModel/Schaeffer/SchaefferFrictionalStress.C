@@ -149,6 +149,8 @@ Foam::kineticTheoryModels::frictionalStressModels::Schaeffer::muf
         }
     }
 
+    muff.correctBoundaryConditions();
+
     return tmuf;
 }
 

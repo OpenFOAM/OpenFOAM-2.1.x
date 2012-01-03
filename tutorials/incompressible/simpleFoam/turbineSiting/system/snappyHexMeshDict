@@ -173,7 +173,7 @@ castellatedMeshControls
         }
     }
 
-    resolveFeatureAngle 2;
+    resolveFeatureAngle 30;
 
 
     // Region-wise refinement

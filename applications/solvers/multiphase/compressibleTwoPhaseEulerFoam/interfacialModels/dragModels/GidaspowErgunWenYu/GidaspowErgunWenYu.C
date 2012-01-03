@@ -76,34 +76,23 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::GidaspowErgunWenYu::K
     volScalarField bp(pow(beta, -2.65));
     volScalarField Re(max(Ur*d/phase2_.nu(), scalar(1.0e-3)));
 
-    volScalarField Cds(24.0*(1.0 + 0.15*pow(Re, 0.687))/Re);
-
-    forAll(Re, celli)
-    {
-        if (Re[celli] > 1000.0)
-        {
-            Cds[celli] = 0.44;
-        }
-    }
+    volScalarField Cds
+    (
+        neg(Re - 1000)*(24.0*(1.0 + 0.15*pow(Re, 0.687))/Re)
+      + pos(Re - 1000)*0.44
+    );
 
     // Wen and Yu (1966)
-    tmp<volScalarField> tKWenYu(0.75*Cds*phase2_.rho()*Ur*bp/d);
-    volScalarField& KWenYu = tKWenYu();
-
-    // Ergun
-    forAll (beta, cellj)
-    {
-        if (beta[cellj] <= 0.8)
-        {
-            KWenYu[cellj] =
-                150.0*alpha_[cellj]*phase2_.nu().value()*phase2_.rho().value()
-               /sqr(beta[cellj]*d[cellj])
-              + 1.75*phase2_.rho().value()*Ur[cellj]
-               /(beta[cellj]*d[cellj]);
-        }
-    }
-
-    return tKWenYu;
+    return
+    (
+        pos(beta - 0.8)
+       *(0.75*Cds*phase2_.rho()*Ur*bp/d)
+      + neg(beta - 0.8)
+       *(
+           150.0*alpha_*phase2_.nu()*phase2_.rho()/(sqr(beta*d))
+         + 1.75*phase2_.rho()*Ur/(beta*d)
+        )
+    );
 }
 
 

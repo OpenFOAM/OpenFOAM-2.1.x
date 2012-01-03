@@ -371,29 +371,6 @@ Foam::label Foam::ptscotchDecomp::decompose
         Pout<< "ptscotchDecomp : entering with xadj:" << xadj.size() << endl;
     }
 
-
-if (debug)
-{
-    Pout<< "nProcessors_:" << nProcessors_ << endl;
-
-    globalIndex globalCells(xadj.size()-1);
-
-    Pout<< "Xadj:" << endl;
-    for (label cellI = 0; cellI < xadj.size()-1; cellI++)
-    {
-        Pout<< "cell:" << cellI
-            << "  global:" << globalCells.toGlobal(cellI)
-            << " connected to:" << endl;
-        label start = xadj[cellI];
-        label end = xadj[cellI+1];
-        for (label i = start; i < end; i++)
-        {
-            Pout<< "    cell:" << adjncy[i] << endl;
-        }
-    }
-    Pout<< endl;
-}
-
     // Dump graph
     if (decompositionDict_.found("ptscotchCoeffs"))
     {

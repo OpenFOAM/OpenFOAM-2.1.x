@@ -83,8 +83,8 @@ void Foam::cellPointWeight::findTetrahedron
             )
             {
                 faceVertices_[0] = f[tetIs.faceBasePt()];
-                faceVertices_[1] = f[tetIs.facePtA()];;
-                faceVertices_[2] = f[tetIs.facePtB()];;
+                faceVertices_[1] = f[tetIs.facePtA()];
+                faceVertices_[2] = f[tetIs.facePtB()];
 
                 return;
             }
@@ -191,8 +191,8 @@ void Foam::cellPointWeight::findTriangle
                 weights_[3] = triWeights[2];
 
                 faceVertices_[0] = f[tetIs.faceBasePt()];
-                faceVertices_[1] = f[tetIs.facePtA()];;
-                faceVertices_[2] = f[tetIs.facePtB()];;
+                faceVertices_[1] = f[tetIs.facePtA()];
+                faceVertices_[2] = f[tetIs.facePtB()];
 
                 return;
             }

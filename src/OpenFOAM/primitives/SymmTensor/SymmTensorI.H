@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Vector.H"
+#include "Tensor.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -184,18 +185,21 @@ inline Vector<Cmpt> operator*(const SymmTensor<Cmpt>& st)
 
 //- Inner-product between two symmetric tensors
 template <class Cmpt>
-inline SymmTensor<Cmpt>
+inline Tensor<Cmpt>
 operator&(const SymmTensor<Cmpt>& st1, const SymmTensor<Cmpt>& st2)
 {
-    return SymmTensor<Cmpt>
+    return Tensor<Cmpt>
     (
         st1.xx()*st2.xx() + st1.xy()*st2.xy() + st1.xz()*st2.xz(),
         st1.xx()*st2.xy() + st1.xy()*st2.yy() + st1.xz()*st2.yz(),
         st1.xx()*st2.xz() + st1.xy()*st2.yz() + st1.xz()*st2.zz(),
 
+        st1.xy()*st2.xx() + st1.yy()*st2.xy() + st1.yz()*st2.xz(),
         st1.xy()*st2.xy() + st1.yy()*st2.yy() + st1.yz()*st2.yz(),
         st1.xy()*st2.xz() + st1.yy()*st2.yz() + st1.yz()*st2.zz(),
 
+        st1.xz()*st2.xx() + st1.yz()*st2.xy() + st1.zz()*st2.xz(),
+        st1.xz()*st2.xy() + st1.yz()*st2.yy() + st1.zz()*st2.yz(),
         st1.xz()*st2.xz() + st1.yz()*st2.yz() + st1.zz()*st2.zz()
     );
 }

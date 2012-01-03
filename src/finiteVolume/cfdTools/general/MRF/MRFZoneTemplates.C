@@ -44,11 +44,15 @@ void Foam::MRFZone::relativeRhoFlux
     const vector& origin = origin_.value();
     const vector& Omega = Omega_.value();
 
+    const vectorField& Cfi = Cf.internalField();
+    const vectorField& Sfi = Sf.internalField();
+    scalarField& phii = phi.internalField();
+
     // Internal faces
     forAll(internalFaces_, i)
     {
         label facei = internalFaces_[i];
-        phi[facei] -= rho[facei]*(Omega ^ (Cf[facei] - origin)) & Sf[facei];
+        phii[facei] -= rho[facei]*(Omega ^ (Cfi[facei] - origin)) & Sfi[facei];
     }
 
     // Included patches
@@ -91,11 +95,15 @@ void Foam::MRFZone::absoluteRhoFlux
     const vector& origin = origin_.value();
     const vector& Omega = Omega_.value();
 
+    const vectorField& Cfi = Cf.internalField();
+    const vectorField& Sfi = Sf.internalField();
+    scalarField& phii = phi.internalField();
+
     // Internal faces
     forAll(internalFaces_, i)
     {
         label facei = internalFaces_[i];
-        phi[facei] += rho[facei]*(Omega ^ (Cf[facei] - origin)) & Sf[facei];
+        phii[facei] += rho[facei]*(Omega ^ (Cfi[facei] - origin)) & Sfi[facei];
     }
 
     // Included patches

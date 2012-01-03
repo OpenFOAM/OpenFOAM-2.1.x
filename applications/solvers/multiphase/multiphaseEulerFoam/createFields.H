@@ -53,6 +53,18 @@
         phi += fvc::interpolate(alpha)*phase.phi();
     }
 
+    scalar slamDampCoeff
+    (
+        fluid.lookupOrDefault<scalar>("slamDampCoeff", 1)
+    );
+
+    dimensionedScalar maxSlamVelocity
+    (
+        "maxSlamVelocity",
+        dimVelocity,
+        fluid.lookupOrDefault<scalar>("maxSlamVelocity", GREAT)
+    );
+
     // dimensionedScalar pMin
     // (
     //     "pMin",
