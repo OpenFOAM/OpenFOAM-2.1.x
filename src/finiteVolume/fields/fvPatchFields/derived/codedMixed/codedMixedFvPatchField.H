@@ -38,7 +38,9 @@ Description
 
             code
             #{
-                operator==(min(10, 0.1*this->db().time().value()));
+                this->refValue() = min(10, 0.1*this->db().time().value());
+                this->refGrad() = vector::zero;
+                this->valueFraction() = 1.0;
             #};
 
             //codeInclude
@@ -58,13 +60,15 @@ Description
     which would have a corresponding entry
 
     \verbatim
-    rampedMixed
-    {
-        code
-        #{
-            operator==(min(10, 0.1*this->db().time().value()));
-        #};
-    }
+        rampedMixed
+        {
+            code
+            #{
+                this->refValue() = min(10, 0.1*this->db().time().value());
+                this->refGrad() = vector::zero;
+                this->valueFraction() = 1.0;
+            #};
+        }
     \endverbatim
 
 SeeAlso
