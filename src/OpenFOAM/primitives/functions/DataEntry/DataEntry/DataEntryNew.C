@@ -45,7 +45,6 @@ Foam::autoPtr<Foam::DataEntry<Type> > Foam::DataEntry<Type>::New
     }
     else
     {
-        is.putBack(firstToken);
 //        DataEntryType = CompatibilityConstant<Type>::typeName;
         DataEntryType = "CompatibilityConstant";
     }

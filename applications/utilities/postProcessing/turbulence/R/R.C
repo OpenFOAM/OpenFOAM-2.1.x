@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -29,21 +29,16 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
+#include "calc.H"
 #include "fvCFD.H"
 #include "incompressible/singlePhaseTransportModel/singlePhaseTransportModel.H"
 #include "RASModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-int main(int argc, char *argv[])
+void Foam::calc(const argList& args, const Time& runTime, const fvMesh& mesh)
 {
-    #include "setRootCase.H"
-
-    #include "createTime.H"
-    #include "createMesh.H"
     #include "createFields.H"
-
-    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nCalculating the Reynolds Stress R\n" << endl;
 
@@ -63,8 +58,6 @@ int main(int argc, char *argv[])
     R.write();
 
     Info<< "End" << endl;
-
-    return 0;
 }
 
 
