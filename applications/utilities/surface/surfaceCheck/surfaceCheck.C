@@ -569,6 +569,14 @@ int main(int argc, char *argv[])
         Info<< "Splitting surface into parts ..." << endl << endl;
 
         fileName surfFileNameBase(surfFileName.name());
+        const word fileType = surfFileNameBase.ext();
+        // Strip extension
+        surfFileNameBase = surfFileNameBase.lessExt();
+        // If extension was .gz strip original extension
+        if (fileType == "gz")
+        {
+            surfFileNameBase = surfFileNameBase.lessExt();
+        }
 
         for (label zone = 0; zone < numZones; zone++)
         {
@@ -595,13 +603,7 @@ int main(int argc, char *argv[])
                 )
             );
 
-            fileName subFileName
-            (
-                surfFileNameBase.lessExt()
-              + "_"
-              + name(zone)
-              + ".obj"
-            );
+            fileName subFileName(surfFileNameBase + "_" + name(zone) + ".obj");
 
             Info<< "writing part " << zone << " size " << subSurf.size()
                 << " to " << subFileName << endl;
