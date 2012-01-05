@@ -37,6 +37,8 @@ Description
 #include "vector.H"
 #include "ListOps.H"
 
+#include<list>
+
 using namespace Foam;
 
 
@@ -116,6 +118,35 @@ int main(int argc, char *argv[])
         << "-reList: " << reLst << nl
         << "-wordList: " << wLst << nl
         << "-stringList: " << sLst << endl;
+
+
+    Info<< nl
+        << "Test List Iterator Constuctor" << endl;
+
+    List<vector> initialList(IStringStream("((0 1 2) (3 4 5) (6 7 8))")());
+
+    Info<< "    Initial List: " << initialList << endl;
+
+    List<vector> iteratorList(initialList.begin(), initialList.end());
+
+    Info<< "    Foam::List constructed from Foam::List: "
+        << iteratorList << endl;
+
+    std::list<vector> stlList(initialList.begin(), initialList.end());
+
+    Info<< "    std::list constructed from Foam::List: ";
+
+    std::list<vector>::iterator it;
+    for (it=stlList.begin(); it != stlList.end(); it++)
+    {
+        Info<< *it << " ";
+    }
+    Info<< endl;
+
+    List<vector> iteratorSTLList(stlList.begin(), stlList.end());
+
+    Info<< "    Foam::List constructed from std::list: "
+        << iteratorList << endl;
 
     return 0;
 }
