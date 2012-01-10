@@ -253,7 +253,7 @@ public:
 
             //- Invert the vapour pressure relationship to retrieve the
             //  boiling temperuture as a function of temperature
-            virtual scalar pvInvert(scalar p);
+            virtual scalar pvInvert(scalar p) const;
 
 
     // I-O

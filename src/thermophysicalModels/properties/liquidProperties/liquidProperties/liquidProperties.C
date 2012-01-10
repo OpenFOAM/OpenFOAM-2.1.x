@@ -367,7 +367,7 @@ Foam::scalar Foam::liquidProperties::D(scalar p, scalar T, scalar Wb) const
 }
 
 
-Foam::scalar Foam::liquidProperties::pvInvert(scalar p)
+Foam::scalar Foam::liquidProperties::pvInvert(scalar p) const
 {
     scalar T = Tc_;
     scalar deltaT = 10.0;
