@@ -84,21 +84,6 @@ class LocalInteraction
             List<scalar> massStick_;
 
 
-    // Private Member Functions
-
-        //- Read interaction properties from file
-        void readProps();
-
-        //- Write interaction properties to file
-        void writeProps
-        (
-            const labelList& nEscape,
-            const scalarList& massEscape,
-            const labelList& nStick,
-            const scalarList& massStick
-        ) const;
-
-
 public:
 
     //- Runtime type information
@@ -144,7 +129,7 @@ public:
         // I-O
 
             //- Write patch interaction info to stream
-            virtual void info(Ostream& os) const;
+            virtual void info(Ostream& os);
 };
 
 

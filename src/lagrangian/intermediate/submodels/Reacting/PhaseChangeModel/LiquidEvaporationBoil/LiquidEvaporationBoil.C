@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "LiquidEvaporation.H"
+#include "LiquidEvaporationBoil.H"
 #include "specie.H"
 #include "mathematicalConstants.H"
 
@@ -32,7 +32,7 @@ using namespace Foam::constant::mathematical;
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 template<class CloudType>
-Foam::tmp<Foam::scalarField> Foam::LiquidEvaporation<CloudType>::calcXc
+Foam::tmp<Foam::scalarField> Foam::LiquidEvaporationBoil<CloudType>::calcXc
 (
     const label cellI
 ) const
@@ -51,7 +51,7 @@ Foam::tmp<Foam::scalarField> Foam::LiquidEvaporation<CloudType>::calcXc
 
 
 template<class CloudType>
-Foam::scalar Foam::LiquidEvaporation<CloudType>::Sh
+Foam::scalar Foam::LiquidEvaporationBoil<CloudType>::Sh
 (
     const scalar Re,
     const scalar Sc
@@ -64,7 +64,7 @@ Foam::scalar Foam::LiquidEvaporation<CloudType>::Sh
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class CloudType>
-Foam::LiquidEvaporation<CloudType>::LiquidEvaporation
+Foam::LiquidEvaporationBoil<CloudType>::LiquidEvaporationBoil
 (
     const dictionary& dict,
     CloudType& owner
@@ -80,7 +80,7 @@ Foam::LiquidEvaporation<CloudType>::LiquidEvaporation
     {
         WarningIn
         (
-            "Foam::LiquidEvaporation<CloudType>::LiquidEvaporation"
+            "Foam::LiquidEvaporationBoil<CloudType>::LiquidEvaporationBoil"
             "("
                 "const dictionary& dict, "
                 "CloudType& owner"
@@ -112,9 +112,9 @@ Foam::LiquidEvaporation<CloudType>::LiquidEvaporation
 
 
 template<class CloudType>
-Foam::LiquidEvaporation<CloudType>::LiquidEvaporation
+Foam::LiquidEvaporationBoil<CloudType>::LiquidEvaporationBoil
 (
-    const LiquidEvaporation<CloudType>& pcm
+    const LiquidEvaporationBoil<CloudType>& pcm
 )
 :
     PhaseChangeModel<CloudType>(pcm),
@@ -128,14 +128,14 @@ Foam::LiquidEvaporation<CloudType>::LiquidEvaporation
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class CloudType>
-Foam::LiquidEvaporation<CloudType>::~LiquidEvaporation()
+Foam::LiquidEvaporationBoil<CloudType>::~LiquidEvaporationBoil()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class CloudType>
-void Foam::LiquidEvaporation<CloudType>::calculate
+void Foam::LiquidEvaporationBoil<CloudType>::calculate
 (
     const scalar dt,
     const label cellI,
@@ -152,7 +152,30 @@ void Foam::LiquidEvaporation<CloudType>::calculate
 ) const
 {
     // construct carrier phase species volume fractions for cell, cellI
-    const scalarField Xc(calcXc(cellI));
+    const scalarField XcMix(calcXc(cellI));
+
+    // liquid volume fraction
+    const scalarField X(liquids_.X(Yl));
+
+    // droplet surface pressure assumed to surface vapour pressure
+    scalar ps = liquids_.pv(pc, Ts, X);
+
+    // vapour density at droplet surface [kg/m3]
+    scalar rhos = ps*liquids_.W(X)/(specie::RR*Ts);
+
+    // carrier thermo properties
+    scalar Hsc = 0.0;
+    scalar Hc = 0.0;
+    scalar Cpc = 0.0;
+    scalar kappac = 0.0;
+    forAll(this->owner().thermo().carrier().Y(), i)
+    {
+        scalar Yc = this->owner().thermo().carrier().Y()[i][cellI];
+        Hc += Yc*this->owner().thermo().carrier().H(i, Tc);
+        Hsc += Yc*this->owner().thermo().carrier().H(i, Ts);
+        Cpc += Yc*this->owner().thermo().carrier().Cp(i, Ts);
+        kappac += Yc*this->owner().thermo().carrier().kappa(i, Ts);
+    }
 
     // calculate mass transfer of each specie in liquid
     forAll(activeLiquids_, i)
@@ -160,43 +183,113 @@ void Foam::LiquidEvaporation<CloudType>::calculate
         const label gid = liqToCarrierMap_[i];
         const label lid = liqToLiqMap_[i];
 
-        // vapour diffusivity [m2/s]
-        const scalar Dab = liquids_.properties()[lid].D(pc, Ts);
+        // boiling temperature at cell pressure for liquid species lid [K]
+        const scalar TBoil = liquids_.properties()[lid].pvInvert(pc);
 
-        // saturation pressure for species i [pa]
-        // - carrier phase pressure assumed equal to the liquid vapour pressure
-        //   close to the surface
-        // NOTE: if pSat > pc then particle is superheated
-        // calculated evaporation rate will be greater than that of a particle
-        // at boiling point, but this is not a boiling model
-        const scalar pSat = liquids_.properties()[lid].pv(pc, T);
+        // limit droplet temperature to boiling/critical temperature
+        const scalar Td = min(T, 0.999*TBoil);
 
-        // Schmidt number
-        const scalar Sc = nu/(Dab + ROOTVSMALL);
+        // saturation pressure for liquid species lid [Pa]
+        const scalar pSat = liquids_.properties()[lid].pv(pc, Td);
 
-        // Sherwood number
-        const scalar Sh = this->Sh(Re, Sc);
+        // carrier phase concentration
+        const scalar Xc = XcMix[gid];
 
-        // mass transfer coefficient [m/s]
-        const scalar kc = Sh*Dab/(d + ROOTVSMALL);
 
-        // vapour concentration at surface [kmol/m3] at film temperature
-        const scalar Cs = pSat/(specie::RR*Ts);
+        if (Xc*pc > pSat)
+        {
+            // saturated vapour - no phase change
+        }
+        else
+        {
+            // vapour diffusivity [m2/s]
+            const scalar Dab = liquids_.properties()[lid].D(ps, Ts);
 
-        // vapour concentration in bulk gas [kmol/m3] at film temperature
-        const scalar Cinf = Xc[gid]*pc/(specie::RR*Ts);
+            // Schmidt number
+            const scalar Sc = nu/(Dab + ROOTVSMALL);
 
-        // molar flux of vapour [kmol/m2/s]
-        const scalar Ni = max(kc*(Cs - Cinf), 0.0);
+            // Sherwood number
+            const scalar Sh = this->Sh(Re, Sc);
 
-        // mass transfer [kg]
-        dMassPC[lid] += Ni*pi*sqr(d)*liquids_.properties()[lid].W()*dt;
+
+            if (pSat > 0.999*pc)
+            {
+                // boiling
+
+                const scalar deltaT = max(T - TBoil, 0.5);
+
+                // vapour heat of formation
+                const scalar hv = liquids_.properties()[lid].hl(pc, Td);
+
+                // empirical heat transfer coefficient W/m2/K
+                scalar alphaS = 0.0;
+                if (deltaT < 5.0)
+                {
+                    alphaS = 760.0*pow(deltaT, 0.26);
+                }
+                else if (deltaT < 25.0)
+                {
+                    alphaS = 27.0*pow(deltaT, 2.33);
+                }
+                else
+                {
+                    alphaS = 13800.0*pow(deltaT, 0.39);
+                }
+
+                // flash-boil vaporisation rate
+                const scalar Gf = alphaS*deltaT*pi*sqr(d)/hv;
+
+                // model constants
+                // NOTE: using Sherwood number instead of Nusselt number
+                const scalar A = (Hc - Hsc)/hv;
+                const scalar B = pi*kappac/Cpc*d*Sh;
+
+                scalar G = 0.0;
+                if (A > 0.0)
+                {
+                    // heat transfer from the surroundings contributes
+                    // to the vaporisation process
+                    scalar Gr = 1e-5;
+
+                    for (label i=0; i<50; i++)
+                    {
+                        scalar GrDash = Gr;
+
+                        G = B/(1.0 + Gr)*log(1.0 + A*(1.0 + Gr));
+                        Gr = Gf/G;
+
+                        if (mag(Gr - GrDash)/GrDash < 1e-3)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                dMassPC[lid] += (G + Gf)*dt;
+            }
+            else
+            {
+                // evaporation
+
+                // surface molar fraction - Raoult's Law
+                const scalar Xs = X[lid]*pSat/pc;
+
+                // molar ratio
+                const scalar Xr = (Xs - Xc)/max(SMALL, 1.0 - Xs);
+
+                if (Xr > 0)
+                {
+                    // mass transfer [kg]
+                    dMassPC[lid] += pi*d*Sh*Dab*rhos*log(1.0 + Xr)*dt;
+                }
+            }
+        }
     }
 }
 
 
 template<class CloudType>
-Foam::scalar Foam::LiquidEvaporation<CloudType>::dh
+Foam::scalar Foam::LiquidEvaporationBoil<CloudType>::dh
 (
     const label idc,
     const label idl,
@@ -206,18 +299,24 @@ Foam::scalar Foam::LiquidEvaporation<CloudType>::dh
 {
     scalar dh = 0;
 
+    scalar TDash = T;
+    if (liquids_.properties()[idl].pv(p, T) >= 0.999*p)
+    {
+        TDash = liquids_.properties()[idl].pvInvert(p);
+    }
+
     typedef PhaseChangeModel<CloudType> parent;
     switch (parent::enthalpyTransfer_)
     {
         case (parent::etLatentHeat):
         {
-            dh = liquids_.properties()[idl].hl(p, T);
+            dh = liquids_.properties()[idl].hl(p, TDash);
             break;
         }
         case (parent::etEnthalpyDifference):
         {
-            scalar hc = this->owner().composition().carrier().H(idc, T);
-            scalar hp = liquids_.properties()[idl].h(p, T);
+            scalar hc = this->owner().composition().carrier().H(idc, TDash);
+            scalar hp = liquids_.properties()[idl].h(p, TDash);
 
             dh = hc - hp;
             break;
@@ -226,7 +325,7 @@ Foam::scalar Foam::LiquidEvaporation<CloudType>::dh
         {
             FatalErrorIn
             (
-                "Foam::scalar Foam::LiquidEvaporation<CloudType>::dh"
+                "Foam::scalar Foam::LiquidEvaporationBoil<CloudType>::dh"
                 "("
                     "const label, "
                     "const label, "

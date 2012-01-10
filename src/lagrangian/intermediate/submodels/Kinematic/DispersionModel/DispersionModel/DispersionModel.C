@@ -42,7 +42,7 @@ Foam::DispersionModel<CloudType>::DispersionModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type)
+    SubModelBase<CloudType>(owner, dict, typeName, type)
 {}
 
 

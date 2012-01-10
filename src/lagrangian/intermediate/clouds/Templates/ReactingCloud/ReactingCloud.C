@@ -341,20 +341,13 @@ void Foam::ReactingCloud<CloudType>::evolve()
 }
 
 
-template<class CloudType>
-void Foam::ReactingCloud<CloudType>::addToMassPhaseChange(const scalar dMass)
-{
-    dMassPhaseChange_ += dMass;
-}
-
 
 template<class CloudType>
-void Foam::ReactingCloud<CloudType>::info() const
+void Foam::ReactingCloud<CloudType>::info()
 {
     CloudType::info();
 
-    Info<< "    Mass transfer phase change      = "
-        << returnReduce(dMassPhaseChange_, sumOp<scalar>()) << nl;
+    this->phaseChange().info(Info);
 }
 
 

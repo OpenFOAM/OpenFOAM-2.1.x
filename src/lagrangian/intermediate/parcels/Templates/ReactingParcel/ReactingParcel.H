@@ -210,6 +210,7 @@ protected:
             const scalar dt,           // timestep
             const label cellI,         // owner cell
             const scalar Re,           // Reynolds number
+            const scalar Pr,           // Prandtl number
             const scalar Ts,           // Surface temperature
             const scalar nus,          // Surface kinematic viscosity
             const scalar d,            // diameter

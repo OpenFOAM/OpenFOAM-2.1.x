@@ -64,7 +64,7 @@ class CloudFunctionObject
 public:
 
     //- Runtime type information
-    TypeName("postProcessingModel");
+    TypeName("cloudFunctionObject");
 
     //- Declare runtime constructor selection table
     declareRunTimeSelectionTable

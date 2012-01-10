@@ -85,17 +85,6 @@ public:
         };
 
 
-private:
-
-    // Private Member Functions
-
-        //- Read injector properties from previous run (if applicable)
-        void readProps();
-
-        //- Write injector properties
-        void writeProps();
-
-
 protected:
 
     // Protected data
@@ -328,7 +317,7 @@ public:
         // I-O
 
             //- Write injection info to stream
-            virtual void info(Ostream& os) const;
+            virtual void info(Ostream& os);
 };
 
 

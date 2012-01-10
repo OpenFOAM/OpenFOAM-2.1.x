@@ -192,19 +192,23 @@ public:
                 inline const AtomizationModel<SprayCloud<CloudType> >&
                     atomization() const;
 
+                //- Return reference to the atomization model
+                inline AtomizationModel<SprayCloud<CloudType> >& atomization();
+
                 //- Return const-access to the breakup model
                 inline const BreakupModel<SprayCloud<CloudType> >&
                     breakup() const;
+
+                //- Return reference to the breakup model
+                inline BreakupModel<SprayCloud<CloudType> >& breakup();
 
                 //- Return const-access to the breakup model
                 inline const StochasticCollisionModel<SprayCloud<CloudType> >&
                     stochasticCollision() const;
 
-
-        // Check
-
-            //- Print cloud information
-            void info() const;
+                //- Return reference to the breakup model
+                inline StochasticCollisionModel<SprayCloud<CloudType> >&
+                    stochasticCollision();
 
 
         // Cloud evolution functions
@@ -236,6 +240,12 @@ public:
 
             template<class TrackData>
             void motion(TrackData& td);
+
+
+        // I-O
+
+            //- Print cloud information
+            void info();
 };
 
 

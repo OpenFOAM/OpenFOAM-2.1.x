@@ -43,7 +43,7 @@ Foam::HeatTransferModel<CloudType>::HeatTransferModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type),
+    SubModelBase<CloudType>(owner, dict, typeName, type),
     BirdCorrection_(this->coeffDict().lookup("BirdCorrection"))
 {}
 

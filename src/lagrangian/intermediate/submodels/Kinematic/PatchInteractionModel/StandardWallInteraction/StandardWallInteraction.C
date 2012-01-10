@@ -25,83 +25,6 @@ License
 
 #include "StandardWallInteraction.H"
 
-// * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * * //
-
-template<class CloudType>
-void Foam::StandardWallInteraction<CloudType>::readProps()
-{
-    if (!this->owner().solution().transient())
-    {
-        return;
-    }
-
-    IOobject propsDictHeader
-    (
-        "standardWallInteractionProperties",
-        this->owner().db().time().timeName(),
-        "uniform"/cloud::prefix/this->owner().name(),
-        this->owner().db(),
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE,
-        false
-    );
-
-    if (propsDictHeader.headerOk())
-    {
-        const IOdictionary propsDict(propsDictHeader);
-        propsDict.readIfPresent("nEscape", nEscape0_);
-        propsDict.readIfPresent("massEscape", massEscape0_);
-        propsDict.readIfPresent("nStick", nStick0_);
-        propsDict.readIfPresent("massStick", massStick0_);
-    }
-}
-
-
-template<class CloudType>
-void Foam::StandardWallInteraction<CloudType>::writeProps
-(
-    const label nEscape,
-    const scalar massEscape,
-    const label nStick,
-    const scalar massStick
-) const
-{
-    if (!this->owner().solution().transient())
-    {
-        return;
-    }
-
-    if (this->owner().db().time().outputTime())
-    {
-        IOdictionary propsDict
-        (
-            IOobject
-            (
-                "standardWallInteractionProperties",
-                this->owner().db().time().timeName(),
-                "uniform"/cloud::prefix/this->owner().name(),
-                this->owner().db(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            )
-        );
-
-        propsDict.add("nEscape", nEscape);
-        propsDict.add("massEscape", massEscape);
-        propsDict.add("nStick", nStick);
-        propsDict.add("massStick", massStick);
-
-        propsDict.writeObject
-        (
-            IOstream::ASCII,
-            IOstream::currentVersion,
-            this->owner().db().time().writeCompression()
-        );
-    }
-}
-
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class CloudType>
@@ -118,10 +41,10 @@ Foam::StandardWallInteraction<CloudType>::StandardWallInteraction
     ),
     e_(0.0),
     mu_(0.0),
-    nEscape0_(0),
-    massEscape0_(0.0),
-    nStick0_(0),
-    massStick0_(0.0),
+    nEscape0_(this->template getModelProperty<label>("nEscape")),
+    massEscape0_(this->template getModelProperty<scalar>("massEscape")),
+    nStick0_(this->template getModelProperty<label>("nStick")),
+    massStick0_(this->template getModelProperty<scalar>("massStick")),
     nEscape_(0),
     massEscape_(0.0),
     nStick_(0),
@@ -279,7 +202,7 @@ bool Foam::StandardWallInteraction<CloudType>::correct
 
 
 template<class CloudType>
-void Foam::StandardWallInteraction<CloudType>::info(Ostream& os) const
+void Foam::StandardWallInteraction<CloudType>::info(Ostream& os)
 {
     label npe = returnReduce(nEscape_, sumOp<label>()) + nEscape0_;
     scalar mpe = returnReduce(massEscape_, sumOp<scalar>()) + massEscape0_;
@@ -287,11 +210,21 @@ void Foam::StandardWallInteraction<CloudType>::info(Ostream& os) const
     label nps = returnReduce(nStick_, sumOp<label>()) + nStick0_;
     scalar mps = returnReduce(massStick_, sumOp<scalar>()) + massStick0_;
 
-    os  << "    Parcel fates:" << nl
+    os  << "    Parcel fate (number, mass)" << nl
         << "      - escape                      = " << npe << ", " << mpe << nl
         << "      - stick                       = " << nps << ", " << mps << nl;
 
-    writeProps(npe, mpe, nps, mps);
+    if
+    (
+        this->owner().solution().transient()
+     && this->owner().db().time().outputTime()
+    )
+    {
+        this->setModelProperty("nEscape", npe);
+        this->setModelProperty("massEscape", mpe);
+        this->setModelProperty("nStick", nps);
+        this->setModelProperty("massStick", mps);
+    }
 }
 
 

@@ -179,6 +179,8 @@ subModels
         volatileData
         (
             (CH4            12)
+            (H2             12)
+            (CO2            12)
         );
         residualCoeff   0.001;
     }

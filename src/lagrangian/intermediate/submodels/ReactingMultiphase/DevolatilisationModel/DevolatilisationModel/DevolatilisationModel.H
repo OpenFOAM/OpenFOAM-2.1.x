@@ -55,6 +55,14 @@ class DevolatilisationModel
 :
     public SubModelBase<CloudType>
 {
+protected:
+
+    // Protected data
+
+        //- Mass of lagrangian phase converted
+        scalar dMass_;
+
+
 public:
 
     //- Runtime type information
@@ -125,6 +133,15 @@ public:
             bool& canCombust,
             scalarField& dMassDV
         ) const;
+
+        //- Add to devolatilisation mass
+        void addToDevolatilisationMass(const scalar dMass);
+
+
+        // I-O
+
+            //- Write injection info to stream
+            virtual void info(Ostream& os);
 };
 
 

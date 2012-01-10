@@ -358,14 +358,17 @@ void Foam::SprayCloud<CloudType>::motion(TrackData& td)
 
 
 template<class CloudType>
-void Foam::SprayCloud<CloudType>::info() const
+void Foam::SprayCloud<CloudType>::info()
 {
     CloudType::info();
     scalar d32 = 1.0e+6*this->Dij(3, 2);
+    scalar d10 = 1.0e+6*this->Dij(1, 0);
+    scalar dMax = 1.0e+6*this->Dmax();
     scalar pen = this->penetration(0.95);
 
-    Info << "    D32 (mu)                        = " << d32 << endl;
-    Info << "    Liquid penetration 95% mass (m) = " << pen << endl;
+    Info << "    D10, D32, Dmax (mu)             = " << d10 << ", " << d32
+         << ", " << dMax << nl
+         << "    Liquid penetration 95% mass (m) = " << pen << endl;
 }
 
 

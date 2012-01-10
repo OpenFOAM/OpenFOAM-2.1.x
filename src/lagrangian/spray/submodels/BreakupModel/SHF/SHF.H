@@ -48,7 +48,7 @@ Description
 namespace Foam
 {
 /*---------------------------------------------------------------------------*\
-                       Class SHF Declaration
+                            Class SHF Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class CloudType>
@@ -156,12 +156,9 @@ public:
             const vector& Urel,
             const scalar Urmag,
             const scalar tMom,
-            const scalar averageParcelMass,
             scalar& dChild,
-            scalar& massChild,
-            cachedRandom& rndGen
-        ) const;
-
+            scalar& massChild
+        );
 };
 
 

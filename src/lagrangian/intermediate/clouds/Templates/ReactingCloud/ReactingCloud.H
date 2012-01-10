@@ -215,13 +215,17 @@ public:
 
             // Sub-models
 
-                //- Return reference to reacting composition model
+                //- Return const access to reacting composition model
                 inline const CompositionModel<ReactingCloud<CloudType> >&
                     composition() const;
 
-                //- Return reference to reacting phase change model
+                //- Return const access to reacting phase change model
                 inline const PhaseChangeModel<ReactingCloud<CloudType> >&
                     phaseChange() const;
+
+                //- Return reference to reacting phase change model
+                inline PhaseChangeModel<ReactingCloud<CloudType> >&
+                    phaseChange();
 
 
             // Sources
@@ -259,12 +263,6 @@ public:
                     inline tmp<fvScalarMatrix> Srho(volScalarField& rho) const;
 
 
-        // Check
-
-            //- Add to cumulative phase change mass transfer
-            void addToMassPhaseChange(const scalar dMass);
-
-
         // Cloud evolution functions
 
             //- Set parcel thermo properties
@@ -300,11 +298,11 @@ public:
             //- Evolve the cloud
             void evolve();
 
-            //- Print cloud information
-            void info() const;
-
 
         // I-O
+
+            //- Print cloud information
+            void info();
 
             //- Write the field data for the cloud
             virtual void writeFields() const;

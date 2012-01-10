@@ -321,7 +321,7 @@ public:
         // Check
 
             //- Print cloud information
-            void info() const;
+            void info();
 };
 
 

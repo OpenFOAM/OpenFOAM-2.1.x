@@ -67,7 +67,7 @@ Foam::BreakupModel<CloudType>::BreakupModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type),
+    SubModelBase<CloudType>(owner, dict, typeName, type),
     solveOscillationEq_(this->coeffDict().lookup("solveOscillationEq")),
     y0_(0.0),
     yDot0_(0.0),
@@ -120,11 +120,9 @@ bool Foam::BreakupModel<CloudType>::update
     const vector& Urel,
     const scalar Urmag,
     const scalar tMom,
-    const scalar averageParcelMass,
     scalar& dChild,
-    scalar& massChild,
-    cachedRandom& rndGen
-) const
+    scalar& massChild
+)
 {
     notImplemented
     (
@@ -149,11 +147,9 @@ bool Foam::BreakupModel<CloudType>::update
             "const vector&, "
             "const scalar, "
             "const scalar, "
-            "const scalar, "
             "scalar&, "
-            "scalar&, "
-            "cachedRandom&"
-        ") const;"
+            "scalar&"
+        ");"
     );
 
     return false;

@@ -57,7 +57,7 @@ Foam::SurfaceFilmModel<CloudType>::SurfaceFilmModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type),
+    SubModelBase<CloudType>(owner, dict, typeName, type),
     g_(g),
     ejectedParcelType_
     (

@@ -25,83 +25,6 @@ License
 
 #include "LocalInteraction.H"
 
-// * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * * //
-
-template<class CloudType>
-void Foam::LocalInteraction<CloudType>::readProps()
-{
-    if (!this->owner().solution().transient())
-    {
-        return;
-    }
-
-    IOobject propsDictHeader
-    (
-        "localInteractionProperties",
-        this->owner().db().time().timeName(),
-        "uniform"/cloud::prefix/this->owner().name(),
-        this->owner().db(),
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE,
-        false
-    );
-
-    if (propsDictHeader.headerOk())
-    {
-        const IOdictionary propsDict(propsDictHeader);
-        propsDict.readIfPresent("nEscape", nEscape0_);
-        propsDict.readIfPresent("massEscape", massEscape0_);
-        propsDict.readIfPresent("nStick", nStick0_);
-        propsDict.readIfPresent("massStick", massStick0_);
-    }
-}
-
-
-template<class CloudType>
-void Foam::LocalInteraction<CloudType>::writeProps
-(
-    const labelList& nEscape,
-    const scalarList& massEscape,
-    const labelList& nStick,
-    const scalarList& massStick
-) const
-{
-    if (!this->owner().solution().transient())
-    {
-        return;
-    }
-
-    if (this->owner().db().time().outputTime())
-    {
-        IOdictionary propsDict
-        (
-            IOobject
-            (
-                "localInteractionProperties",
-                this->owner().db().time().timeName(),
-                "uniform"/cloud::prefix/this->owner().name(),
-                this->owner().db(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            )
-        );
-
-        propsDict.add("nEscape", nEscape);
-        propsDict.add("massEscape", massEscape);
-        propsDict.add("nStick", nStick);
-        propsDict.add("massStick", massStick);
-
-        propsDict.writeObject
-        (
-            IOstream::ASCII,
-            IOstream::currentVersion,
-            this->owner().db().time().writeCompression()
-        );
-    }
-}
-
-
 // * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * * //
 
 template<class CloudType>
@@ -122,6 +45,12 @@ Foam::LocalInteraction<CloudType>::LocalInteraction
     nStick_(patchData_.size(), 0),
     massStick_(patchData_.size(), 0.0)
 {
+    // intialise starting counters
+    this->getModelProperty("nEscape", nEscape0_);
+    this->getModelProperty("massEscape", massEscape0_);
+    this->getModelProperty("nStick", nStick0_);
+    this->getModelProperty("massStick", massStick0_);
+
     // check that interactions are valid/specified
     forAll(patchData_, patchI)
     {
@@ -141,8 +70,6 @@ Foam::LocalInteraction<CloudType>::LocalInteraction
                 << nl << exit(FatalError);
         }
     }
-
-    readProps();
 }
 
 
@@ -255,7 +182,7 @@ bool Foam::LocalInteraction<CloudType>::correct
                         "typename CloudType::parcelType&, "
                         "const polyPatch&, "
                         "bool&, "
-                        "scalar&, "
+                        "const scalar, "
                         "const tetIndices&"
                     ") const"
                 )   << "Unknown interaction type "
@@ -275,7 +202,7 @@ bool Foam::LocalInteraction<CloudType>::correct
 
 
 template<class CloudType>
-void Foam::LocalInteraction<CloudType>::info(Ostream& os) const
+void Foam::LocalInteraction<CloudType>::info(Ostream& os)
 {
     labelList npe(nEscape_);
     Pstream::listCombineGather(npe, plusEqOp<label>());
@@ -304,7 +231,17 @@ void Foam::LocalInteraction<CloudType>::info(Ostream& os) const
             << ", " << mps[i] << nl;
     }
 
-    writeProps(npe, mpe, nps, mps);
+    if
+    (
+        this->owner().solution().transient()
+     && this->owner().db().time().outputTime()
+    )
+    {
+        this->setModelProperty("nEscape", npe);
+        this->setModelProperty("massEscape", mpe);
+        this->setModelProperty("nStick", nps);
+        this->setModelProperty("massStick", mps);
+    }
 }
 
 

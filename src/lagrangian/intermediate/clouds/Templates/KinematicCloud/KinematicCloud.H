@@ -143,6 +143,9 @@ protected:
         //- Dictionary of particle properties
         IOdictionary particleProperties_;
 
+        //- Dictionary of output properties
+        IOdictionary outputProperties_;
+
         //- Solution properties
         cloudSolution solution_;
 
@@ -324,6 +327,12 @@ public:
                 //- Return particle properties dictionary
                 inline const IOdictionary& particleProperties() const;
 
+                //- Return output properties dictionary
+                inline const IOdictionary& outputProperties() const;
+
+                //- Return non-const access to the output properties dictionary
+                inline IOdictionary& outputProperties();
+
                 //- Return const access to the solution properties
                 inline const cloudSolution& solution() const;
 
@@ -468,6 +477,9 @@ public:
             //- Mean diameter Dij
             inline scalar Dij(const label i, const label j) const;
 
+            //- Max diameter
+            inline scalar Dmax() const;
+
 
             // Fields
 
@@ -543,8 +555,11 @@ public:
             template<class TrackData>
             void motion(TrackData& td);
 
+
+        // I-O
+
             //- Print cloud information
-            void info() const;
+            void info();
 };
 
 

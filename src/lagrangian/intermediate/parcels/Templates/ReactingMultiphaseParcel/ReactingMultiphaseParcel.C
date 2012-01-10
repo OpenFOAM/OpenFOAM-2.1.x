@@ -240,6 +240,7 @@ void Foam::ReactingMultiphaseParcel<ParcelType>::calc
         dt,
         cellI,
         Res,
+        Prs,
         Ts,
         mus/rhos,
         d0,
@@ -368,7 +369,7 @@ void Foam::ReactingMultiphaseParcel<ParcelType>::calc
 
             td.cloud().hsTrans()[cellI] += dm*HsEff(td, pc, T0, idG, idL, idS);
 
-            td.cloud().addToMassPhaseChange(dm);
+            td.cloud().phaseChange().addToPhaseChangeMass(dm);
         }
 
         return;
@@ -519,7 +520,10 @@ void Foam::ReactingMultiphaseParcel<ParcelType>::calcDevolatilisation
 
     scalar dMassTot = sum(dMassDV);
 
-    td.cloud().addToMassDevolatilisation(this->nParticle_*dMassTot);
+    td.cloud().devolatilisation().addToDevolatilisationMass
+    (
+        this->nParticle_*dMassTot
+    );
 
     Sh -= dMassTot*td.cloud().constProps().LDevol()/dt;
 
@@ -607,7 +611,7 @@ void Foam::ReactingMultiphaseParcel<ParcelType>::calcSurfaceReactions
         dMassSRCarrier
     );
 
-    td.cloud().addToMassSurfaceReaction
+    td.cloud().surfaceReaction().addToSurfaceReactionMass
     (
         this->nParticle_
        *(sum(dMassSRGas) + sum(dMassSRLiquid) + sum(dMassSRSolid))

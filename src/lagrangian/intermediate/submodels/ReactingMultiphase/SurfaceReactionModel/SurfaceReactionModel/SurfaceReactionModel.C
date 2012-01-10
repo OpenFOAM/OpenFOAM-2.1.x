@@ -33,7 +33,8 @@ Foam::SurfaceReactionModel<CloudType>::SurfaceReactionModel
     CloudType& owner
 )
 :
-    SubModelBase<CloudType>(owner)
+    SubModelBase<CloudType>(owner),
+    dMass_(0.0)
 {}
 
 
@@ -45,7 +46,8 @@ Foam::SurfaceReactionModel<CloudType>::SurfaceReactionModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type)
+    SubModelBase<CloudType>(owner, dict, typeName, type),
+    dMass_(0.0)
 {}
 
 
@@ -55,7 +57,8 @@ Foam::SurfaceReactionModel<CloudType>::SurfaceReactionModel
     const SurfaceReactionModel<CloudType>& srm
 )
 :
-    SubModelBase<CloudType>(srm)
+    SubModelBase<CloudType>(srm),
+    dMass_(srm.dMass_)
 {}
 
 
@@ -115,6 +118,36 @@ Foam::scalar Foam::SurfaceReactionModel<CloudType>::calculate
     );
 
     return 0.0;
+}
+
+
+template<class CloudType>
+void Foam::SurfaceReactionModel<CloudType>::addToSurfaceReactionMass
+(
+    const scalar dMass
+)
+{
+    dMass_ += dMass;
+}
+
+
+template<class CloudType>
+void Foam::SurfaceReactionModel<CloudType>::info(Ostream& os)
+{
+    const scalar mass0 = this->template getBaseProperty<scalar>("mass");
+    const scalar massTotal = mass0 + returnReduce(dMass_, sumOp<scalar>());
+
+    Info<< "    Mass transfer surface reaction  = " << massTotal << nl;
+
+    if
+    (
+        this->owner().solution().transient()
+     && this->owner().db().time().outputTime()
+    )
+    {
+        this->setBaseProperty("mass", massTotal);
+        dMass_ = 0.0;
+    }
 }
 
 
