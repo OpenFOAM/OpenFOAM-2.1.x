@@ -101,25 +101,28 @@ bool Foam::PilchErdman<CloudType>::update
         // We > 1335, wave crest stripping
         scalar taubBar = 5.5;
 
-        if (We > 175.0)
+        if (We < 1335)
         {
-            // sheet stripping
-            taubBar = 0.766*pow(2.0*We - 12.0, 0.25);
-        }
-        else if (We > 22.0)
-        {
-            // Bag-and-stamen breakup
-            taubBar = 14.1*pow(2.0*We - 12.0, -0.25);
-        }
-        else if (We > 9.0)
-        {
-            // Bag breakup
-            taubBar = 2.45*pow(2.0*We - 12.0, 0.25);
-        }
-        else if (We > 6.0)
-        {
-            // Vibrational breakup
-            taubBar = 6.0*pow(2.0*We - 12.0, -0.25);
+            if (We > 175.0)
+            {
+                // sheet stripping
+                taubBar = 0.766*pow(2.0*We - 12.0, 0.25);
+            }
+            else if (We > 22.0)
+            {
+                // Bag-and-stamen breakup
+                taubBar = 14.1*pow(2.0*We - 12.0, -0.25);
+            }
+            else if (We > 9.0)
+            {
+                // Bag breakup
+                taubBar = 2.45*pow(2.0*We - 12.0, 0.25);
+            }
+            else if (We > 6.0)
+            {
+                // Vibrational breakup
+                taubBar = 6.0*pow(2.0*We - 12.0, -0.25);
+            }
         }
 
         scalar rho12 = sqrt(rhoc/rho);
