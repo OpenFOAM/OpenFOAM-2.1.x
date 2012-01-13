@@ -1134,6 +1134,7 @@ void Foam::autoLayerDriver::syncPatchDisplacement
         );
 
         // Reset if differs
+        // 1. take max
         forAll(syncPatchNLayers, i)
         {
             if (syncPatchNLayers[i] != patchNLayers[i])
@@ -1164,6 +1165,7 @@ void Foam::autoLayerDriver::syncPatchDisplacement
         );
 
         // Reset if differs
+        // 2. take min
         forAll(syncPatchNLayers, i)
         {
             if (syncPatchNLayers[i] != patchNLayers[i])
@@ -2261,7 +2263,6 @@ void Foam::autoLayerDriver::addLayers
     List<labelPair> baffles;
     meshRefiner_.createZoneBaffles(globalToPatch_, baffles);
 
-
     if (debug)
     {
         const_cast<Time&>(mesh.time())++;
@@ -2742,7 +2743,7 @@ void Foam::autoLayerDriver::addLayers
             Info<< "Writing shrunk mesh to " << meshRefiner_.timeName() << endl;
 
             // See comment in autoSnapDriver why we should not remove meshPhi
-            // using mesh.clearPout().
+            // using mesh.clearOut().
 
             mesh.write();
         }
