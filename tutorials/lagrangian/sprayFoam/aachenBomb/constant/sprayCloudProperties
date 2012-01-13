@@ -61,7 +61,7 @@ constantProperties
     minParticleMass 1e-15;
 
     rho0            1000;
-    T0              300;
+    T0              320;
     Cp0             4187;
 
     youngsModulus   1e9;
@@ -94,13 +94,13 @@ subModels
 
     compositionModel singlePhaseMixture;
 
-    phaseChangeModel liquidEvaporation;
+    phaseChangeModel liquidEvaporationBoil;
 
     surfaceFilmModel none;
 
     atomizationModel none;
 
-    breakupModel    PilchErdman;
+    breakupModel    ReitzDiwakar; // ReitzKHRT;
 
     stochasticCollisionModel none;
 
@@ -118,7 +118,7 @@ subModels
         duration        1.25e-3;
         position        ( 0 0.0995 0 );
         direction       ( 0 -1 0 );
-        parcelsPerSecond 100000000;
+        parcelsPerSecond 20000000;
         flowRateProfile table
         (
             (0 0.1272)
@@ -154,21 +154,22 @@ subModels
             (0.00125 3.9213)
         );
 
-        Cd              constant 0.85;
+        Cd              constant 0.9;
 
         thetaInner      constant 0.0;
         thetaOuter      constant 10.0;
 
         sizeDistribution
         {
-            type            uniform;
+            type        RosinRammler;
 
-            uniformDistribution
+            RosinRammlerDistribution
             {
-                minValue        1.0e-4;
-                maxValue        1.1e-4;
+                minValue        1e-06;
+                maxValue        0.00015;
+                d               0.00015;
+                n               3;
             }
-
         }
     }
 
@@ -193,18 +194,41 @@ subModels
         );
     }
 
-    liquidEvaporationCoeffs
+    liquidEvaporationBoilCoeffs
     {
         enthalpyTransfer enthalpyDifference;
 
         activeLiquids    ( C7H16 );
     }
 
-    PilchErdmanCoeffs
+    ReitzDiwakarCoeffs
     {
-        solveOscillationEq false;
-        B1              0.375;
-        B2              0.236;
+        solveOscillationEq yes;
+        Cbag            6;
+        Cb              0.785;
+        Cstrip          0.5;
+        Cs              10;
+    }
+
+/*
+    ReitzKHRTCoeffs
+    {
+        solveOscillationEq yes;
+        B0              0.61;
+        B1              40;
+        Ctau            1;
+        CRT             0.1;
+        msLimit         0.2;
+        WeberLimit      6;
+    }
+*/
+    TABCoeffs
+    {
+        y0              0;
+        yDot0           0;
+        Cmu             10;
+        Comega          8;
+        WeCrit          12;
     }
 }
 

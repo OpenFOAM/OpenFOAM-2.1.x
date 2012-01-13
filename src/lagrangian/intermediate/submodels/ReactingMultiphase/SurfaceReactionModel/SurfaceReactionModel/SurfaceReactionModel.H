@@ -56,6 +56,14 @@ class SurfaceReactionModel
 :
     public SubModelBase<CloudType>
 {
+protected:
+
+    // Protected data
+
+        //- Mass of lagrangian phase converted
+        scalar dMass_;
+
+
 public:
 
     //-Runtime type information
@@ -138,6 +146,15 @@ public:
             scalarField& dMassSolid,
             scalarField& dMassSRCarrier
         ) const;
+
+        //- Add to devolatilisation mass
+        void addToSurfaceReactionMass(const scalar dMass);
+
+
+        // I-O
+
+            //- Write injection info to stream
+            virtual void info(Ostream& os);
 };
 
 

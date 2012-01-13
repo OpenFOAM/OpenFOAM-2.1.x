@@ -104,21 +104,6 @@ protected:
             scalar massStick_;
 
 
-    // Protected Member Functions
-
-        //- Read interaction properties from file
-        void readProps();
-
-        //- Write interaction properties to file
-        void writeProps
-        (
-            const label nEscape,
-            const scalar massEscape,
-            const label nStick,
-            const scalar massStick
-        ) const;
-
-
 public:
 
     //- Runtime type information
@@ -164,7 +149,7 @@ public:
         // I-O
 
             //- Write patch interaction info to stream
-            virtual void info(Ostream& os) const;
+            virtual void info(Ostream& os);
 };
 
 

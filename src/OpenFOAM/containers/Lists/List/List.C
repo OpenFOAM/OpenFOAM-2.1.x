@@ -200,7 +200,7 @@ Foam::List<T>::List(InputIterator first, InputIterator last)
         ++iter
     )
     {
-        this->operator[](s++) = iter();
+        this->operator[](s++) = *iter;
     }
 }
 

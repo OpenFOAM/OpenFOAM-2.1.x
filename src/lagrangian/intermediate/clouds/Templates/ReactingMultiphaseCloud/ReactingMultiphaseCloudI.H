@@ -53,6 +53,17 @@ Foam::ReactingMultiphaseCloud<CloudType>::devolatilisation() const
 
 
 template<class CloudType>
+inline Foam::DevolatilisationModel
+<
+    Foam::ReactingMultiphaseCloud<CloudType>
+>&
+Foam::ReactingMultiphaseCloud<CloudType>::devolatilisation()
+{
+    return devolatilisationModel_();
+}
+
+
+template<class CloudType>
 inline const Foam::SurfaceReactionModel
 <
     Foam::ReactingMultiphaseCloud<CloudType>
@@ -60,6 +71,17 @@ inline const Foam::SurfaceReactionModel
 Foam::ReactingMultiphaseCloud<CloudType>::surfaceReaction() const
 {
     return surfaceReactionModel_;
+}
+
+
+template<class CloudType>
+inline Foam::SurfaceReactionModel
+<
+    Foam::ReactingMultiphaseCloud<CloudType>
+>&
+Foam::ReactingMultiphaseCloud<CloudType>::surfaceReaction()
+{
+    return surfaceReactionModel_();
 }
 
 

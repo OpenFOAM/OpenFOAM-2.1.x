@@ -30,6 +30,7 @@ License
 
 #include "NoPhaseChange.H"
 #include "LiquidEvaporation.H"
+#include "LiquidEvaporationBoil.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -37,7 +38,8 @@ License
                                                                               \
     makePhaseChangeModel(CloudType);                                          \
     makePhaseChangeModelType(NoPhaseChange, CloudType);                       \
-    makePhaseChangeModelType(LiquidEvaporation, CloudType);
+    makePhaseChangeModelType(LiquidEvaporation, CloudType);                   \
+    makePhaseChangeModelType(LiquidEvaporationBoil, CloudType);
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

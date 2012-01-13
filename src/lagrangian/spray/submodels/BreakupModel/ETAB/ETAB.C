@@ -112,11 +112,9 @@ bool Foam::ETAB<CloudType>::update
     const vector& Urel,
     const scalar Urmag,
     const scalar tMom,
-    const scalar averageParcelMass,
     scalar& dChild,
-    scalar& massChild,
-    cachedRandom& rndGen
-) const
+    scalar& massChild
+)
 {
     scalar r  = 0.5*d;
     scalar r2 = r*r;
@@ -156,7 +154,7 @@ bool Foam::ETAB<CloudType>::update
             scalar quad = -y2/a;
             if (quad < 0)
             {
-                phi = 2*constant::mathematical::pi - phit;
+                phi = constant::mathematical::twoPi - phit;
             }
 
             scalar tb = 0;
@@ -167,11 +165,11 @@ bool Foam::ETAB<CloudType>::update
 
                 if (theta < phi)
                 {
-                    if (2*constant::mathematical::pi - theta >= phi)
+                    if (constant::mathematical::twoPi - theta >= phi)
                     {
                         theta = -theta;
                     }
-                    theta += 2*constant::mathematical::pi;
+                    theta += constant::mathematical::twoPi;
                 }
                 tb = (theta - phi)*romega;
 

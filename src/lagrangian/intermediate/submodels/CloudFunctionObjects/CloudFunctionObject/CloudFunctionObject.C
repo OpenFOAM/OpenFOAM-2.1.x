@@ -51,7 +51,7 @@ Foam::CloudFunctionObject<CloudType>::CloudFunctionObject
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type, "")
+    SubModelBase<CloudType>(owner, dict, typeName, type, "")
 {}
 
 

@@ -33,7 +33,8 @@ Foam::DevolatilisationModel<CloudType>::DevolatilisationModel
     CloudType& owner
 )
 :
-    SubModelBase<CloudType>(owner)
+    SubModelBase<CloudType>(owner),
+    dMass_(0.0)
 {}
 
 
@@ -45,7 +46,8 @@ Foam::DevolatilisationModel<CloudType>::DevolatilisationModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type)
+    SubModelBase<CloudType>(owner, dict, typeName, type),
+    dMass_(0.0)
 {}
 
 
@@ -55,7 +57,8 @@ Foam::DevolatilisationModel<CloudType>::DevolatilisationModel
     const DevolatilisationModel<CloudType>& dm
 )
 :
-    SubModelBase<CloudType>(dm)
+    SubModelBase<CloudType>(dm),
+    dMass_(dm.dMass_)
 {}
 
 
@@ -93,6 +96,36 @@ void Foam::DevolatilisationModel<CloudType>::calculate
             "scalarField&"
         ") const"
     );
+}
+
+
+template<class CloudType>
+void Foam::DevolatilisationModel<CloudType>::addToDevolatilisationMass
+(
+    const scalar dMass
+)
+{
+    dMass_ += dMass;
+}
+
+
+template<class CloudType>
+void Foam::DevolatilisationModel<CloudType>::info(Ostream& os)
+{
+    const scalar mass0 = this->template getBaseProperty<scalar>("mass");
+    const scalar massTotal = mass0 + returnReduce(dMass_, sumOp<scalar>());
+
+    Info<< "    Mass transfer devolatilisation  = " << massTotal << nl;
+
+    if
+    (
+        this->owner().solution().transient()
+     && this->owner().db().time().outputTime()
+    )
+    {
+        this->setBaseProperty("mass", massTotal);
+        dMass_ = 0.0;
+    }
 }
 
 

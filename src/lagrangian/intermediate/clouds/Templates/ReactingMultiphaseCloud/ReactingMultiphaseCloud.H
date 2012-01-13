@@ -214,28 +214,33 @@ public:
 
             // Sub-models
 
-                //- Return reference to devolatilisation model
+                //- Return const access to devolatilisation model
                 inline const DevolatilisationModel
                 <
                     ReactingMultiphaseCloud<CloudType>
                 >&
                 devolatilisation() const;
 
-                //- Return reference to reacting surface reaction model
+                //- Return reference to devolatilisation model
+                inline DevolatilisationModel
+                <
+                    ReactingMultiphaseCloud<CloudType>
+                >&
+                devolatilisation();
+
+                //- Return const access to reacting surface reaction model
                 inline const SurfaceReactionModel
                 <
                     ReactingMultiphaseCloud<CloudType>
                 >&
                 surfaceReaction() const;
 
-
-        // Check
-
-            //- Add to cumulative volatilisation mass transfer
-            void addToMassDevolatilisation(const scalar dMass);
-
-            //- Add to cumulative surface reaction transfer
-            void addToMassSurfaceReaction(const scalar dMass);
+                //- Return reference to reacting surface reaction model
+                inline SurfaceReactionModel
+                <
+                    ReactingMultiphaseCloud<CloudType>
+                >&
+                surfaceReaction();
 
 
         // Cloud evolution functions
@@ -267,11 +272,11 @@ public:
             //- Evolve the cloud
             void evolve();
 
-            //- Print cloud information
-            void info() const;
-
 
         // I-O
+
+            //- Print cloud information
+            void info();
 
             //- Write the field data for the cloud
             virtual void writeFields() const;

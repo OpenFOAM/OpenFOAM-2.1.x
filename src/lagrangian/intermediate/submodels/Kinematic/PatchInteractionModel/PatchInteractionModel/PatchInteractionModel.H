@@ -180,7 +180,7 @@ public:
         // I-O
 
             //- Write patch interaction info to stream
-            virtual void info(Ostream& os) const;
+            virtual void info(Ostream& os);
 };
 
 

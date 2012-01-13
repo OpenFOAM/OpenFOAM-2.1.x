@@ -32,76 +32,6 @@ using namespace Foam::constant::mathematical;
 // * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * * //
 
 template<class CloudType>
-void Foam::InjectionModel<CloudType>::readProps()
-{
-    if (!this->owner().solution().transient())
-    {
-        return;
-    }
-
-    IOobject propsDictHeader
-    (
-        "injectionProperties",
-        this->owner().db().time().timeName(),
-        "uniform"/cloud::prefix/this->owner().name(),
-        this->owner().db(),
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE,
-        false
-    );
-
-    if (propsDictHeader.headerOk())
-    {
-        const IOdictionary propsDict(propsDictHeader);
-
-        propsDict.readIfPresent("massInjected", massInjected_);
-        propsDict.readIfPresent("nInjections", nInjections_);
-        propsDict.readIfPresent("parcelsAddedTotal", parcelsAddedTotal_);
-        propsDict.readIfPresent("timeStep0", timeStep0_);
-    }
-}
-
-
-template<class CloudType>
-void Foam::InjectionModel<CloudType>::writeProps()
-{
-    if (!this->owner().solution().transient())
-    {
-        return;
-    }
-
-    if (this->owner().db().time().outputTime())
-    {
-        IOdictionary propsDict
-        (
-            IOobject
-            (
-                "injectionProperties",
-                this->owner().db().time().timeName(),
-                "uniform"/cloud::prefix/this->owner().name(),
-                this->owner().db(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            )
-        );
-
-        propsDict.add("massInjected", massInjected_);
-        propsDict.add("nInjections", nInjections_);
-        propsDict.add("parcelsAddedTotal", parcelsAddedTotal_);
-        propsDict.add("timeStep0", timeStep0_);
-
-        propsDict.writeObject
-        (
-            IOstream::ASCII,
-            IOstream::currentVersion,
-            this->owner().db().time().writeCompression()
-        );
-    }
-}
-
-
-template<class CloudType>
 bool Foam::InjectionModel<CloudType>::validInjection(const label parcelI)
 {
     notImplemented
@@ -328,9 +258,6 @@ void Foam::InjectionModel<CloudType>::postInjectCheck
 
     // Increment number of injections
     nInjections_++;
-
-    // Write current state to properties file
-    writeProps();
 }
 
 
@@ -343,16 +270,17 @@ Foam::InjectionModel<CloudType>::InjectionModel(CloudType& owner)
     SOI_(0.0),
     volumeTotal_(0.0),
     massTotal_(0.0),
-    massInjected_(0.0),
-    nInjections_(0),
-    parcelsAddedTotal_(0),
+    massInjected_(this->template getBaseProperty<scalar>("massInjected")),
+    nInjections_(this->template getBaseProperty<scalar>("nInjections")),
+    parcelsAddedTotal_
+    (
+        this->template getBaseProperty<scalar>("parcelsAddedTotal")
+    ),
     parcelBasis_(pbNumber),
     nParticleFixed_(0.0),
     time0_(0.0),
-    timeStep0_(0.0)
-{
-    readProps();
-}
+    timeStep0_(this->template getBaseProperty<scalar>("timeStep0"))
+{}
 
 
 template<class CloudType>
@@ -363,17 +291,20 @@ Foam::InjectionModel<CloudType>::InjectionModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type),
+    SubModelBase<CloudType>(owner, dict, typeName, type),
     SOI_(0.0),
     volumeTotal_(0.0),
     massTotal_(0.0),
-    massInjected_(0.0),
-    nInjections_(0),
-    parcelsAddedTotal_(0),
+    massInjected_(this->template getBaseProperty<scalar>("massInjected")),
+    nInjections_(this->template getBaseProperty<scalar>("nInjections")),
+    parcelsAddedTotal_
+    (
+        this->template getBaseProperty<scalar>("parcelsAddedTotal")
+    ),
     parcelBasis_(pbNumber),
     nParticleFixed_(0.0),
     time0_(owner.db().time().value()),
-    timeStep0_(0.0)
+    timeStep0_(this->template getBaseProperty<scalar>("timeStep0"))
 {
     // Provide some info
     // - also serves to initialise mesh dimensions - needed for parallel runs
@@ -424,8 +355,6 @@ Foam::InjectionModel<CloudType>::InjectionModel
         )<< "parcelBasisType must be either 'number', 'mass' or 'fixed'" << nl
          << exit(FatalError);
     }
-
-    readProps();
 }
 
 
@@ -803,10 +732,22 @@ bool Foam::InjectionModel<CloudType>::fullyDescribed() const
 
 
 template<class CloudType>
-void Foam::InjectionModel<CloudType>::info(Ostream& os) const
+void Foam::InjectionModel<CloudType>::info(Ostream& os)
 {
     os  << "    Total number of parcels added   = " << parcelsAddedTotal_ << nl
         << "    Total mass introduced           = " << massInjected_ << nl;
+
+    if
+    (
+        this->owner().solution().transient()
+     && this->owner().db().time().outputTime()
+    )
+    {
+        this->setBaseProperty("massInjected", massInjected_);
+        this->setBaseProperty("nInjections", nInjections_);
+        this->setBaseProperty("parcelsAddedTotal", parcelsAddedTotal_);
+        this->setBaseProperty("timeStep0", timeStep0_);
+    }
 }
 
 

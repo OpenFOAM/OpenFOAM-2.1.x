@@ -58,6 +58,14 @@ Foam::ReactingCloud<CloudType>::phaseChange() const
 
 
 template<class CloudType>
+inline Foam::PhaseChangeModel<Foam::ReactingCloud<CloudType> >&
+Foam::ReactingCloud<CloudType>::phaseChange()
+{
+    return phaseChangeModel_();
+}
+
+
+template<class CloudType>
 inline Foam::DimensionedField<Foam::scalar, Foam::volMesh>&
 Foam::ReactingCloud<CloudType>::rhoTrans(const label i)
 {

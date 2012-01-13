@@ -65,30 +65,36 @@ int main(int argc, char *argv[])
     }
 
     myList.append(500.3);
+    myList.append(200.3);
     myList.append(100.3);
 
 
     Info<< nl << "And again using STL const_iterator: " << nl << endl;
 
-    const DLList<scalar>& const_myList = myList;
 
-    forAllConstIter(DLList<scalar>, const_myList, iter)
+    forAllConstIter(DLList<scalar>, myList, iter)
     {
         Info<< "element:" << *iter << endl;
     }
+
+    Info<< nl << "Testing swapUp and swapDown: " << endl;
+
+    Info<< nl << "swapUp" << endl;
 
     myList.swapUp(myList.DLListBase::first());
     myList.swapUp(myList.DLListBase::last());
 
-    forAllConstIter(DLList<scalar>, const_myList, iter)
+    forAllIter(DLList<scalar>, myList, iter)
     {
         Info<< "element:" << *iter << endl;
     }
 
+    Info<< nl << "swapDown" << endl;
+
     myList.swapDown(myList.DLListBase::first());
     myList.swapDown(myList.DLListBase::last());
 
-    forAllConstIter(DLList<scalar>, const_myList, iter)
+    forAllIter(DLList<scalar>, myList, iter)
     {
         Info<< "element:" << *iter << endl;
     }
@@ -103,8 +109,8 @@ int main(int argc, char *argv[])
     Info<< nl << "source: " << myList << nl
         << nl << "target: " << newList << endl;
 
-
     Info<< nl << "Done." << endl;
+
     return 0;
 }
 

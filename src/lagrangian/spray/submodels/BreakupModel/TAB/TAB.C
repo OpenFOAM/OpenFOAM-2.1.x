@@ -43,7 +43,7 @@ Foam::TAB<CloudType>::TAB
     // calculate the inverse function of the Rossin-Rammler Distribution
     const scalar xx0 = 12.0;
     const scalar rrd100 =
-        1.0/(1.0-exp(-xx0)*(1.0 + xx0 + sqr(xx0)/2.0 + pow3(xx0)/6.0));
+        1.0/(1.0 - exp(-xx0)*(1.0 + xx0 + sqr(xx0)/2.0 + pow3(xx0)/6.0));
 
     forAll(rrd_, n)
     {
@@ -54,7 +54,8 @@ Foam::TAB<CloudType>::TAB
 
     if (!BreakupModel<CloudType>::solveOscillationEq_)
     {
-        Info<< "Warning: solveOscillationEq is set to "
+        WarningIn("Foam::TAB<CloudType>::TAB(const dictionary&, CloudType&)")
+            << "solveOscillationEq is set to "
             << BreakupModel<CloudType>::solveOscillationEq_ << nl
             << " Setting it to true in order for the TAB model to work."
             << endl;
@@ -72,8 +73,9 @@ Foam::TAB<CloudType>::TAB
     else
     {
         SMDMethod_ = method2;
-        Info<< "Warning: SMDCalculationMethod unknown. Options are "
-            "(method1 | method2). Using method2" << endl;
+        WarningIn("Foam::TAB<CloudType>::TAB(const dictionary&, CloudType&)")
+            << "Unknown SMDCalculationMethod. Valid options are "
+            << "(method1 | method2). Using method2" << endl;
     }
 }
 
@@ -120,12 +122,12 @@ bool Foam::TAB<CloudType>::update
     const vector& Urel,
     const scalar Urmag,
     const scalar tMom,
-    const scalar averageParcelMass,
     scalar& dChild,
-    scalar& massChild,
-    cachedRandom& rndGen
-) const
+    scalar& massChild
+)
 {
+    cachedRandom& rndGen = this->owner().rndGen();
+
     scalar r = 0.5*d;
     scalar r2 = r*r;
     scalar r3 = r*r2;
@@ -162,7 +164,7 @@ bool Foam::TAB<CloudType>::update
             scalar quad = -y2/a;
             if (quad < 0)
             {
-                phi = 2.0*constant::mathematical::pi - phit;
+                phi = constant::mathematical::twoPi - phit;
             }
 
             scalar tb = 0;
@@ -179,11 +181,11 @@ bool Foam::TAB<CloudType>::update
 
                 if (theta < phi)
                 {
-                    if (2*constant::mathematical::pi-theta >= phi)
+                    if (constant::mathematical::twoPi - theta >= phi)
                     {
                         theta = -theta;
                     }
-                    theta += 2*constant::mathematical::pi;
+                    theta += constant::mathematical::twoPi;
                 }
                 tb = (theta-phi)/omega;
 

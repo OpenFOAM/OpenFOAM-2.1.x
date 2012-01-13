@@ -230,6 +230,16 @@ void Foam::KinematicCloud<CloudType>::postEvolve()
     functions_.postEvolve();
 
     solution_.nextIter();
+
+    if (this->db().time().outputTime())
+    {
+        outputProperties_.writeObject
+        (
+            IOstream::ASCII,
+            IOstream::currentVersion,
+            this->db().time().writeCompression()
+        );
+    }
 }
 
 
@@ -278,6 +288,18 @@ Foam::KinematicCloud<CloudType>::KinematicCloud
             rho.mesh().time().constant(),
             rho.mesh(),
             IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE
+        )
+    ),
+    outputProperties_
+    (
+        IOobject
+        (
+            cloudName + "OutputProperties",
+            mesh_.time().timeName(),
+            "uniform"/cloud::prefix/cloudName,
+            mesh_,
+            IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         )
     ),
@@ -384,6 +406,7 @@ Foam::KinematicCloud<CloudType>::KinematicCloud
     cloudCopyPtr_(NULL),
     mesh_(c.mesh_),
     particleProperties_(c.particleProperties_),
+    outputProperties_(c.outputProperties_),
     solution_(c.solution_),
     constProps_(c.constProps_),
     subModelProperties_(c.subModelProperties_),
@@ -455,6 +478,19 @@ Foam::KinematicCloud<CloudType>::KinematicCloud
             name + "Properties",
             mesh.time().constant(),
             mesh,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE,
+            false
+        )
+    ),
+    outputProperties_
+    (
+        IOobject
+        (
+            name + "OutputProperties",
+            mesh_.time().timeName(),
+            "uniform"/cloud::prefix/name,
+            mesh_,
             IOobject::NO_READ,
             IOobject::NO_WRITE,
             false
@@ -639,7 +675,7 @@ void  Foam::KinematicCloud<CloudType>::motion(TrackData& td)
 
 
 template<class CloudType>
-void Foam::KinematicCloud<CloudType>::info() const
+void Foam::KinematicCloud<CloudType>::info()
 {
     vector linearMomentum = linearMomentumOfSystem();
     reduce(linearMomentum, sumOp<vector>());

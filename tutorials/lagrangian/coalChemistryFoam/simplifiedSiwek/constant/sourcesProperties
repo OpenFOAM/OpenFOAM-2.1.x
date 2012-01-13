@@ -19,8 +19,8 @@ source1
 {
     type            scalarExplicitSource;
     active          true;
-    timeStart       0.15;
-    duration        0.2;
+    timeStart       0.1;
+    duration        0.4;
     selectionMode   cellSet;
     cellSet         ignitionCells;
 
@@ -29,7 +29,7 @@ source1
         volumeMode      absolute;
         injectionRate
         {
-            hs              20000;
+            hs              12000;
         }
     }
 }

@@ -76,7 +76,8 @@ Foam::PhaseChangeModel<CloudType>::PhaseChangeModel
 )
 :
     SubModelBase<CloudType>(owner),
-    enthalpyTransfer_(etLatentHeat)
+    enthalpyTransfer_(etLatentHeat),
+    dMass_(0.0)
 {}
 
 
@@ -87,7 +88,8 @@ Foam::PhaseChangeModel<CloudType>::PhaseChangeModel
 )
 :
     SubModelBase<CloudType>(pcm),
-    enthalpyTransfer_(pcm.enthalpyTransfer_)
+    enthalpyTransfer_(pcm.enthalpyTransfer_),
+    dMass_(pcm.dMass_)
 {}
 
 
@@ -99,11 +101,12 @@ Foam::PhaseChangeModel<CloudType>::PhaseChangeModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type),
+    SubModelBase<CloudType>(owner, dict, typeName, type),
     enthalpyTransfer_
     (
         wordToEnthalpyTransfer(this->coeffDict().lookup("enthalpyTransfer"))
-    )
+    ),
+    dMass_(0.0)
 {}
 
 
@@ -135,6 +138,9 @@ void Foam::PhaseChangeModel<CloudType>::calculate
     const scalar,
     const scalar,
     const scalar,
+    const scalar,
+    const scalar,
+    const scalarField&,
     scalarField&
 ) const
 {
@@ -150,6 +156,9 @@ void Foam::PhaseChangeModel<CloudType>::calculate
             "const scalar, "
             "const scalar, "
             "const scalar, "
+            "const scalar, "
+            "const scalar, "
+            "const scalarField&,"
             "scalarField&"
         ") const"
     );
@@ -166,6 +175,33 @@ Foam::scalar Foam::PhaseChangeModel<CloudType>::dh
 ) const
 {
     return 0.0;
+}
+
+
+template<class CloudType>
+void Foam::PhaseChangeModel<CloudType>::addToPhaseChangeMass(const scalar dMass)
+{
+    dMass_ += dMass;
+}
+
+
+template<class CloudType>
+void Foam::PhaseChangeModel<CloudType>::info(Ostream& os)
+{
+    const scalar mass0 = this->template getBaseProperty<scalar>("mass");
+    const scalar massTotal = mass0 + returnReduce(dMass_, sumOp<scalar>());
+
+    Info<< "    Mass transfer phase change      = " << massTotal << nl;
+
+    if
+    (
+        this->owner().solution().transient()
+     && this->owner().db().time().outputTime()
+    )
+    {
+        this->setBaseProperty("mass", massTotal);
+        dMass_ = 0.0;
+    }
 }
 
 

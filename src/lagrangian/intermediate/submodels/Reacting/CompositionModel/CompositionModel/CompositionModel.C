@@ -44,7 +44,7 @@ Foam::CompositionModel<CloudType>::CompositionModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type),
+    SubModelBase<CloudType>(owner, dict, typeName, type),
     thermo_(owner.thermo()),
     phaseProps_
     (

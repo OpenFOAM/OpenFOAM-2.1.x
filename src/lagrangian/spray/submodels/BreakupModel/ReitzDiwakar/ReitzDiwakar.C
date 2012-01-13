@@ -92,11 +92,9 @@ bool Foam::ReitzDiwakar<CloudType>::update
     const vector& Urel,
     const scalar Urmag,
     const scalar tMom,
-    const scalar averageParcelMass,
     scalar& dChild,
-    scalar& massChild,
-    cachedRandom& rndGen
-) const
+    scalar& massChild
+)
 {
     scalar d1 = d;
     scalar nuc = muc/rhoc;
@@ -130,7 +128,7 @@ bool Foam::ReitzDiwakar<CloudType>::update
 
         // preserve the total mass/volume by updating the number of
         // particles in parcels due to breakup
-        nParticle *= pow(d1/d, 3.0);
+        nParticle *= pow3(d1/d);
     }
 
     return false;

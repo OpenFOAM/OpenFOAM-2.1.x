@@ -22,16 +22,26 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::LiquidEvaporation
+    Foam::LiquidEvaporationBoil
 
 Description
     Liquid evaporation model
     - uses ideal gas assumption
+    - includes boiling model based on:
+
+    \verbatim
+        "Studies of Superheated Fuel Spray Structures and Vaporization in
+        GDI Engines"
+
+        Zuo, B., Gomes, A. M. and Rutland C. J.
+
+        International Journal of Engine Research, 2000, Vol. 1(4), pp. 321-336
+    \endverbatim
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef LiquidEvaporation_H
-#define LiquidEvaporation_H
+#ifndef LiquidEvaporationBoil_H
+#define LiquidEvaporationBoil_H
 
 #include "PhaseChangeModel.H"
 #include "liquidMixtureProperties.H"
@@ -41,11 +51,11 @@ Description
 namespace Foam
 {
 /*---------------------------------------------------------------------------*\
-                     Class LiquidEvaporation Declaration
+                   Class LiquidEvaporationBoil Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class CloudType>
-class LiquidEvaporation
+class LiquidEvaporationBoil
 :
     public PhaseChangeModel<CloudType>
 {
@@ -78,29 +88,29 @@ protected:
 public:
 
     //- Runtime type information
-    TypeName("liquidEvaporation");
+    TypeName("liquidEvaporationBoil");
 
 
     // Constructors
 
         //- Construct from dictionary
-        LiquidEvaporation(const dictionary& dict, CloudType& cloud);
+        LiquidEvaporationBoil(const dictionary& dict, CloudType& cloud);
 
         //- Construct copy
-        LiquidEvaporation(const LiquidEvaporation<CloudType>& pcm);
+        LiquidEvaporationBoil(const LiquidEvaporationBoil<CloudType>& pcm);
 
         //- Construct and return a clone
         virtual autoPtr<PhaseChangeModel<CloudType> > clone() const
         {
             return autoPtr<PhaseChangeModel<CloudType> >
             (
-                new LiquidEvaporation<CloudType>(*this)
+                new LiquidEvaporationBoil<CloudType>(*this)
             );
         }
 
 
     //- Destructor
-    virtual ~LiquidEvaporation();
+    virtual ~LiquidEvaporationBoil();
 
 
     // Member Functions
@@ -140,7 +150,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "LiquidEvaporation.C"
+#   include "LiquidEvaporationBoil.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -334,7 +334,7 @@ void Foam::ThermoCloud<CloudType>::evolve()
 
 
 template<class CloudType>
-void Foam::ThermoCloud<CloudType>::info() const
+void Foam::ThermoCloud<CloudType>::info()
 {
     CloudType::info();
 }

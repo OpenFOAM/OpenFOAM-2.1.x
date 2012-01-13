@@ -32,6 +32,8 @@ Foam::SubModelBase<CloudType>::SubModelBase(CloudType& owner)
 :
     owner_(owner),
     dict_(dictionary::null),
+    baseName_("none"),
+    name_("none"),
     coeffDict_(dictionary::null)
 {}
 
@@ -41,12 +43,15 @@ Foam::SubModelBase<CloudType>::SubModelBase
 (
     CloudType& owner,
     const dictionary& dict,
+    const word& baseName,
     const word& name,
     const word& dictExt
 )
 :
     owner_(owner),
     dict_(dict),
+    baseName_(baseName),
+    name_(name),
     coeffDict_(dict.subDict(name + dictExt))
 {}
 
@@ -56,6 +61,8 @@ Foam::SubModelBase<CloudType>::SubModelBase(const SubModelBase<CloudType>& smb)
 :
     owner_(smb.owner_),
     dict_(smb.dict_),
+    baseName_(smb.baseName_),
+    name_(smb.name_),
     coeffDict_(smb.coeffDict_)
 {}
 
@@ -80,6 +87,20 @@ template<class CloudType>
 const Foam::dictionary& Foam::SubModelBase<CloudType>::dict() const
 {
     return dict_;
+}
+
+
+template<class CloudType>
+const Foam::word& Foam::SubModelBase<CloudType>::baseName() const
+{
+    return baseName_;
+}
+
+
+template<class CloudType>
+const Foam::word& Foam::SubModelBase<CloudType>::name() const
+{
+    return name_;
 }
 
 
@@ -123,6 +144,129 @@ template<class CloudType>
 void Foam::SubModelBase<CloudType>::cacheFields(const bool)
 {
     // do nothing
+}
+
+
+template<class CloudType>
+template<class Type>
+Type Foam::SubModelBase<CloudType>::getBaseProperty
+(
+    const word& entryName
+) const
+{
+    Type result = pTraits<Type>::zero;
+
+    const dictionary& properties = this->owner().outputProperties();
+
+    if (properties.found(baseName_))
+    {
+        const dictionary& baseDict = properties.subDict(baseName_);
+        baseDict.readIfPresent(entryName, result);
+    }
+
+    return result;
+}
+
+
+template<class CloudType>
+template<class Type>
+void Foam::SubModelBase<CloudType>::setBaseProperty
+(
+    const word& entryName,
+    const Type& value
+)
+{
+    dictionary& properties = this->owner().outputProperties();
+
+    if (properties.found(baseName_))
+    {
+        dictionary& baseDict = properties.subDict(baseName_);
+        baseDict.add(entryName, value, true);
+    }
+    else
+    {
+        properties.add(baseName_, dictionary());
+        properties.subDict(baseName_).add(entryName, value);
+    }
+}
+
+
+template<class CloudType>
+template<class Type>
+Type Foam::SubModelBase<CloudType>::getModelProperty
+(
+    const word& entryName
+) const
+{
+    Type result = pTraits<Type>::zero;
+
+    const dictionary& properties = this->owner().outputProperties();
+
+    if (properties.found(baseName_))
+    {
+        const dictionary& baseDict = properties.subDict(baseName_);
+
+        if (baseDict.found(name_))
+        {
+            baseDict.subDict(name_).readIfPresent(entryName, result);
+        }
+    }
+
+    return result;
+}
+
+
+template<class CloudType>
+template<class Type>
+void Foam::SubModelBase<CloudType>::getModelProperty
+(
+    const word& entryName,
+    Type& value
+) const
+{
+    const dictionary& properties = this->owner().outputProperties();
+
+    if (properties.found(baseName_))
+    {
+        const dictionary& baseDict = properties.subDict(baseName_);
+
+        if (baseDict.found(name_))
+        {
+            baseDict.subDict(name_).readIfPresent(entryName, value);
+        }
+    }
+}
+
+
+template<class CloudType>
+template<class Type>
+void Foam::SubModelBase<CloudType>::setModelProperty
+(
+    const word& entryName,
+    const Type& value
+)
+{
+    dictionary& properties = this->owner().outputProperties();
+
+    if (properties.found(baseName_))
+    {
+        dictionary& baseDict = properties.subDict(baseName_);
+        if (baseDict.found(name_))
+        {
+            baseDict.subDict(name_).add(entryName, value, true);
+        }
+        else
+        {
+            baseDict.add(name_, dictionary());
+            baseDict.subDict(name_).add(entryName, value, true);
+        }
+    }
+    else
+    {
+        properties.add(baseName_, dictionary());
+        properties.subDict(baseName_).add(name_, dictionary());
+        properties.subDict(baseName_).subDict(name_).add(entryName, value);
+    }
 }
 
 

@@ -63,6 +63,12 @@ protected:
         //- Reference to the cloud dictionary
         const dictionary& dict_;
 
+        //- Name of the sub-model bas class
+        const word baseName_;
+
+        //- Name of the sub-model
+        const word name_;
+
         //- Coefficients dictionary
         const dictionary& coeffDict_;
 
@@ -79,6 +85,7 @@ public:
         (
             CloudType& owner,
             const dictionary& dict,
+            const word& baseName,
             const word& name,
             const word& dictExt = "Coeffs"
         );
@@ -98,14 +105,23 @@ public:
 
         // Access
 
-            //- Return const access to the cloud dictionary
-            const dictionary& dict() const;
-
             //- Return const access to the owner cloud
             const CloudType& owner() const;
 
+            //- Return const access to the cloud dictionary
+            const dictionary& dict() const;
+
+            //- Return const access to the base name of the sub-model
+            const word& baseName() const;
+
+            //- Return const access to the name of the sub-model
+            const word& name() const;
+
             //- Return const access to the coefficients dictionary
             const dictionary& coeffDict() const;
+
+            //- Return const access to the properties dictionary
+            const IOdictionary& properties() const;
 
             //- Returns true if defaultCoeffs is true and outputs on printMsg
             bool defaultCoeffs(const bool printMsg) const;
@@ -121,6 +137,26 @@ public:
 
             //- Return non-const access to the owner cloud for manipulation
             CloudType& owner();
+
+            //- Retrieve generic property from sub-model
+            template<class Type>
+            Type getModelProperty(const word& entryName) const;
+
+            //- Retrieve generic property from sub-model
+            template<class Type>
+            void getModelProperty(const word& entryName, Type& value) const;
+
+            //- Add generic property from sub-model
+            template<class Type>
+            void setModelProperty(const word& entryName, const Type& value);
+
+            //- Retrieve generic property from base model
+            template<class Type>
+            Type getBaseProperty(const word& entryName) const;
+
+            //- Add generic property from base model
+            template<class Type>
+            void setBaseProperty(const word& entryName, const Type& value);
 
 
         // I-O

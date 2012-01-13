@@ -42,7 +42,7 @@ Foam::CollisionModel<CloudType>::CollisionModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type)
+    SubModelBase<CloudType>(owner, dict, typeName, type)
 {}
 
 

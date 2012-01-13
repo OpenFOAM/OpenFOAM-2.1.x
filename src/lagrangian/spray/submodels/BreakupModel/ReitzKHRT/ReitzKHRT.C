@@ -98,13 +98,13 @@ bool Foam::ReitzKHRT<CloudType>::update
     const vector& Urel,
     const scalar Urmag,
     const scalar tMom,
-    const scalar averageParcelMass,
     scalar& dChild,
-    scalar& massChild,
-    cachedRandom& rndGen
-) const
+    scalar& massChild
+)
 {
     bool addParcel = false;
+
+    const scalar averageParcelMass = this->owner().averageParcelMass();
 
     scalar r = 0.5*d;
     scalar d3 = pow3(d);
@@ -158,7 +158,7 @@ bool Foam::ReitzKHRT<CloudType>::update
     scalar KRT = sqrt(helpVariable/(3.0*sigma + VSMALL));
 
     // wavelength of the fastest growing RT frequency
-    scalar lambdaRT = 2.0*constant::mathematical::pi*cRT_/(KRT + VSMALL);
+    scalar lambdaRT = constant::mathematical::twoPi*cRT_/(KRT + VSMALL);
 
     // if lambdaRT < diameter, then RT waves are growing on the surface
     // and we start to keep track of how long they have been growing
@@ -244,7 +244,7 @@ bool Foam::ReitzKHRT<CloudType>::update
         // Technology 3 (1987) 309-337, p.322) pIndKH() should be introduced
 
         scalar lengthScale =
-            min(lambdaKH, 2.0*constant::mathematical::pi*Urmag/omegaKH);
+            min(lambdaKH, constant::mathematical::twoPi*Urmag/omegaKH);
         scalar diameterLargerDrop = cbrt(1.5*d*d*lengthScale);
         d = diameterLargerDrop;
         ms = 0.0;

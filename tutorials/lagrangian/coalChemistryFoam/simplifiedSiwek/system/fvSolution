@@ -99,11 +99,11 @@ relaxationFactors
 {
     fields
     {
-        ".*Final"       1;
+        ".*"            1;
     }
     equations
     {
-        ".*Final"       1;
+        ".*"            1;
     }
 }
 

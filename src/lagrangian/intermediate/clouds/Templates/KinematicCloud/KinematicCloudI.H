@@ -51,6 +51,21 @@ Foam::KinematicCloud<CloudType>::particleProperties() const
 
 
 template<class CloudType>
+inline const Foam::IOdictionary&
+Foam::KinematicCloud<CloudType>::outputProperties() const
+{
+    return outputProperties_;
+}
+
+
+template<class CloudType>
+inline Foam::IOdictionary& Foam::KinematicCloud<CloudType>::outputProperties()
+{
+    return outputProperties_;
+}
+
+
+template<class CloudType>
 inline const Foam::cloudSolution&
 Foam::KinematicCloud<CloudType>::solution() const
 {
@@ -299,6 +314,22 @@ inline Foam::scalar Foam::KinematicCloud<CloudType>::Dij
     sj = max(sj, VSMALL);
 
     return si/sj;
+}
+
+
+template<class CloudType>
+inline Foam::scalar Foam::KinematicCloud<CloudType>::Dmax() const
+{
+    scalar d = -GREAT;
+    forAllConstIter(typename KinematicCloud<CloudType>, *this, iter)
+    {
+        const parcelType& p = iter();
+        d = max(d, p.d());
+    }
+
+    reduce(d, maxOp<scalar>());
+
+    return d;
 }
 
 

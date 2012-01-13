@@ -78,6 +78,12 @@ protected:
         enthalpyTransferType enthalpyTransfer_;
 
 
+        // Counters
+
+            //- Mass of lagrangian phase converted
+            scalar dMass_;
+
+
     // Protected Member Functions
 
         //- Convert word to enthalpy transfer type
@@ -158,11 +164,14 @@ public:
             const scalar dt,
             const label cellI,
             const scalar Re,
+            const scalar Pr,
             const scalar d,
             const scalar nu,
             const scalar T,
             const scalar Ts,
             const scalar pc,
+            const scalar Tc,
+            const scalarField& Yl,
             scalarField& dMassPC
         ) const;
 
@@ -174,6 +183,16 @@ public:
             const label p,
             const label T
         ) const;
+
+
+        //- Add to phase change mass
+        void addToPhaseChangeMass(const scalar dMass);
+
+
+        // I-O
+
+            //- Write injection info to stream
+            virtual void info(Ostream& os);
 };
 
 

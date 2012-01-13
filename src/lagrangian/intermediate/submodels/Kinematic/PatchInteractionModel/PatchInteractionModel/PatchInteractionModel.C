@@ -122,7 +122,7 @@ Foam::PatchInteractionModel<CloudType>::PatchInteractionModel
     const word& type
 )
 :
-    SubModelBase<CloudType>(owner, dict, type),
+    SubModelBase<CloudType>(owner, dict, typeName, type),
     UName_(this->coeffDict().lookupOrDefault("UName", word("U")))
 {}
 
@@ -333,7 +333,7 @@ void Foam::PatchInteractionModel<CloudType>::patchData
 
 
 template<class CloudType>
-void Foam::PatchInteractionModel<CloudType>::info(Ostream& os) const
+void Foam::PatchInteractionModel<CloudType>::info(Ostream& os)
 {
     // do nothing
 }

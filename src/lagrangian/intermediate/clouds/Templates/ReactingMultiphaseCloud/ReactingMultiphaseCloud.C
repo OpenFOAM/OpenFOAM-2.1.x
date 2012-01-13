@@ -253,33 +253,12 @@ void Foam::ReactingMultiphaseCloud<CloudType>::evolve()
 
 
 template<class CloudType>
-void Foam::ReactingMultiphaseCloud<CloudType>::addToMassDevolatilisation
-(
-    const scalar dMass
-)
-{
-    dMassDevolatilisation_ += dMass;
-}
-
-
-template<class CloudType>
-void Foam::ReactingMultiphaseCloud<CloudType>::addToMassSurfaceReaction
-(
-    const scalar dMass
-)
-{
-    dMassSurfaceReaction_ += dMass;
-}
-
-
-template<class CloudType>
-void Foam::ReactingMultiphaseCloud<CloudType>::info() const
+void Foam::ReactingMultiphaseCloud<CloudType>::info()
 {
     CloudType::info();
-    Info<< "    Mass transfer devolatilisation  = "
-        << returnReduce(dMassDevolatilisation_, sumOp<scalar>()) << nl;
-    Info<< "    Mass transfer surface reaction  = "
-        << returnReduce(dMassSurfaceReaction_, sumOp<scalar>()) << nl;
+
+    this->devolatilisation().info(Info);
+    this->surfaceReaction().info(Info);
 }
 
 
