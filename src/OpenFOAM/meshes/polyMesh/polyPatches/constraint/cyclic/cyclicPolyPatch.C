@@ -419,145 +419,147 @@ void Foam::cyclicPolyPatch::getCentresAndAnchors
             << gAverage(half1Ctrs) << endl;
     }
 
-    switch (transform_)
+    if (half0Ctrs.size())
     {
-        case ROTATIONAL:
+        switch (transform_)
         {
-            vector n0 = findFaceMaxRadius(half0Ctrs);
-            vector n1 = -findFaceMaxRadius(half1Ctrs);
-            n0 /= mag(n0) + VSMALL;
-            n1 /= mag(n1) + VSMALL;
-
-            if (debug)
+            case ROTATIONAL:
             {
-                Pout<< "cyclicPolyPatch::getCentresAndAnchors :"
-                    << " patch:" << name()
-                    << " Specified rotation :"
-                    << " n0:" << n0 << " n1:" << n1 << endl;
-            }
+                vector n0 = findFaceMaxRadius(half0Ctrs);
+                vector n1 = -findFaceMaxRadius(half1Ctrs);
+                n0 /= mag(n0) + VSMALL;
+                n1 /= mag(n1) + VSMALL;
 
-            // Extended tensor from two local coordinate systems calculated
-            // using normal and rotation axis
-            const tensor E0
-            (
-                rotationAxis_,
-                (n0 ^ rotationAxis_),
-                n0
-            );
-            const tensor E1
-            (
-                rotationAxis_,
-                (-n1 ^ rotationAxis_),
-                -n1
-            );
-            const tensor revT(E1.T() & E0);
-
-            // Rotation
-            forAll(half0Ctrs, faceI)
-            {
-                half0Ctrs[faceI] =
-                    Foam::transform
-                    (
-                        revT,
-                        half0Ctrs[faceI] - rotationCentre_
-                    )
-                  + rotationCentre_;
-                anchors0[faceI] =
-                    Foam::transform
-                    (
-                        revT,
-                        anchors0[faceI] - rotationCentre_
-                    )
-                  + rotationCentre_;
-            }
-
-            break;
-        }
-        case TRANSLATIONAL:
-        {
-            // Transform 0 points.
-
-            if (debug)
-            {
-                Pout<< "cyclicPolyPatch::getCentresAndAnchors :"
-                    << " patch:" << name()
-                    << "Specified translation : " << separationVector_
-                    << endl;
-            }
-
-            // Note: getCentresAndAnchors gets called on the slave side
-            // so separationVector is owner-slave points.
-
-            half0Ctrs -= separationVector_;
-            anchors0 -= separationVector_;
-            break;
-        }
-        default:
-        {
-            // Assumes that cyclic is planar. This is also the initial
-            // condition for patches without faces.
-
-            // Determine the face with max area on both halves. These
-            // two faces are used to determine the transformation tensors
-            label max0I = findMaxArea(pp0.points(), pp0);
-            vector n0 = pp0[max0I].normal(pp0.points());
-            n0 /= mag(n0) + VSMALL;
-
-            label max1I = findMaxArea(pp1.points(), pp1);
-            vector n1 = pp1[max1I].normal(pp1.points());
-            n1 /= mag(n1) + VSMALL;
-
-            if (mag(n0 & n1) < 1-matchTolerance())
-            {
                 if (debug)
                 {
                     Pout<< "cyclicPolyPatch::getCentresAndAnchors :"
                         << " patch:" << name()
-                        << " Detected rotation :"
+                        << " Specified rotation :"
                         << " n0:" << n0 << " n1:" << n1 << endl;
                 }
 
-                // Rotation (around origin)
-                const tensor revT(rotationTensor(n0, -n1));
+                // Extended tensor from two local coordinate systems calculated
+                // using normal and rotation axis
+                const tensor E0
+                (
+                    rotationAxis_,
+                    (n0 ^ rotationAxis_),
+                    n0
+                );
+                const tensor E1
+                (
+                    rotationAxis_,
+                    (-n1 ^ rotationAxis_),
+                    -n1
+                );
+                const tensor revT(E1.T() & E0);
 
                 // Rotation
                 forAll(half0Ctrs, faceI)
                 {
-                    half0Ctrs[faceI] = Foam::transform
-                    (
-                        revT,
-                        half0Ctrs[faceI]
-                    );
-                    anchors0[faceI] = Foam::transform
-                    (
-                        revT,
-                        anchors0[faceI]
-                    );
+                    half0Ctrs[faceI] =
+                        Foam::transform
+                        (
+                            revT,
+                            half0Ctrs[faceI] - rotationCentre_
+                        )
+                      + rotationCentre_;
+                    anchors0[faceI] =
+                        Foam::transform
+                        (
+                            revT,
+                            anchors0[faceI] - rotationCentre_
+                        )
+                      + rotationCentre_;
                 }
-            }
-            else
-            {
-                // Parallel translation. Get average of all used points.
 
-                const point ctr0(sum(pp0.localPoints())/pp0.nPoints());
-                const point ctr1(sum(pp1.localPoints())/pp1.nPoints());
+                break;
+            }
+            case TRANSLATIONAL:
+            {
+                // Transform 0 points.
 
                 if (debug)
                 {
                     Pout<< "cyclicPolyPatch::getCentresAndAnchors :"
                         << " patch:" << name()
-                        << " Detected translation :"
-                        << " n0:" << n0 << " n1:" << n1
-                        << " ctr0:" << ctr0 << " ctr1:" << ctr1 << endl;
+                        << "Specified translation : " << separationVector_
+                        << endl;
                 }
 
-                half0Ctrs += ctr1 - ctr0;
-                anchors0 += ctr1 - ctr0;
+                // Note: getCentresAndAnchors gets called on the slave side
+                // so separationVector is owner-slave points.
+
+                half0Ctrs -= separationVector_;
+                anchors0 -= separationVector_;
+                break;
             }
-            break;
+            default:
+            {
+                // Assumes that cyclic is planar. This is also the initial
+                // condition for patches without faces.
+
+                // Determine the face with max area on both halves. These
+                // two faces are used to determine the transformation tensors
+                label max0I = findMaxArea(pp0.points(), pp0);
+                vector n0 = pp0[max0I].normal(pp0.points());
+                n0 /= mag(n0) + VSMALL;
+
+                label max1I = findMaxArea(pp1.points(), pp1);
+                vector n1 = pp1[max1I].normal(pp1.points());
+                n1 /= mag(n1) + VSMALL;
+
+                if (mag(n0 & n1) < 1-matchTolerance())
+                {
+                    if (debug)
+                    {
+                        Pout<< "cyclicPolyPatch::getCentresAndAnchors :"
+                            << " patch:" << name()
+                            << " Detected rotation :"
+                            << " n0:" << n0 << " n1:" << n1 << endl;
+                    }
+
+                    // Rotation (around origin)
+                    const tensor revT(rotationTensor(n0, -n1));
+
+                    // Rotation
+                    forAll(half0Ctrs, faceI)
+                    {
+                        half0Ctrs[faceI] = Foam::transform
+                        (
+                            revT,
+                            half0Ctrs[faceI]
+                        );
+                        anchors0[faceI] = Foam::transform
+                        (
+                            revT,
+                            anchors0[faceI]
+                        );
+                    }
+                }
+                else
+                {
+                    // Parallel translation. Get average of all used points.
+
+                    const point ctr0(sum(pp0.localPoints())/pp0.nPoints());
+                    const point ctr1(sum(pp1.localPoints())/pp1.nPoints());
+
+                    if (debug)
+                    {
+                        Pout<< "cyclicPolyPatch::getCentresAndAnchors :"
+                            << " patch:" << name()
+                            << " Detected translation :"
+                            << " n0:" << n0 << " n1:" << n1
+                            << " ctr0:" << ctr0 << " ctr1:" << ctr1 << endl;
+                    }
+
+                    half0Ctrs += ctr1 - ctr0;
+                    anchors0 += ctr1 - ctr0;
+                }
+                break;
+            }
         }
     }
-
 
     // Calculate typical distance per face
     tols = matchTolerance()*calcFaceTol(pp1, pp1.points(), half1Ctrs);
@@ -1270,7 +1272,7 @@ bool Foam::cyclicPolyPatch::order
     rotation.setSize(pp.size());
     rotation = 0;
 
-    if (pp.empty() || transform_ == NOORDERING)
+    if (transform_ == NOORDERING)
     {
         // No faces, nothing to change.
         return false;
