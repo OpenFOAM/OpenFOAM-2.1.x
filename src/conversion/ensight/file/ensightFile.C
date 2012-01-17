@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -24,12 +24,60 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ensightFile.H"
+#include <sstream>
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 bool Foam::ensightFile::allowUndef_ = false;
 
 Foam::scalar Foam::ensightFile::undefValue_ = Foam::floatScalarVGREAT;
+
+// default is width 8
+Foam::string Foam::ensightFile::mask_ = "********";
+
+Foam::string Foam::ensightFile::dirFmt_ = "%08d";
+
+
+// * * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * * //
+
+Foam::string Foam::ensightFile::mask()
+{
+    return mask_;
+}
+
+
+Foam::string Foam::ensightFile::subDir(const label n)
+{
+    char buf[32];
+
+    sprintf(buf, dirFmt_.c_str(), n);
+    return buf;
+}
+
+
+void Foam::ensightFile::subDirWidth(const label n)
+{
+    // enforce max limit to avoid buffer overflow in subDir()
+    if (n < 1 || n > 31)
+    {
+        return;
+    }
+
+    // appropriate printf format
+    std::ostringstream oss;
+    oss << "%0" << n << "d";
+    dirFmt_ = oss.str();
+
+    // set mask accordingly
+    mask_.resize(n, '*');
+}
+
+
+Foam::label Foam::ensightFile::subDirWidth()
+{
+    return mask_.size();
+}
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -244,24 +292,6 @@ Foam::Ostream& Foam::ensightFile::writeBinaryHeader()
     }
 
     return *this;
-}
-
-
-// * * * * * * * * * * * * * Static Member Functions * * * * * * * * * * * * //
-
-Foam::string Foam::ensightFile::mask()
-{
-    char buf[16] = "********";
-    return buf;
-}
-
-
-Foam::string Foam::ensightFile::subDir(const label n)
-{
-    char buf[16];
-
-    sprintf(buf, "%08d", n);
-    return buf;
 }
 
 

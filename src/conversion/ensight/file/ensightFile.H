@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -57,6 +57,12 @@ class ensightFile
         //- value to represent undef in results
         static scalar undefValue_;
 
+        //- The '*' mask appropriate for subDir
+        static string mask_;
+
+        //- The printf format for zero-padded subdirectory numbers
+        static string dirFmt_;
+
 
     // Private Member Functions
 
@@ -88,11 +94,18 @@ public:
         //- Return setting for whether 'undef' values are allowed in results
         static bool allowUndef();
 
-        //- '*' mask appropriate for subDir
+        //- The '*' mask appropriate for subDir
         static string mask();
 
-        //- consistent zero-padded numbers for subdirectories
+        //- Consistent zero-padded numbers for subdirectories
         static string subDir(const label);
+
+        //- Set width of subDir and mask. Default width is 8 digits.
+        //  Max width is 31 digits.
+        static void subDirWidth(const label);
+
+        //- Return current width of subDir and mask.
+        static label subDirWidth();
 
 
     // Edit
