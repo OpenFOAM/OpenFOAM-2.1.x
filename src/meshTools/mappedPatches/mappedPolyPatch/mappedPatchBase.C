@@ -679,7 +679,7 @@ Foam::mappedPatchBase::mappedPatchBase
     AMIPtr_(NULL),
     AMIReverse_(false),
     surfPtr_(NULL),
-    surfDict_(dictionary::null)
+    surfDict_(fileName("surface"))
 {}
 
 
@@ -705,7 +705,7 @@ Foam::mappedPatchBase::mappedPatchBase
     AMIPtr_(NULL),
     AMIReverse_(false),
     surfPtr_(NULL),
-    surfDict_(dictionary::null)
+    surfDict_(fileName("surface"))
 {}
 
 
@@ -731,7 +731,7 @@ Foam::mappedPatchBase::mappedPatchBase
     AMIPtr_(NULL),
     AMIReverse_(false),
     surfPtr_(NULL),
-    surfDict_(dictionary::null)
+    surfDict_(fileName("surface"))
 {}
 
 
@@ -757,7 +757,7 @@ Foam::mappedPatchBase::mappedPatchBase
     AMIPtr_(NULL),
     AMIReverse_(false),
     surfPtr_(NULL),
-    surfDict_(dictionary::null)
+    surfDict_(fileName("surface"))
 {}
 
 
@@ -1007,8 +1007,11 @@ void Foam::mappedPatchBase::write(Ostream& os) const
                 << token::END_STATEMENT << nl;
         }
 
-        os.writeKeyword(surfDict_.dictName());
-        os  << surfDict_;
+        if (!surfDict_.empty())
+        {
+            os.writeKeyword(surfDict_.dictName());
+            os  << surfDict_;
+        }
     }
 }
 

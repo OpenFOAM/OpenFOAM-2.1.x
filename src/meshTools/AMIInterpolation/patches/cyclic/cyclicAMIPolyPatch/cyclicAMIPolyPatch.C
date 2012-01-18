@@ -366,7 +366,7 @@ Foam::cyclicAMIPolyPatch::cyclicAMIPolyPatch
     AMIPtr_(NULL),
     AMIReverse_(false),
     surfPtr_(NULL),
-    surfDict_(dictionary::null)
+    surfDict_(fileName("surface"))
 {
     // Neighbour patch might not be valid yet so no transformation
     // calculation possible
@@ -474,7 +474,7 @@ Foam::cyclicAMIPolyPatch::cyclicAMIPolyPatch
     AMIPtr_(NULL),
     AMIReverse_(pp.AMIReverse_),
     surfPtr_(NULL),
-    surfDict_(dictionary::null)
+    surfDict_(pp.surfDict_)
 {
     // Neighbour patch might not be valid yet so no transformation
     // calculation possible
@@ -501,7 +501,7 @@ Foam::cyclicAMIPolyPatch::cyclicAMIPolyPatch
     AMIPtr_(NULL),
     AMIReverse_(pp.AMIReverse_),
     surfPtr_(NULL),
-    surfDict_(dictionary::null)
+    surfDict_(pp.surfDict_)
 {
     if (nbrPatchName_ == name())
     {
@@ -825,7 +825,7 @@ void Foam::cyclicAMIPolyPatch::write(Ostream& os) const
             << token::END_STATEMENT << nl;
     }
 
-    if (surfDict_ != dictionary::null)
+    if (!surfDict_.empty())
     {
         os.writeKeyword(surfDict_.dictName());
         os  << surfDict_;
