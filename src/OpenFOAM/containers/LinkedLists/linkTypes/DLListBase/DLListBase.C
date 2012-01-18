@@ -94,21 +94,21 @@ bool Foam::DLListBase::swapUp(DLListBase::link* a)
         if (ap == first_)
         {
             first_ = a;
+            ap->prev_ = a;
+        }
+        else
+        {
+            ap->prev_->next_ = a;
         }
 
         if (a == last_)
         {
             last_ = ap;
+            a->next_ = ap;
         }
-
-        if (a->next_)
+        else
         {
             a->next_->prev_ = ap;
-        }
-
-        if (ap->prev_)
-        {
-            ap->prev_->next_ = a;
         }
 
         a->prev_ = ap->prev_;
@@ -135,19 +135,19 @@ bool Foam::DLListBase::swapDown(DLListBase::link* a)
         if (a == first_)
         {
             first_ = an;
+            a->prev_ = an;
+        }
+        else
+        {
+            a->prev_->next_ = an;
         }
 
         if (an == last_)
         {
             last_ = a;
+            an->next_ = a;
         }
-
-        if (a->prev_)
-        {
-            a->prev_->next_ = an;
-        }
-
-        if (an->next_)
+        else
         {
             an->next_->prev_ = a;
         }
