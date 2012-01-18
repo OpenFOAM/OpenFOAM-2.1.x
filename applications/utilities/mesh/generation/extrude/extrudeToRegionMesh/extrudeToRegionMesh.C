@@ -1637,6 +1637,7 @@ int main(int argc, char *argv[])
 
     #include "addRegionOption.H"
     #include "addOverwriteOption.H"
+    argList::addOption("dict", "name", "specify alternative dictionary");
 
     #include "setRootCase.H"
     #include "createTime.H"
