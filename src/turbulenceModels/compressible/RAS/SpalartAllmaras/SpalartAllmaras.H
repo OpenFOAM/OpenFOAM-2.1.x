@@ -33,7 +33,7 @@ Description
         "A One-Equation Turbulence Model for Aerodynamic Flows"
         P.R. Spalart,
         S.R. Allmaras,
-        La Recherche A´rospatiale, No. 1, 1994, pp. 5–21.
+        La Recherche Aerospatiale, No. 1, 1994, pp. 5-21.
 
         Extended according to:
 

@@ -76,7 +76,7 @@ class reducedUnits
 
                 scalar refPressure_;
 
-               scalar refMassDensity_;
+                scalar refMassDensity_;
 
                 scalar refNumberDensity_;
 
@@ -104,7 +104,7 @@ public:
 
         //- Construct with no argument, uses default values:
         // length  = 1nm
-        // mass = 1.660538782eâ27kg (unified atomic mass unit)
+        // mass = 1.660538782e-27kg (unified atomic mass unit)
         // temperature = 1K (therefore, energy = 1*kb)
         reducedUnits();
 

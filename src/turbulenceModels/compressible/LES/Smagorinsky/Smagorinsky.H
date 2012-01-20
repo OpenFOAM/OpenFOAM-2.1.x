@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -113,7 +113,13 @@ public:
         //  calculated from the given velocity gradient
         tmp<volScalarField> k(const tmp<volTensorField>& gradU) const
         {
-            return (2.0*ck_/ce_)*sqr(delta())*magSqr(dev(symm(gradU)));
+            volSymmTensorField D(symm(gradU));
+
+            volScalarField a(ce_/delta());
+            volScalarField b((2.0/3.0)*tr(D));
+            volScalarField c(2*ck_*delta()*(dev(D) && D));
+
+            return sqr((-b + sqrt(sqr(b) + 4*a*c))/(2*a));
         }
 
         //- Return SGS kinetic energy
