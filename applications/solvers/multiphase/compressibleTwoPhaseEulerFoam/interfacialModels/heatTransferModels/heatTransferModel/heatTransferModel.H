@@ -114,12 +114,12 @@ public:
         //- the heat-transfer function K used in the enthalpy eq.
         //    ddt(alpha*rhoa*ha) + ... = ... alpha*beta*K*(Ta - Tb)
         //    ddt(beta*rhob*hb) + ...  = ... alpha*beta*K*(Tb - Ta)
-        // ********************************** NB ! *****************************
+        // ********************************** NB! *****************************
         // for numerical reasons alpha and beta has been
         // extracted from the heat-transfer function K,
         // so you MUST divide K by alpha*beta when implementing the
         // heat-transfer function
-        // ********************************** NB ! *****************************
+        // ********************************** NB! *****************************
         virtual tmp<volScalarField> K(const volScalarField& Ur) const = 0;
 };
 

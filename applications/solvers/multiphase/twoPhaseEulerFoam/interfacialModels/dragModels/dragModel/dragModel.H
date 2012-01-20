@@ -114,11 +114,11 @@ public:
         //- the dragfunction K used in the momentum eq.
         //    ddt(alpha*rhoa*Ua) + ... = ... alpha*beta*K*(Ua-Ub)
         //    ddt(beta*rhob*Ub) + ...  = ... alpha*beta*K*(Ub-Ua)
-        // ********************************** NB ! *****************************
+        // ********************************** NB! *****************************
         // for numerical reasons alpha and beta has been
         // extracted from the dragFunction K,
         // so you MUST divide K by alpha*beta when implemnting the drag function
-        // ********************************** NB ! *****************************
+        // ********************************** NB! *****************************
         virtual tmp<volScalarField> K(const volScalarField& Ur) const = 0;
 };
 
