@@ -203,10 +203,15 @@ void Foam::Time::setControls()
         )
     );
 
-    if (timeDict.readIfPresent("deltaT", deltaT_))
+    // Read and set the deltaT only if time-step adjustment is active
+    // otherwise use the deltaT from the controlDict
+    if (controlDict_.lookupOrDefault<Switch>("adjustTimeStep", false))
     {
-        deltaTSave_ = deltaT_;
-        deltaT0_ = deltaT_;
+        if (timeDict.readIfPresent("deltaT", deltaT_))
+        {
+            deltaTSave_ = deltaT_;
+            deltaT0_ = deltaT_;
+        }
     }
 
     timeDict.readIfPresent("deltaT0", deltaT0_);
