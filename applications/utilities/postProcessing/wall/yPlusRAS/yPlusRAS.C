@@ -39,7 +39,7 @@ Description
 #include "incompressible/RAS/RASModel/RASModel.H"
 #include "nutkWallFunction/nutkWallFunctionFvPatchScalarField.H"
 
-#include "basicPsiThermo.H"
+#include "basicThermo.H"
 #include "compressible/RAS/RASModel/RASModel.H"
 #include "mutkWallFunction/mutkWallFunctionFvPatchScalarField.H"
 
@@ -130,11 +130,11 @@ void calcCompressibleYPlus
 
     #include "compressibleCreatePhi.H"
 
-    autoPtr<basicPsiThermo> pThermo
+    autoPtr<basicThermo> pThermo
     (
-        basicPsiThermo::New(mesh)
+        basicThermo::New(mesh)
     );
-    basicPsiThermo& thermo = pThermo();
+    basicThermo& thermo = pThermo();
 
     autoPtr<compressible::RASModel> RASModel
     (

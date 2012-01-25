@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
             {
                 Info<< mesh.boundary()[patchi].name()
                     << " "
-                    << sum
+                    << gSum
                        (
                            mesh.magSf().boundaryField()[patchi]
                           *patchHeatFlux[patchi]

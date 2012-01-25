@@ -55,7 +55,14 @@ addToRunTimeSelectionTable                                                    \
     basicPsiThermo,                                                           \
     Cthermo##Mixture##Transport##Thermo##EqnOfState,                          \
     fvMesh                                                                    \
-)
+);                                                                            \
+                                                                              \
+addToRunTimeSelectionTable                                                    \
+(                                                                             \
+    basicThermo,                                                              \
+    Cthermo##Mixture##Transport##Thermo##EqnOfState,                          \
+    fvMesh                                                                    \
+);
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
