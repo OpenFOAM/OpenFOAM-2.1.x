@@ -45,4 +45,74 @@ timePrecision   6;
 
 runTimeModifiable true;
 
+functions
+{
+    topAir_minX
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+
+        enabled         true;
+        outputControl   outputTime;
+
+        region          topAir;
+
+        // Output to log&file (true) or to file only
+        log             true;
+
+        // Output field values as well
+        valueOutput     false;  //true;
+
+        // Type of source: patch/faceZone/sampledSurface
+        source          patch;
+
+        // if patch or faceZone: name of patch or faceZone
+        sourceName      minX;
+
+        // Operation: areaAverage/sum/weightedAverage ...
+        operation       areaIntegrate;
+
+        fields
+        (
+            p
+            phi         // surface fields not supported for sampledSurface
+            U
+        );
+    }
+
+    topAir_maxX
+    {
+        type            faceSource;
+        functionObjectLibs ("libfieldFunctionObjects.so");
+
+        enabled         true;
+        outputControl   outputTime;
+
+        region          topAir;
+
+        // Output to log&file (true) or to file only
+        log             true;
+
+        // Output field values as well
+        valueOutput     false;  //true;
+
+        // Type of source: patch/faceZone/sampledSurface
+        source          patch;
+
+        // if patch or faceZone: name of patch or faceZone
+        sourceName      maxX;
+
+        // Operation: areaAverage/sum/weightedAverage ...
+        operation       areaIntegrate;
+
+        fields
+        (
+            p
+            phi         // surface fields not supported for sampledSurface
+            U
+        );
+    }
+
+}
+
 // ************************************************************************* //
