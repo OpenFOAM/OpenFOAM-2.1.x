@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
     (
         "dict",
         "word",
-        "name of dictionary to provide sample information"
+        "name of dictionary to provide patch information"
     );
 
     #include "setRootCase.H"
@@ -508,18 +508,18 @@ int main(int argc, char *argv[])
 
     const bool overwrite = args.optionFound("overwrite");
 
-    word sampleDictName
+    word dictName
     (
         args.optionLookupOrDefault<word>("dict", "createPatchDict")
     );
 
-    Info<< "Reading " << sampleDictName << nl << endl;
+    Info<< "Reading " << dictName << nl << endl;
 
     IOdictionary dict
     (
         IOobject
         (
-            sampleDictName,
+            dictName,
             runTime.system(),
             (
                 meshRegionName != polyMesh::defaultRegion
