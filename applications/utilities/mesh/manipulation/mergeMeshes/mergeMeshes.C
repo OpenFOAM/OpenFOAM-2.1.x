@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
     );
 
     argList::noParallel();
+    #include "addOverwriteOption.H"
+
     argList::validArgs.append("masterCase");
     argList::addOption
     (
@@ -82,6 +84,8 @@ int main(int argc, char *argv[])
     {
          FatalError.exit();
     }
+
+    const bool overwrite = args.optionFound("overwrite");
 
     fileName masterCase = args[1];
     word masterRegion = polyMesh::defaultRegion;
@@ -126,7 +130,10 @@ int main(int argc, char *argv[])
         )
     );
 
-    runTimeMaster++;
+    if (!overwrite)
+    {
+        runTimeMaster++;
+    }
 
     Info<< "Writing combined mesh to " << runTimeMaster.timeName() << endl;
 

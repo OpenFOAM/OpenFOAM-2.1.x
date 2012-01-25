@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -490,11 +490,17 @@ void syncPoints
 
 int main(int argc, char *argv[])
 {
-#   include "addOverwriteOption.H"
-#   include "addRegionOption.H"
+    #include "addOverwriteOption.H"
+    #include "addRegionOption.H"
+    argList::addOption
+    (
+        "dict",
+        "word",
+        "name of dictionary to provide patch information"
+    );
 
-#   include "setRootCase.H"
-#   include "createTime.H"
+    #include "setRootCase.H"
+    #include "createTime.H"
     runTime.functionObjects().off();
 
     Foam::word meshRegionName = polyMesh::defaultRegion;
@@ -502,13 +508,18 @@ int main(int argc, char *argv[])
 
     const bool overwrite = args.optionFound("overwrite");
 
-    Info<< "Reading createPatchDict." << nl << endl;
+    word dictName
+    (
+        args.optionLookupOrDefault<word>("dict", "createPatchDict")
+    );
+
+    Info<< "Reading " << dictName << nl << endl;
 
     IOdictionary dict
     (
         IOobject
         (
-            "createPatchDict",
+            dictName,
             runTime.system(),
             (
                 meshRegionName != polyMesh::defaultRegion
@@ -526,7 +537,7 @@ int main(int argc, char *argv[])
     // Whether to synchronise points
     const Switch pointSync(dict.lookup("pointSync"));
 
-#   include "createNamedPolyMesh.H"
+    #include "createNamedPolyMesh.H"
 
     const word oldInstance = mesh.pointsInstance();
 
