@@ -128,7 +128,7 @@ void Foam::ReactingParcel<ParcelType>::readFields
     wordList stateLabels(nPhases, "");
     if (compModel.nPhase() == 1)
     {
-        stateLabels = compModel.stateLabels();
+        stateLabels = compModel.stateLabels()[0];
     }
 
 
@@ -198,7 +198,7 @@ void Foam::ReactingParcel<ParcelType>::writeFields
         wordList stateLabels(phaseTypes.size(), "");
         if (compModel.nPhase() == 1)
         {
-            stateLabels = compModel.stateLabels();
+            stateLabels = compModel.stateLabels()[0];
         }
 
         forAll(phaseTypes, j)
