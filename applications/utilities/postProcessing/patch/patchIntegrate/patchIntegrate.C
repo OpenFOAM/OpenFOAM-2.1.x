@@ -36,8 +36,8 @@ Description
 
 int main(int argc, char *argv[])
 {
-#   include "addRegionOption.H"
     timeSelector::addOptions();
+#   include "addRegionOption.H"
     argList::validArgs.append("fieldName");
     argList::validArgs.append("patchName");
 #   include "setRootCase.H"

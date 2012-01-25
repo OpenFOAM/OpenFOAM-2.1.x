@@ -37,12 +37,13 @@ Description
 int main(int argc, char *argv[])
 {
     timeSelector::addOptions();
+    #include "addRegionOption.H"
     argList::validArgs.append("fieldName");
     argList::validArgs.append("patchName");
 #   include "setRootCase.H"
 #   include "createTime.H"
     instantList timeDirs = timeSelector::select0(runTime, args);
-#   include "createMesh.H"
+#   include "createNamedMesh.H"
 
     const word fieldName = args[1];
     const word patchName = args[2];
