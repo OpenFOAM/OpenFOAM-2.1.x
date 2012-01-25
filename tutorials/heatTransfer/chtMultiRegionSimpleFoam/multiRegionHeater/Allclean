@@ -18,5 +18,6 @@ rm -rf constant/topAir/polyMesh
 rm -rf constant/heater/polyMesh
 rm -rf constant/leftSolid/polyMesh
 rm -rf constant/rightSolid/polyMesh
+rm -rf topAir_maxX topAir_minX
 
 # ----------------------------------------------------------------- end-of-file
