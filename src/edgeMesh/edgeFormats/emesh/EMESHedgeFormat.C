@@ -176,7 +176,7 @@ void Foam::fileFormats::EMESHedgeFormat::write
         << "    version     " << os.version() << ";\n"
         << "    format      " << os.format() << ";\n"
         << "    class       " << "featureEdgeMesh" << ";\n"
-        << "    note        " << "written " + clock::dateTime() << nl
+        << "    note        " << "written " + clock::dateTime() << ";\n"
         << "    object      " << filename.name() << ";\n"
         << "}" << nl;
 
