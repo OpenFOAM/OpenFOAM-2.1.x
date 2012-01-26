@@ -38,7 +38,7 @@ Description
 #include "incompressible/singlePhaseTransportModel/singlePhaseTransportModel.H"
 #include "incompressible/RAS/RASModel/RASModel.H"
 
-#include "basicPsiThermo.H"
+#include "basicThermo.H"
 #include "compressible/RAS/RASModel/RASModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -101,11 +101,8 @@ void calcCompressible
 
     #include "compressibleCreatePhi.H"
 
-    autoPtr<basicPsiThermo> pThermo
-    (
-        basicPsiThermo::New(mesh)
-    );
-    basicPsiThermo& thermo = pThermo();
+    autoPtr<basicThermo> pThermo(basicThermo::New(mesh));
+    basicThermo& thermo = pThermo();
 
     autoPtr<compressible::RASModel> model
     (

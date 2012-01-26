@@ -55,7 +55,14 @@ addToRunTimeSelectionTable                                                    \
     basicRhoThermo,                                                           \
     Cthermo##Mixture##Transport##Thermo##EqnOfState,                          \
     fvMesh                                                                    \
-)
+);                                                                            \
+                                                                              \
+addToRunTimeSelectionTable                                                    \
+(                                                                             \
+    basicThermo,                                                              \
+    Cthermo##Mixture##Transport##Thermo##EqnOfState,                          \
+    fvMesh                                                                    \
+);
 
 
 #define makeBasicRhoPolyThermo(Cthermo,Mixture,Order)                         \
@@ -88,7 +95,14 @@ addToRunTimeSelectionTable                                                    \
     basicRhoThermo,                                                           \
     Cthermo##Mixture##icoPoly##Order##ThermoPhysics,                          \
     fvMesh                                                                    \
-)
+);                                                                            \
+                                                                              \
+addToRunTimeSelectionTable                                                    \
+(                                                                             \
+    basicThermo,                                                              \
+    Cthermo##Mixture##icoPoly##Order##ThermoPhysics,                          \
+    fvMesh                                                                    \
+);
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

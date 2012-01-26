@@ -989,6 +989,17 @@ Foam::Time& Foam::Time::operator++()
             << " to " << precision_
             << " to distinguish between timeNames at time " << value()
             << endl;
+
+        if (precision_ == 100 && precision_ != oldPrecision)
+        {
+            // Reached limit.
+            WarningIn("Time::operator++()")
+                << "Current time name " << dimensionedScalar::name()
+                << " is the old as the previous one " << oldTimeName
+                << endl
+                << "    This might result in overwriting old results."
+                << endl;
+        }
     }
 
 

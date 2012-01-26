@@ -32,6 +32,47 @@ Description
 #include "fvCFD.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+template<class FieldType>
+void printAverage
+(
+    const fvMesh& mesh,
+    const IOobject& fieldHeader,
+    const scalar area,
+    const label patchI,
+    bool& done
+)
+{
+    if (!done && fieldHeader.headerClassName() == FieldType::typeName)
+    {
+        Info<< "    Reading " << fieldHeader.headerClassName() << " "
+            << fieldHeader.name() << endl;
+
+        FieldType field(fieldHeader, mesh);
+
+        typename FieldType::value_type sumField =
+            pTraits<typename FieldType::value_type>::zero;
+
+        if (area > 0)
+        {
+            sumField = gSum
+            (
+                mesh.magSf().boundaryField()[patchI]
+              * field.boundaryField()[patchI]
+            ) / area;
+        }
+
+        Info<< "    Average of " << fieldHeader.headerClassName()
+            << " over patch "
+            << mesh.boundary()[patchI].name()
+            << '[' << patchI << ']' << " = "
+            << sumField << endl;
+
+        done = true;
+    }
+}
+
+
 // Main program:
 
 int main(int argc, char *argv[])
@@ -53,7 +94,7 @@ int main(int argc, char *argv[])
         runTime.setTime(timeDirs[timeI], timeI);
         Info<< "Time = " << runTime.timeName() << endl;
 
-        IOobject fieldHeader
+        IOobject io
         (
             fieldName,
             runTime.timeName(),
@@ -62,7 +103,7 @@ int main(int argc, char *argv[])
         );
 
         // Check field exists
-        if (fieldHeader.headerOk())
+        if (io.headerOk())
         {
             mesh.readUpdate();
 
@@ -73,32 +114,21 @@ int main(int argc, char *argv[])
                     << "Unable to find patch " << patchName << nl
                     << exit(FatalError);
             }
+            scalar area = gSum(mesh.magSf().boundaryField()[patchI]);
 
-            if (fieldHeader.headerClassName() == "volScalarField")
-            {
-                Info<< "    Reading volScalarField " << fieldName << endl;
-                volScalarField field(fieldHeader, mesh);
+            bool done = false;
+            printAverage<volScalarField>(mesh, io, area, patchI, done);
+            printAverage<volVectorField>(mesh, io, area, patchI, done);
+            printAverage<volSphericalTensorField>(mesh, io, area, patchI, done);
+            printAverage<volSymmTensorField>(mesh, io, area, patchI, done);
+            printAverage<volTensorField>(mesh, io, area, patchI, done);
 
-                scalar area = gSum(mesh.magSf().boundaryField()[patchI]);
-                scalar sumField = 0;
-
-                if (area > 0)
-                {
-                    sumField = gSum
-                    (
-                        mesh.magSf().boundaryField()[patchI]
-                      * field.boundaryField()[patchI]
-                    ) / area;
-                }
-
-                Info<< "    Average of " << fieldName << " over patch "
-                    << patchName << '[' << patchI << ']' << " = "
-                    << sumField << endl;
-            }
-            else
+            if (!done)
             {
                 FatalError
-                    << "Only possible to average volScalarFields "
+                    << "Only possible to average volFields."
+                    << " Field " << fieldName << " is of type "
+                    << io.headerClassName()
                     << nl << exit(FatalError);
             }
         }

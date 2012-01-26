@@ -1,6 +1,6 @@
-autoPtr<basicPsiThermo> thermo
+autoPtr<basicThermo> thermo
 (
-    basicPsiThermo::New(mesh)
+    basicThermo::New(mesh)
 );
 
 const volScalarField& h = thermo->h();

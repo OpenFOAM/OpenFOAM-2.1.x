@@ -47,7 +47,7 @@ Description
 #include "incompressible/RAS/RASModel/RASModel.H"
 #include "incompressible/LES/LESModel/LESModel.H"
 
-#include "basicPsiThermo.H"
+#include "basicThermo.H"
 #include "compressible/RAS/RASModel/RASModel.H"
 #include "compressible/LES/LESModel/LESModel.H"
 
@@ -265,7 +265,7 @@ void Foam::calc(const argList& args, const Time& runTime, const fvMesh& mesh)
         }
         else if (phi.dimensions() == dimensionSet(1, 0, -1, 0, 0))
         {
-            autoPtr<basicPsiThermo> thermo(basicPsiThermo::New(mesh));
+            autoPtr<basicThermo> thermo(basicThermo::New(mesh));
 
             volScalarField rho
             (
