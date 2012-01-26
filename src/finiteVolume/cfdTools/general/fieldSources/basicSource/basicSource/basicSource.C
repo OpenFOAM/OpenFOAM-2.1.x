@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -26,6 +26,7 @@ License
 #include "basicSource.H"
 #include "fvMesh.H"
 #include "fvMatrices.H"
+#include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -297,6 +298,36 @@ void Foam::basicSource::checkApplied() const
                 << fieldNames_[i] << " but never used" << endl;
         }
     }
+}
+
+
+void Foam::basicSource::correct(volScalarField& fld)
+{
+    // do nothing
+}
+
+
+void Foam::basicSource::correct(volVectorField& fld)
+{
+    // do nothing
+}
+
+
+void Foam::basicSource::correct(volSphericalTensorField& fld)
+{
+    // do nothing
+}
+
+
+void Foam::basicSource::correct(volSymmTensorField& fld)
+{
+    // do nothing
+}
+
+
+void Foam::basicSource::correct(volTensorField& fld)
+{
+    // do nothing
 }
 
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -24,6 +24,39 @@ License
 \*---------------------------------------------------------------------------*/
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+template<class Type>
+void Foam::basicSourceList::correct
+(
+    GeometricField<Type, fvPatchField, volMesh>& fld
+)
+{
+    const word& fieldName = fld.name();
+
+    forAll(*this, i)
+    {
+        basicSource& source = this->operator[](i);
+
+        label fieldI = source.applyToField(fieldName);
+
+        if (fieldI != -1)
+        {
+            source.setApplied(fieldI);
+
+            if (source.isActive())
+            {
+                if (debug)
+                {
+                    Info<< "Correcting source " << source.name()
+                        << " for field " << fieldName << endl;
+                }
+
+                source.correct(fld);
+            }
+        }
+    }
+}
+
 
 template<class Type>
 Foam::tmp<Foam::fvMatrix<Type> > Foam::basicSourceList::operator()

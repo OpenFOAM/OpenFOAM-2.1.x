@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -45,7 +45,7 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                        Class IObasicSourceList Declaration
+                      Class IObasicSourceList Declaration
 \*---------------------------------------------------------------------------*/
 
 class IObasicSourceList
@@ -79,6 +79,8 @@ public:
         virtual ~IObasicSourceList()
         {}
 
+
+    // Member Functions
 
         //- Read dictionary
         virtual bool read();

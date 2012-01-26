@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -118,7 +118,10 @@ public:
 
     // Member Functions
 
-        // Access
+        // Evaluate
+
+            //- Correct the pressure gradient
+            virtual void correct(volVectorField& U);
 
             //- Add explicit contribution to equation
             virtual void addSup(fvMatrix<vector>& eqn, const label fieldI);
