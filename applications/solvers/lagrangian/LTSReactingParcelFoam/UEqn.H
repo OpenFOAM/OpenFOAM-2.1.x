@@ -7,7 +7,6 @@
      ==
         rho.dimensionedInternalField()*g
       + parcels.SU(U)
-      + sources(rho, U)
     );
 
     sources.constrain(UEqn);
@@ -16,5 +15,5 @@
 
     if (pimple.momentumPredictor())
     {
-        solve(UEqn == -fvc::grad(p));
+        solve(UEqn == -fvc::grad(p) + sources(rho, U));
     }

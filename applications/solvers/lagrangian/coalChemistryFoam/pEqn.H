@@ -1,7 +1,7 @@
 rho = thermo.rho();
 
 volScalarField rAU(1.0/UEqn.A());
-U = rAU*UEqn.H();
+U = rAU*(UEqn == sources(rho, U))().H();
 
 if (pimple.transonic())
 {
@@ -74,6 +74,8 @@ else
 
 U -= rAU*fvc::grad(p);
 U.correctBoundaryConditions();
+sources.correct(U);
+
 K = 0.5*magSqr(U);
 
 dpdt = fvc::ddt(p);

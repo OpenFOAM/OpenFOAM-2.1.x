@@ -1,7 +1,7 @@
 volScalarField rAU(1.0/UEqn().A());
 surfaceScalarField rAUf(rAU.name() + 'f', fvc::interpolate(rAU));
 
-U = rAU*UEqn().H();
+U = rAU*(UEqn() == sources(U))().H();
 
 if (pimple.nCorrPISO() <= 1)
 {
@@ -41,3 +41,4 @@ p = p_gh + (g & (mesh.C() + zeta - refLevel));
 
 U -= rAU*fvc::grad(p_gh);
 U.correctBoundaryConditions();
+sources.correct(U);
