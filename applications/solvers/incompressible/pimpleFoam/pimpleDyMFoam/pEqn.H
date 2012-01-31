@@ -1,4 +1,4 @@
-U = rAU*UEqn().H();
+U = rAU*(UEqn() == sources(U))().H();
 
 if (pimple.nCorrPISO() <= 1)
 {
@@ -46,3 +46,4 @@ fvc::makeRelative(phi, U);
 
 U -= rAU*fvc::grad(p);
 U.correctBoundaryConditions();
+sources.correct(U);

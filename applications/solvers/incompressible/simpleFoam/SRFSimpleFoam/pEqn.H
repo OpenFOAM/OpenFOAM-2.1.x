@@ -34,4 +34,5 @@
     // Momentum corrector
     Urel -= rAUrel*fvc::grad(p);
     Urel.correctBoundaryConditions();
+    sources.correct(Urel);
 }

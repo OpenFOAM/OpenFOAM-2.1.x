@@ -128,7 +128,7 @@ relaxationFactors
     }
     equations
     {
-        "(U|k|epsilon|omega|R|nuTilda)" 1;
+        "(U|k|epsilon|omega|R|nuTilda).*" 1;
     }
 }
 

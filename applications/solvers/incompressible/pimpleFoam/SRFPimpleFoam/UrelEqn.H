@@ -9,4 +9,6 @@
 
     UrelEqn().relax();
 
-    solve(UrelEqn() == -fvc::grad(p));
+    sources.constrain(UrelEqn());
+
+    solve(UrelEqn() == -fvc::grad(p) + sources(Urel));

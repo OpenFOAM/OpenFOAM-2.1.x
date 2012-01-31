@@ -34,4 +34,5 @@
     // Momentum corrector
     U -= rAU*fvc::grad(p);
     U.correctBoundaryConditions();
+    sources.correct(U);
 }

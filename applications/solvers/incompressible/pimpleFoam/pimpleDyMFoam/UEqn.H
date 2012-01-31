@@ -9,9 +9,11 @@ tmp<fvVectorMatrix> UEqn
 
 UEqn().relax();
 
+sources.constrain(UEqn());
+
 rAU = 1.0/UEqn().A();
 
 if (pimple.momentumPredictor())
 {
-    solve(UEqn() == -fvc::grad(p));
+    solve(UEqn() == -fvc::grad(p) + sources(U));
 }
