@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -77,6 +77,40 @@ void Foam::fvMesh::clearGeomNotOldVol()
     deleteDemandDrivenData(magSfPtr_);
     deleteDemandDrivenData(CPtr_);
     deleteDemandDrivenData(CfPtr_);
+}
+
+
+void Foam::fvMesh::updateGeomNotOldVol()
+{
+    bool haveV = (VPtr_ != NULL);
+    bool haveSf = (SfPtr_ != NULL);
+    bool haveMagSf = (magSfPtr_ != NULL);
+    bool haveCP = (CPtr_ != NULL);
+    bool haveCf = (CfPtr_ != NULL);
+
+    clearGeomNotOldVol();
+
+    // Now recreate the fields
+    if (haveV)
+    {
+        (void)V();
+    }
+    if (haveSf)
+    {
+        (void)Sf();
+    }
+    if (haveMagSf)
+    {
+        (void)magSf();
+    }
+    if (haveCP)
+    {
+        (void)C();
+    }
+    if (haveCf)
+    {
+        (void)Cf();
+    }
 }
 
 
@@ -550,10 +584,6 @@ Foam::tmp<Foam::scalarField> Foam::fvMesh::movePoints(const pointField& p)
     }
 
 
-    // delete out of date geometrical information
-    clearGeomNotOldVol();
-
-
     if (!phiPtr_)
     {
         // Create mesh motion flux
@@ -600,6 +630,16 @@ Foam::tmp<Foam::scalarField> Foam::fvMesh::movePoints(const pointField& p)
         phi.boundaryField()[patchI] *= rDeltaT;
     }
 
+    // Update or delete the local geometric properties as early as possible so
+    // they can be used if necessary. These get recreated here instead of
+    // demand driven since they might do parallel transfers which can conflict
+    // with when they're actually being used.
+    // Note that between above "polyMesh::movePoints(p)" and here nothing
+    // should use the local geometric properties.
+    updateGeomNotOldVol();
+
+
+    // Update other local data
     boundary_.movePoints();
     surfaceInterpolation::movePoints();
 

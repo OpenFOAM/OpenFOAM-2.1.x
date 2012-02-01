@@ -36,6 +36,8 @@ void Foam::processorLduInterface::send
     const UList<Type>& f
 ) const
 {
+    label nBytes = f.byteSize();
+
     if (commsType == Pstream::blocking || commsType == Pstream::scheduled)
     {
         OPstream::write
@@ -43,32 +45,32 @@ void Foam::processorLduInterface::send
             commsType,
             neighbProcNo(),
             reinterpret_cast<const char*>(f.begin()),
-            f.byteSize(),
+            nBytes,
             tag()
         );
     }
     else if (commsType == Pstream::nonBlocking)
     {
-        resizeBuf(receiveBuf_, f.size()*sizeof(Type));
+        resizeBuf(receiveBuf_, nBytes);
 
         IPstream::read
         (
             commsType,
             neighbProcNo(),
             receiveBuf_.begin(),
-            receiveBuf_.size(),
+            nBytes,
             tag()
         );
 
-        resizeBuf(sendBuf_, f.byteSize());
-        memcpy(sendBuf_.begin(), f.begin(), f.byteSize());
+        resizeBuf(sendBuf_, nBytes);
+        memcpy(sendBuf_.begin(), f.begin(), nBytes);
 
         OPstream::write
         (
             commsType,
             neighbProcNo(),
             sendBuf_.begin(),
-            f.byteSize(),
+            nBytes,
             tag()
         );
     }
@@ -172,7 +174,7 @@ void Foam::processorLduInterface::compressedSend
                 commsType,
                 neighbProcNo(),
                 receiveBuf_.begin(),
-                receiveBuf_.size(),
+                nBytes,
                 tag()
             );
 
