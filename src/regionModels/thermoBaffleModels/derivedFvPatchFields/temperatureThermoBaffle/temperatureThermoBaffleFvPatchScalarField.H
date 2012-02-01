@@ -112,6 +112,9 @@ class temperatureThermoBaffleFvPatchScalarField
         //- Solid thermo type
         word solidThermoType_;
 
+        //- Dictionary
+        dictionary dict_;
+
 
 public:
 

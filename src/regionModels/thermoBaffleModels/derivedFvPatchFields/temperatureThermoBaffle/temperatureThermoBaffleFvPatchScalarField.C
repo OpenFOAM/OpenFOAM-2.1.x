@@ -46,7 +46,8 @@ temperatureThermoBaffleFvPatchScalarField
     turbulentTemperatureCoupledBaffleMixedFvPatchScalarField(p, iF),
     owner_(false),
     baffle_(),
-    solidThermoType_("undefined")
+    solidThermoType_("undefined"),
+    dict_(dictionary::null)
 {}
 
 
@@ -68,7 +69,8 @@ temperatureThermoBaffleFvPatchScalarField
     ),
     owner_(ptf.owner_),
     baffle_(ptf.baffle_),
-    solidThermoType_(ptf.solidThermoType_)
+    solidThermoType_(ptf.solidThermoType_),
+    dict_(ptf.dict_)
 {}
 
 
@@ -83,7 +85,8 @@ temperatureThermoBaffleFvPatchScalarField
     turbulentTemperatureCoupledBaffleMixedFvPatchScalarField(p, iF, dict),
     owner_(false),
     baffle_(),
-    solidThermoType_()
+    solidThermoType_(),
+    dict_(dict)
 {
     if (!isA<mappedPatchBase>(patch().patch()))
     {
@@ -120,6 +123,7 @@ temperatureThermoBaffleFvPatchScalarField
         owner_ = true;
         dict.lookup("thermoType") >> solidThermoType_;
     }
+
 }
 
 
@@ -133,7 +137,8 @@ temperatureThermoBaffleFvPatchScalarField
     turbulentTemperatureCoupledBaffleMixedFvPatchScalarField(ptf, iF),
     owner_(ptf.owner_),
     baffle_(ptf.baffle_),
-    solidThermoType_(ptf.solidThermoType_)
+    solidThermoType_(ptf.solidThermoType_),
+    dict_(ptf.dict_)
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -188,30 +193,33 @@ void temperatureThermoBaffleFvPatchScalarField::write(Ostream& os) const
 
     if (thisMesh.name() == polyMesh::defaultRegion && owner_)
     {
-        os.writeKeyword("thermoBaffleModel") <<  baffle_->modelName()
+        word thermoModel = dict_.lookup("thermoBaffleModel");
+
+        os.writeKeyword("thermoBaffleModel")
+            << thermoModel
             << token::END_STATEMENT << nl;
 
-        os.writeKeyword("regionName") <<  baffle_->regionMesh().name()
+        word regionName = dict_.lookup("regionName");
+        os.writeKeyword("regionName") << regionName
             << token::END_STATEMENT << nl;
 
-        os.writeKeyword("infoOutput") <<  baffle_->infoOutput()
+        bool infoOutput = readBool(dict_.lookup("infoOutput"));
+        os.writeKeyword("infoOutput") << infoOutput
             << token::END_STATEMENT << nl;
 
-        os.writeKeyword("active") <<  baffle_->active()
+        bool active = readBool(dict_.lookup("active"));
+        os.writeKeyword("active") <<  active
             << token::END_STATEMENT << nl;
 
-        os.writeKeyword(word(baffle_->modelName() + "coeffs"));
-
-        os << baffle_->coeffs() << nl;
+        os.writeKeyword(word(thermoModel + "Coeffs"));
+        os << dict_.subDict(thermoModel + "Coeffs") << nl;
 
         os.writeKeyword("thermoType") << solidThermoType_
             << token::END_STATEMENT << nl;
 
-        os.writeKeyword(word(solidThermoType_ + "Coeffs")) << nl;
+        os.writeKeyword(word(solidThermoType_ + "Coeffs"));
 
-        os << indent << '{' << nl
-           << indent << baffle_->thermo() << nl
-           << indent << '}' << nl;
+        os << dict_.subDict(solidThermoType_ + "Coeffs") << nl;
     }
 }
 
