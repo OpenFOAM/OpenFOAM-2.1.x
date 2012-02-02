@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -132,6 +132,10 @@ class fvMesh
 
             //- Clear geometry but not the old-time cell volumes
             void clearGeomNotOldVol();
+
+            //- Clear geometry like clearGeomNotOldVol but recreate any
+            //  geometric demand-driven data that was set
+            void updateGeomNotOldVol();
 
             //- Clear geometry
             void clearGeom();

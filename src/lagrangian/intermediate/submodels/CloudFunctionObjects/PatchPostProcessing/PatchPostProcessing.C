@@ -26,6 +26,7 @@ License
 #include "PatchPostProcessing.H"
 #include "Pstream.H"
 #include "stringListOps.H"
+#include "ListOps.H"
 #include "ListListOps.H"
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
@@ -55,9 +56,12 @@ void Foam::PatchPostProcessing<CloudType>::write()
 {
     forAll(patchData_, i)
     {
+        List<List<scalar> > procTimes(Pstream::nProcs());
+        procTimes[Pstream::myProcNo()] = times_[i];
+        Pstream::gatherList(procTimes);
+
         List<List<string> > procData(Pstream::nProcs());
         procData[Pstream::myProcNo()] = patchData_[i];
-
         Pstream::gatherList(procData);
 
         if (Pstream::master())
@@ -100,18 +104,33 @@ void Foam::PatchPostProcessing<CloudType>::write()
                 procData,
                 accessOp<List<string> >()
             );
-            sort(globalData);
+
+            List<scalar> globalTimes;
+            globalTimes = ListListOps::combine<List<scalar> >
+            (
+                procTimes,
+                accessOp<List<scalar> >()
+            );
+
+            labelList indices;
+            sortedOrder(globalTimes, indices);
 
             string header("# Time currentProc " + parcelType::propHeader);
             patchOutFile<< header.c_str() << nl;
 
-            forAll(globalData, dataI)
+            forAll(globalTimes, i)
             {
-                patchOutFile<< globalData[dataI].c_str() << nl;
+                label dataI = indices[i];
+
+                patchOutFile
+                    << globalTimes[dataI] << ' '
+                    << globalData[dataI].c_str()
+                    << nl;
             }
         }
 
         patchData_[i].clearStorage();
+        times_[i].clearStorage();
     }
 }
 
@@ -128,6 +147,7 @@ Foam::PatchPostProcessing<CloudType>::PatchPostProcessing
     CloudFunctionObject<CloudType>(dict, owner, typeName),
     maxStoredParcels_(readScalar(this->coeffDict().lookup("maxStoredParcels"))),
     patchIDs_(),
+    times_(),
     patchData_()
 {
     const wordList allPatchNames = owner.mesh().boundaryMesh().names();
@@ -167,6 +187,7 @@ Foam::PatchPostProcessing<CloudType>::PatchPostProcessing
     }
 
     patchData_.setSize(patchIDs_.size());
+    times_.setSize(patchIDs_.size());
 }
 
 
@@ -179,6 +200,7 @@ Foam::PatchPostProcessing<CloudType>::PatchPostProcessing
     CloudFunctionObject<CloudType>(ppm),
     maxStoredParcels_(ppm.maxStoredParcels_),
     patchIDs_(ppm.patchIDs_),
+    times_(ppm.times_),
     patchData_(ppm.patchData_)
 {}
 
@@ -203,9 +225,11 @@ void Foam::PatchPostProcessing<CloudType>::postPatch
     const label localPatchI = applyToPatch(patchI);
     if (localPatchI != -1 && patchData_[localPatchI].size() < maxStoredParcels_)
     {
+        times_[localPatchI].append(this->owner().time().value());
+
         OStringStream data;
-        data<< this->owner().time().timeName() << ' ' << Pstream::myProcNo()
-            << ' ' << p;
+        data<< Pstream::myProcNo() << ' ' << p;
+
         patchData_[localPatchI].append(data.str());
     }
 }

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -82,25 +82,24 @@ inline bool Foam::wallPoint::update
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-// Null constructor
 inline Foam::wallPoint::wallPoint()
 :
     origin_(point::max),
-    distSqr_(GREAT)
+    distSqr_(-GREAT)
 {}
 
 
-// Construct from origin, distance
 inline Foam::wallPoint::wallPoint(const point& origin, const scalar distSqr)
 :
-    origin_(origin), distSqr_(distSqr)
+    origin_(origin),
+    distSqr_(distSqr)
 {}
 
 
-// Construct as copy
 inline Foam::wallPoint::wallPoint(const wallPoint& wpt)
 :
-    origin_(wpt.origin()), distSqr_(wpt.distSqr())
+    origin_(wpt.origin()),
+    distSqr_(wpt.distSqr())
 {}
 
 
@@ -133,7 +132,7 @@ inline Foam::scalar& Foam::wallPoint::distSqr()
 template<class TrackingData>
 inline bool Foam::wallPoint::valid(TrackingData& td) const
 {
-    return origin_ != point::max;
+    return distSqr_ > -SMALL;
 }
 
 

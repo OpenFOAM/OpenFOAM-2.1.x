@@ -61,6 +61,9 @@ class PatchPostProcessing
         //- List of patch indices to post-process
         labelList patchIDs_;
 
+        //- List of time for each data record
+        List<DynamicList<scalar> > times_;
+
         //- List of output data per patch
         List<DynamicList<string> > patchData_;
 
