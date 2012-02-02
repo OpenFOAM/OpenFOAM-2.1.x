@@ -44,7 +44,6 @@ addRadialActuationDiskAxialInertialResistance
 ) const
 {
     scalar a = 1.0 - Cp_/Ct_;
-    scalarField T(cells.size());
     scalarField Tr(cells.size());
     const vector uniDiskDir = diskDir_/mag(diskDir_);
 
@@ -65,21 +64,30 @@ addRadialActuationDiskAxialInertialResistance
       + radialCoeffs_[1]*sqr(maxR)/2.0
       + radialCoeffs_[2]*pow4(maxR)/3.0;
 
+    vector upU = vector(VGREAT, VGREAT, VGREAT);
+    scalar upRho = VGREAT;
+    if (upstreamCellId_ != -1)
+    {
+        upU =  U[upstreamCellId_];
+        upRho = rho[upstreamCellId_];
+    }
+    reduce(upU, minOp<vector>());
+    reduce(upRho, minOp<scalar>());
+
+    scalar T = 2.0*upRho*diskArea_*mag(upU)*a*(1.0 - a);
     forAll(cells, i)
     {
-        T[i] = 2.0*rho[cells[i]]*diskArea_*mag(U[cells[i]])*a/(1.0 - a);
-
         scalar r2 = magSqr(mesh().cellCentres()[cells[i]] - avgCentre);
 
         Tr[i] =
-            T[i]
+            T
            *(radialCoeffs_[0] + radialCoeffs_[1]*r2 + radialCoeffs_[2]*sqr(r2))
            /intCoeffs;
     }
 
     forAll(cells, i)
     {
-        Usource[cells[i]] -= ((Vcells[cells[i]]/V_)*Tr[i]*E) & U[cells[i]];
+        Usource[cells[i]] += ((Vcells[cells[i]]/V_)*Tr[i]*E) & upU;
     }
 
     if (debug)

@@ -42,20 +42,28 @@ void Foam::actuationDiskSource::addActuationDiskAxialInertialResistance
 ) const
 {
     scalar a = 1.0 - Cp_/Ct_;
-    scalarField T(cells.size());
     vector uniDiskDir = diskDir_/mag(diskDir_);
     tensor E(tensor::zero);
     E.xx() = uniDiskDir.x();
     E.yy() = uniDiskDir.y();
     E.zz() = uniDiskDir.z();
 
-    forAll(cells, i)
+
+    vector upU = vector(VGREAT, VGREAT, VGREAT);
+    scalar upRho = VGREAT;
+    if (upstreamCellId_ != -1)
     {
-        T[i] = 2.0*rho[cells[i]]*diskArea_*mag(U[cells[i]])*a/(1.0 - a);
+        upU =  U[upstreamCellId_];
+        upRho = rho[upstreamCellId_];
     }
+    reduce(upU, minOp<vector>());
+    reduce(upRho, minOp<scalar>());
+
+    scalar T = 2.0*upRho*diskArea_*mag(upU)*a*(1 - a);
+
     forAll(cells, i)
     {
-        Usource[cells[i]] -= ((Vcells[cells[i]]/V())*T[i]*E) & U[cells[i]];
+        Usource[cells[i]] += ((Vcells[cells[i]]/V())*T*E) & upU;
     }
 }
 
