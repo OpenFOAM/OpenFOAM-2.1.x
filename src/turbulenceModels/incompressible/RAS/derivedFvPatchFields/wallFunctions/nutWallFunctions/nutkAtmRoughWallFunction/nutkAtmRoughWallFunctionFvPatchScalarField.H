@@ -74,9 +74,6 @@ protected:
         //- Surface roughness lenght
         scalarField z0_;
 
-        //- Minimum corrdinate value in z direction
-        scalarField zGround_;
-
 
     // Protected Member Functions
 

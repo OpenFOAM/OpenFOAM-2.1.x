@@ -65,22 +65,10 @@ tmp<scalarField> nutkAtmRoughWallFunctionFvPatchScalarField::calcNut() const
         scalar uStar = Cmu25*sqrt(k[faceCellI]);
         scalar yPlus = uStar*y[faceI]/nuw[faceI];
 
-        scalar Edash = (y[faceI] + z0_[faceI] - zGround_[faceI])/z0_[faceI];
+        scalar Edash = (y[faceI] + z0_[faceI])/z0_[faceI];
 
-        scalar limitingNutw = max(nutw[faceI], nuw[faceI]);
-
-        // To avoid oscillations limit the change in the wall viscosity
-        // which is particularly important if it temporarily becomes zero
         nutw[faceI] =
-            max
-            (
-                min
-                (
-                    nuw[faceI]
-                   *(yPlus*kappa_/log(max(Edash, 1+1e-4)) - 1),
-                    2*limitingNutw
-                ), 0.5*limitingNutw
-            );
+            nuw[faceI]*(yPlus*kappa_/log(max(Edash, 1+1e-4)) - 1);
 
         if (debug)
         {
@@ -105,8 +93,7 @@ nutkAtmRoughWallFunctionFvPatchScalarField
 )
 :
     nutkWallFunctionFvPatchScalarField(p, iF),
-    z0_(p.size(), 0.0),
-    zGround_(p.size(), 0.0)
+    z0_(p.size(), 0.0)
 {}
 
 
@@ -120,8 +107,7 @@ nutkAtmRoughWallFunctionFvPatchScalarField
 )
 :
     nutkWallFunctionFvPatchScalarField(ptf, p, iF, mapper),
-    z0_(ptf.z0_, mapper),
-    zGround_(ptf.zGround_, mapper)
+    z0_(ptf.z0_, mapper)
 {}
 
 
@@ -134,8 +120,7 @@ nutkAtmRoughWallFunctionFvPatchScalarField
 )
 :
     nutkWallFunctionFvPatchScalarField(p, iF, dict),
-    z0_("z0", dict, p.size()),
-    zGround_("zGround", dict, p.size())
+    z0_("z0", dict, p.size())
 {}
 
 
@@ -146,8 +131,7 @@ nutkAtmRoughWallFunctionFvPatchScalarField
 )
 :
     nutkWallFunctionFvPatchScalarField(rwfpsf),
-    z0_(rwfpsf.z0_),
-    zGround_(rwfpsf.zGround_)
+    z0_(rwfpsf.z0_)
 {}
 
 
@@ -159,8 +143,7 @@ nutkAtmRoughWallFunctionFvPatchScalarField
 )
 :
     nutkWallFunctionFvPatchScalarField(rwfpsf, iF),
-    z0_(rwfpsf.z0_),
-    zGround_(rwfpsf.zGround_)
+    z0_(rwfpsf.z0_)
 {}
 
 
@@ -173,7 +156,6 @@ void nutkAtmRoughWallFunctionFvPatchScalarField::autoMap
 {
     nutkWallFunctionFvPatchScalarField::autoMap(m);
     z0_.autoMap(m);
-    zGround_.autoMap(m);
 }
 
 
@@ -189,7 +171,6 @@ void nutkAtmRoughWallFunctionFvPatchScalarField::rmap
         refCast<const nutkAtmRoughWallFunctionFvPatchScalarField>(ptf);
 
     z0_.rmap(nrwfpsf.z0_, addr);
-    zGround_.rmap(nrwfpsf.zGround_, addr);
 }
 
 
@@ -198,7 +179,6 @@ void nutkAtmRoughWallFunctionFvPatchScalarField::write(Ostream& os) const
     fvPatchField<scalar>::write(os);
     writeLocalEntries(os);
     z0_.writeEntry("z0", os);
-    zGround_.writeEntry("zGround", os);
     writeEntry("value", os);
 }
 

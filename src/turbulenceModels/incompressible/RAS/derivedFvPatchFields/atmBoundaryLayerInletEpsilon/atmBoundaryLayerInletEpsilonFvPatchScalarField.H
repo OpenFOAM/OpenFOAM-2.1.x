@@ -41,6 +41,16 @@ Description
         z0 is the surface roughness lenght
         zGround minium vlaue in z direction
 
+
+    and:
+
+        Ustar = K Uref/ln((Zref + z0)/z0)
+
+    where:
+
+        Uref is the reference velocity at Zref
+        Zref is the reference height.
+
     \endverbatim
 
     Reference:
@@ -78,16 +88,22 @@ class atmBoundaryLayerInletEpsilonFvPatchScalarField
     // Private data
 
         //- Frictional velocity
-        const scalar Ustar_;
+        scalarField Ustar_;
 
         //- Direction of the z-coordinate
         vector z_;
 
         //- Surface roughness lenght
-        const scalar z0_;
+        scalarField z0_;
 
         //- Von Karman constant
         const scalar kappa_;
+
+        //- Reference velocity
+        const scalar Uref_;
+
+        //- Reference hight
+        const scalar Href_;
 
         //- Minimum corrdinate value in z direction
         const scalarField zGround_;
@@ -158,7 +174,7 @@ public:
     // Member functions
 
         //- Return max value
-        scalar Ustar() const
+        scalarField Ustar() const
         {
             return Ustar_;
         }
