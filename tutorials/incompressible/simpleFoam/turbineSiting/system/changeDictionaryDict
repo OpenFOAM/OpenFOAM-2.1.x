@@ -142,11 +142,8 @@ dictionaryReplacement
             }
             "terrain_.*"
             {
-                type            nutkRoughWallFunction;
-                Ks              uniform 0.2; //Ks = 20 Z0
-                Cs              uniform 0.5;
+                type            nutkAtmRoughWallFunction;
                 z0              $z0;
-                zGround         $zGround;
                 value           uniform 0.0;
             }
             ground
