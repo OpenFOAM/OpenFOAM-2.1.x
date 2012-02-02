@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -24,7 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "ConeInjection.H"
-#include "DataEntry.H"
+#include "TimeDataEntry.H"
 #include "mathematicalConstants.H"
 #include "unitConversion.H"
 
@@ -51,11 +51,40 @@ Foam::ConeInjection<CloudType>::ConeInjection
     ),
     flowRateProfile_
     (
-        DataEntry<scalar>::New("flowRateProfile", this->coeffDict())
+        TimeDataEntry<scalar>
+        (
+            owner.db().time(),
+            "flowRateProfile",
+            this->coeffDict()
+        )
     ),
-    Umag_(DataEntry<scalar>::New("Umag", this->coeffDict())),
-    thetaInner_(DataEntry<scalar>::New("thetaInner", this->coeffDict())),
-    thetaOuter_(DataEntry<scalar>::New("thetaOuter", this->coeffDict())),
+    Umag_
+    (
+        TimeDataEntry<scalar>
+        (
+            owner.db().time(),
+            "Umag",
+            this->coeffDict()
+        )
+    ),
+    thetaInner_
+    (
+        TimeDataEntry<scalar>
+        (
+            owner.db().time(),
+            "thetaInner",
+            this->coeffDict()
+        )
+    ),
+    thetaOuter_
+    (
+        TimeDataEntry<scalar>
+        (
+            owner.db().time(),
+            "thetaOuter",
+            this->coeffDict()
+        )
+    ),
     sizeDistribution_
     (
         distributionModels::distributionModel::New
@@ -67,6 +96,8 @@ Foam::ConeInjection<CloudType>::ConeInjection
     tanVec1_(positionAxis_.size()),
     tanVec2_(positionAxis_.size())
 {
+    duration_ = owner.db().time().userTimeToTime(duration_);
+
     // Normalise direction vector and determine direction vectors
     // tangential to injector axis direction
     forAll(positionAxis_, i)
@@ -92,7 +123,7 @@ Foam::ConeInjection<CloudType>::ConeInjection
     }
 
     // Set total volume to inject
-    this->volumeTotal_ = flowRateProfile_().integrate(0.0, duration_);
+    this->volumeTotal_ = flowRateProfile_.integrate(0.0, duration_);
 
     // Set/cache the injector cells
     forAll(positionAxis_, i)
@@ -121,10 +152,10 @@ Foam::ConeInjection<CloudType>::ConeInjection
     injectorTetPts_(im.injectorTetPts_),
     duration_(im.duration_),
     parcelsPerInjector_(im.parcelsPerInjector_),
-    flowRateProfile_(im.flowRateProfile_().clone().ptr()),
-    Umag_(im.Umag_().clone().ptr()),
-    thetaInner_(im.thetaInner_().clone().ptr()),
-    thetaOuter_(im.thetaOuter_().clone().ptr()),
+    flowRateProfile_(im.flowRateProfile_),
+    Umag_(im.Umag_),
+    thetaInner_(im.thetaInner_),
+    thetaOuter_(im.thetaOuter_),
     sizeDistribution_(im.sizeDistribution_().clone().ptr()),
     nInjected_(im.nInjected_),
     tanVec1_(im.tanVec1_),
@@ -157,7 +188,7 @@ Foam::label Foam::ConeInjection<CloudType>::parcelsToInject
 {
     if ((time0 >= 0.0) && (time0 < duration_))
     {
-        const scalar targetVolume = flowRateProfile_().integrate(0, time1);
+        const scalar targetVolume = flowRateProfile_.integrate(0, time1);
 
         const label targetParcels =
             parcelsPerInjector_*targetVolume/this->volumeTotal_;
@@ -184,7 +215,7 @@ Foam::scalar Foam::ConeInjection<CloudType>::volumeToInject
 {
     if ((time0 >= 0.0) && (time0 < duration_))
     {
-        return flowRateProfile_().integrate(time0, time1);
+        return flowRateProfile_.integrate(time0, time1);
     }
     else
     {
@@ -229,8 +260,8 @@ void Foam::ConeInjection<CloudType>::setProperties
     const label i = parcelI % positionAxis_.size();
 
     scalar t = time - this->SOI_;
-    scalar ti = thetaInner_().value(t);
-    scalar to = thetaOuter_().value(t);
+    scalar ti = thetaInner_.value(t);
+    scalar to = thetaOuter_.value(t);
     scalar coneAngle = degToRad(rnd.position<scalar>(ti, to));
 
     scalar alpha = sin(coneAngle);
@@ -242,7 +273,7 @@ void Foam::ConeInjection<CloudType>::setProperties
     dirVec += normal;
     dirVec /= mag(dirVec);
 
-    parcel.U() = Umag_().value(t)*dirVec;
+    parcel.U() = Umag_.value(t)*dirVec;
 
     // set particle diameter
     parcel.d() = sizeDistribution_().sample();

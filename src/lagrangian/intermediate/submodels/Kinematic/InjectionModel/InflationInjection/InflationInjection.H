@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -81,13 +81,13 @@ class InflationInjection
         labelList inflationCells_;
 
         //- Injection duration [s]
-        const scalar duration_;
+        scalar duration_;
 
         //- Flow rate profile relative to SOI [m3/s]
-        const autoPtr<DataEntry<scalar> > flowRateProfile_;
+        TimeDataEntry<scalar> flowRateProfile_;
 
         //- Growth rate of particle diameters towards target [m/s]
-        const autoPtr<DataEntry<scalar> > growthRate_;
+        TimeDataEntry<scalar> growthRate_;
 
         //- Positions, velocities, diameters and target diameters of
         //  new particles after splitting

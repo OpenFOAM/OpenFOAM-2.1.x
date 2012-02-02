@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -57,6 +57,8 @@ ReactingMultiphaseLookupTableInjection
     injectorTetFaces_(0),
     injectorTetPts_(0)
 {
+    duration_ = owner.db().time().userTimeToTime(duration_);
+
     // Set/cache the injector cells
     injectorCells_.setSize(injectors_.size());
     injectorTetFaces_.setSize(injectors_.size());

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -63,7 +63,7 @@ namespace Foam
 // Forward declaration of classes
 
 template<class Type>
-class DataEntry;
+class TimeDataEntry;
 
 class distributionModel;
 
@@ -111,7 +111,7 @@ private:
         const scalar innerDiameter_;
 
         //- Injection duration [s]
-        const scalar duration_;
+        scalar duration_;
 
         //- Injector position [m]
         vector position_;
@@ -132,13 +132,13 @@ private:
         const label parcelsPerSecond_;
 
         //- Flow rate profile relative to SOI []
-        const autoPtr<DataEntry<scalar> > flowRateProfile_;
+        const TimeDataEntry<scalar> flowRateProfile_;
 
         //- Inner cone angle relative to SOI [deg]
-        const autoPtr<DataEntry<scalar> > thetaInner_;
+        const TimeDataEntry<scalar> thetaInner_;
 
         //- Outer cone angle relative to SOI [deg]
-        const autoPtr<DataEntry<scalar> > thetaOuter_;
+        const TimeDataEntry<scalar> thetaOuter_;
 
         //- Parcel size PDF model
         const autoPtr<distributionModels::distributionModel> sizeDistribution_;
@@ -162,10 +162,10 @@ private:
             scalar UMag_;
 
             //- Discharge coefficient, relative to SOI [m/s]
-            autoPtr<DataEntry<scalar> > Cd_;
+            TimeDataEntry<scalar> Cd_;
 
             //- Injection pressure [Pa]
-            autoPtr<DataEntry<scalar> > Pinj_;
+            TimeDataEntry<scalar> Pinj_;
 
 
     // Private Member Functions

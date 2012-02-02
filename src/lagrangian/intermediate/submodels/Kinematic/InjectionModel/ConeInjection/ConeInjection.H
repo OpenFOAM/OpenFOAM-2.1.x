@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -45,16 +45,12 @@ SourceFiles
 #include "InjectionModel.H"
 #include "distributionModel.H"
 #include "vectorList.H"
+#include "TimeDataEntry.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-// Forward declaration of classes
-
-template<class Type>
-class DataEntry;
 
 /*---------------------------------------------------------------------------*\
                        Class ConeInjection Declaration
@@ -80,22 +76,22 @@ class ConeInjection
         labelList injectorTetPts_;
 
         //- Injection duration [s]
-        const scalar duration_;
+        scalar duration_;
 
         //- Number of parcels to introduce per injector
         const label parcelsPerInjector_;
 
         //- Flow rate profile relative to SOI []
-        const autoPtr<DataEntry<scalar> > flowRateProfile_;
+        const TimeDataEntry<scalar> flowRateProfile_;
 
         //- Parcel velocity magnitude relative to SOI [m/s]
-        const autoPtr<DataEntry<scalar> > Umag_;
+        const TimeDataEntry<scalar> Umag_;
 
         //- Inner cone angle relative to SOI [deg]
-        const autoPtr<DataEntry<scalar> > thetaInner_;
+        const TimeDataEntry<scalar> thetaInner_;
 
         //- Outer cone angle relative to SOI [deg]
-        const autoPtr<DataEntry<scalar> > thetaOuter_;
+        const TimeDataEntry<scalar> thetaOuter_;
 
         //- Parcel size distribution model
         const autoPtr<distributionModels::distributionModel> sizeDistribution_;
