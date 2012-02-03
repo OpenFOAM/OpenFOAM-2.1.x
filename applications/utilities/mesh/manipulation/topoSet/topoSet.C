@@ -286,7 +286,8 @@ int main(int argc, char *argv[])
             )
             {
                 currentSet = topoSet::New(setType, mesh, setName, 10000);
-                Info<< "Created set " << setName << endl;
+                Info<< "Created " << currentSet().type() << " "
+                    << setName << endl;
             }
             else if (action == topoSetSource::REMOVE)
             {
@@ -301,7 +302,8 @@ int main(int argc, char *argv[])
                     setName,
                     IOobject::MUST_READ
                 );
-                Info<< "Read set " << setName << " with size "
+                Info<< "Read set " << currentSet().type() << " "
+                    << setName << " with size "
                     << returnReduce(currentSet().size(), sumOp<label>())
                     << endl;
             }
@@ -367,19 +369,19 @@ int main(int argc, char *argv[])
                 break;
 
                 case topoSetSource::CLEAR:
-                    Info<< "    Clearing set" << endl;
+                    Info<< "    Clearing " << currentSet().type() << endl;
                     currentSet().clear();
                     currentSet().write();
                 break;
 
                 case topoSetSource::INVERT:
-                    Info<< "    Inverting set" << endl;
+                    Info<< "    Inverting " << currentSet().type() << endl;
                     currentSet().invert(currentSet().maxSize(mesh));
                     currentSet().write();
                 break;
 
                 case topoSetSource::REMOVE:
-                    Info<< "    Removing set" << endl;
+                    Info<< "    Removing " << currentSet().type() << endl;
                     removeSet(mesh, setType, setName);
                 break;
 
@@ -392,7 +394,8 @@ int main(int argc, char *argv[])
 
             if (currentSet.valid())
             {
-                Info<< "    Set " << currentSet().name()
+                Info<< "    " << currentSet().type() << " "
+                    << currentSet().name()
                     << " now size "
                     << returnReduce(currentSet().size(), sumOp<label>())
                     << endl;
