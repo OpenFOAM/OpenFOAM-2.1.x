@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -425,14 +425,74 @@ void Foam::mergePolyMesh::merge()
     }
 
     // Add the zones if necessary
-    if
-    (
-        pointZoneNames_.size() != pointZones().size()
-     || faceZoneNames_.size() != faceZones().size()
-     || cellZoneNames_.size() != cellZones().size()
-    )
+    if (pointZoneNames_.size() > pointZones().size())
     {
+        Info<< "Adding new pointZones. " << endl;
+        label nZones = pointZones().size();
 
+        pointZones().setSize(pointZoneNames_.size());
+
+        for (label zoneI = nZones; zoneI < pointZoneNames_.size(); zoneI++)
+        {
+            pointZones().set
+            (
+                zoneI,
+                new pointZone
+                (
+                    pointZoneNames_[zoneI],
+                    labelList(),
+                    zoneI,
+                    pointZones()
+                )
+            );
+        }
+    }
+    if (cellZoneNames_.size() > cellZones().size())
+    {
+        Info<< "Adding new cellZones. " << endl;
+
+        label nZones = cellZones().size();
+
+        cellZones().setSize(cellZoneNames_.size());
+
+        for (label zoneI = nZones; zoneI < cellZoneNames_.size(); zoneI++)
+        {
+            cellZones().set
+            (
+                zoneI,
+                new cellZone
+                (
+                    cellZoneNames_[zoneI],
+                    labelList(),
+                    zoneI,
+                    cellZones()
+                )
+            );
+        }
+    }
+    if (faceZoneNames_.size() > faceZones().size())
+    {
+        Info<< "Adding new faceZones. " << endl;
+
+        label nZones = faceZones().size();
+
+        faceZones().setSize(faceZoneNames_.size());
+
+        for (label zoneI = nZones; zoneI < faceZoneNames_.size(); zoneI++)
+        {
+            faceZones().set
+            (
+                zoneI,
+                new faceZone
+                (
+                    faceZoneNames_[zoneI],
+                    labelList(),
+                    boolList(),
+                    zoneI,
+                    faceZones()
+                )
+            );
+        }
     }
 
     // Change mesh. No inflation
