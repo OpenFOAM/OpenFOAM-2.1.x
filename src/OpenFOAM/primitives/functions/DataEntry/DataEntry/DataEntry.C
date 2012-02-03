@@ -69,6 +69,23 @@ Type Foam::DataEntry<Type>::value(const scalar x) const
 
 
 template<class Type>
+Foam::tmp<Foam::Field<Type> > Foam::DataEntry<Type>::value
+(
+    const scalarField& x
+) const
+{
+    tmp<Field<Type> > tfld(new Field<Type>(x.size()));
+    Field<Type>& fld = tfld();
+
+    forAll(x, i)
+    {
+        fld[i] = this->value(x[i]);
+    }
+    return tfld;
+}
+
+
+template<class Type>
 Type Foam::DataEntry<Type>::integrate(const scalar x1, const scalar x2) const
 {
     notImplemented
@@ -81,6 +98,24 @@ Type Foam::DataEntry<Type>::integrate(const scalar x1, const scalar x2) const
     );
 
     return pTraits<Type>::zero;
+}
+
+
+template<class Type>
+Foam::tmp<Foam::Field<Type> > Foam::DataEntry<Type>::integrate
+(
+    const scalarField& x1,
+    const scalarField& x2
+) const
+{
+    tmp<Field<Type> > tfld(new Field<Type>(x1.size()));
+    Field<Type>& fld = tfld();
+
+    forAll(x1, i)
+    {
+        fld[i] = this->integrate(x1[i], x2[i]);
+    }
+    return tfld;
 }
 
 

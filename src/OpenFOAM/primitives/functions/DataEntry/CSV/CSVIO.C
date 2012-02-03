@@ -62,11 +62,16 @@ template<class Type>
 void Foam::CSV<Type>::writeData(Ostream& os) const
 {
     DataEntry<Type>::writeData(os);
-
     os  << token::END_STATEMENT << nl;
     os  << indent << word(type() + "Coeffs") << nl;
     os  << indent << token::BEGIN_BLOCK << incrIndent << nl;
-    os.writeKeyword("headerLine") << headerLine_ << token::END_STATEMENT << nl;
+
+    // Note: for TableBase write the dictionary entries it needs but not
+    // the values themselves
+    TableBase<Type>::writeEntries(os);
+
+    os.writeKeyword("hasHeaderLine") << headerLine_ << token::END_STATEMENT
+        << nl;
     os.writeKeyword("refColumn") << refColumn_ << token::END_STATEMENT << nl;
     os.writeKeyword("componentColumns") << componentColumns_
         << token::END_STATEMENT << nl;
