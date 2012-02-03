@@ -21,7 +21,7 @@ internalField   uniform 0;
 
 boundaryField
 {
-
+    #include "include/ABLConditions"
     inlet
     {
         type            calculated;
@@ -36,9 +36,8 @@ boundaryField
 
     "terrain_.*"
     {
-        type            nutkRoughWallFunction;
-        Ks              uniform 0.2; //Ks = 20 Z0
-        Cs              uniform 0.5;
+        type            nutkAtmRoughWallFunction;
+        z0              $Z0;
         value           uniform 0.0;
     }
 

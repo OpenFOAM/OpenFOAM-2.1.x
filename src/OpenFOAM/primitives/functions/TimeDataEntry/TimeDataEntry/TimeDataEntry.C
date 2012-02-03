@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,113 +23,115 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "DataEntry.H"
-#include "Time.H"
+#include "TimeDataEntry.H"
 
 // * * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::DataEntry<Type>::DataEntry(const word& entryName)
+Foam::TimeDataEntry<Type>::TimeDataEntry
+(
+    const Time& t,
+    const word& name,
+    const dictionary& dict
+)
 :
-    refCount(),
-    name_(entryName)
+    time_(t),
+    name_(name),
+    entry_(DataEntry<Type>::New(name, dict))
+{
+    entry_->convertTimeBase(t);
+}
+
+
+template<class Type>
+Foam::TimeDataEntry<Type>::TimeDataEntry(const Time& t, const word& name)
+:
+    time_(t),
+    name_(name),
+    entry_(NULL)
 {}
 
 
 template<class Type>
-Foam::DataEntry<Type>::DataEntry(const DataEntry<Type>& de)
+Foam::TimeDataEntry<Type>::TimeDataEntry
+(
+    const TimeDataEntry<Type>& tde
+)
 :
-    refCount(),
-    name_(de.name_)
+    time_(tde.time_),
+    name_(tde.name_),
+    entry_(tde.entry_->clone().ptr())
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::DataEntry<Type>::~DataEntry()
+Foam::TimeDataEntry<Type>::~TimeDataEntry()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class Type>
-const Foam::word& Foam::DataEntry<Type>::name() const
+void Foam::TimeDataEntry<Type>::reset(const dictionary& dict)
 {
-    return name_;
-}
-
-
-template<class Type>
-void Foam::DataEntry<Type>::convertTimeBase(const Time&)
-{
-    // do nothing
-}
-
-
-template<class Type>
-Type Foam::DataEntry<Type>::value(const scalar x) const
-{
-    notImplemented("Type Foam::DataEntry<Type>::value(const scalar) const");
-
-    return pTraits<Type>::zero;
-}
-
-
-template<class Type>
-Foam::tmp<Foam::Field<Type> > Foam::DataEntry<Type>::value
-(
-    const scalarField& x
-) const
-{
-    tmp<Field<Type> > tfld(new Field<Type>(x.size()));
-    Field<Type>& fld = tfld();
-
-    forAll(x, i)
-    {
-        fld[i] = this->value(x[i]);
-    }
-    return tfld;
-}
-
-
-template<class Type>
-Type Foam::DataEntry<Type>::integrate(const scalar x1, const scalar x2) const
-{
-    notImplemented
+    entry_.reset
     (
-        "Type Foam::DataEntry<Type>::integrate"
-        "("
-            "const scalar, "
-            "const scalar"
-        ") const"
+        DataEntry<Type>::New
+        (
+            name_,
+            dict
+        ).ptr()
     );
 
-    return pTraits<Type>::zero;
+    entry_->convertTimeBase(time_);
 }
 
 
 template<class Type>
-Foam::tmp<Foam::Field<Type> > Foam::DataEntry<Type>::integrate
-(
-    const scalarField& x1,
-    const scalarField& x2
-) const
+const Foam::word& Foam::TimeDataEntry<Type>::name() const
 {
-    tmp<Field<Type> > tfld(new Field<Type>(x1.size()));
-    Field<Type>& fld = tfld();
-
-    forAll(x1, i)
-    {
-        fld[i] = this->integrate(x1[i], x2[i]);
-    }
-    return tfld;
+    return entry_->name();
 }
 
 
-// * * * * * * * * * * * * * *  IOStream operators * * * * * * * * * * * * * //
+template<class Type>
+Type Foam::TimeDataEntry<Type>::value(const scalar x) const
+{
+    return entry_->value(x);
+}
 
-#include "DataEntryIO.C"
+
+template<class Type>
+Type Foam::TimeDataEntry<Type>::integrate
+(
+    const scalar x1,
+    const scalar x2
+) const
+{
+    return entry_->integrate(x1, x2);
+}
+
+
+// * * * * * * * * * * * * * * * IOstream Operators  * * * * * * * * * * * * //
+
+template<class Type>
+Foam::Ostream& Foam::operator<<
+(
+    Ostream& os,
+    const TimeDataEntry<Type>& de
+)
+{
+    return de.entry_->operator<<(os, de);
+}
+
+
+template<class Type>
+void Foam::TimeDataEntry<Type>::writeData(Ostream& os) const
+{
+    entry_->writeData(os);
+}
 
 
 // ************************************************************************* //

@@ -92,7 +92,7 @@ class atmBoundaryLayerInletVelocityFvPatchVectorField
     // Private data
 
         //- Frictional velocity
-        scalar Ustar_;
+        scalarField Ustar_;
 
         //- Flow direction
         vector n_;
@@ -101,7 +101,7 @@ class atmBoundaryLayerInletVelocityFvPatchVectorField
         vector z_;
 
         //- Surface roughness lenght
-        const scalar z0_;
+        scalarField z0_;
 
         //- Von Karman constant
         const scalar kappa_;
@@ -181,7 +181,7 @@ public:
     // Member functions
 
         //- Return Ustar
-        scalar& Ustar()
+        scalarField& Ustar()
         {
             return Ustar_;
         }

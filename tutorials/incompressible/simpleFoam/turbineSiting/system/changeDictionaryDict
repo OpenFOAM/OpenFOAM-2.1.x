@@ -15,6 +15,7 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include        "$FOAM_CASE/0/include/initialConditions"
+#include        "$FOAM_CASE/0/include/ABLConditions"
 
 dictionaryReplacement
 {
@@ -99,12 +100,12 @@ dictionaryReplacement
             inlet
             {
                 type            atmBoundaryLayerInletVelocity;
-                Uref            10.0;
-                Href            20;
-                n               (1 0 0);
-                z               (0 0 1);
-                z0              0.1;
-                zGround         935.0;
+                Uref            $Uref;
+                Href            $Href;
+                n               $windDirection;
+                z               $zDirection;
+                z0              $z0;
+                zGround         $zGround;
                 value           uniform $flowVelocity;
             }
             "terrain_.*"
@@ -141,9 +142,8 @@ dictionaryReplacement
             }
             "terrain_.*"
             {
-                type            nutkRoughWallFunction;
-                Ks              uniform 0.2; //Ks = 20 Z0
-                Cs              uniform 0.5;
+                type            nutkAtmRoughWallFunction;
+                z0              $z0;
                 value           uniform 0.0;
             }
             ground
@@ -170,11 +170,12 @@ dictionaryReplacement
             inlet
             {
                 type            atmBoundaryLayerInletEpsilon;
-                Ustar           0.82;
-                z               (0 0 1);
-                z0              0.1;
+                z               $zDirection;
+                z0              $z0;
+                zGround         $zGround;
+                Uref            $Uref;
+                Href            $Href;
                 value           uniform $turbulentEpsilon;
-                zGround         935.0;
             }
             "terrain_.*"
             {

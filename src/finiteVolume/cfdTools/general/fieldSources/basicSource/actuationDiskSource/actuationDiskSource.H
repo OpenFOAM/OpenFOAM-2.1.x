@@ -48,6 +48,7 @@ Description
             Cp              0.1;        // power coefficient
             Ct              0.5;        // thrust coefficient
             diskArea        5.0;        // disk area
+            upstreamPoint   (0 0 0);    // upstream point
         }
 
 
@@ -92,6 +93,11 @@ protected:
         //- Disk area
         scalar diskArea_;
 
+        //- Upstream point sample
+        point upstreamPoint_;
+
+        //- Upstream cell ID
+        label upstreamCellId_;
 
 private:
 

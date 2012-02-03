@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -73,7 +73,7 @@ class KinematicLookupTableInjection
         const word inputFileName_;
 
         //- Injection duration - common to all injection sources
-        const scalar duration_;
+        scalar duration_;
 
         //- Number of parcels per injector - common to all injection sources
         const scalar parcelsPerSecond_;

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "polynomial.H"
+#include "Time.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -88,6 +89,16 @@ Foam::polynomial::~polynomial()
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::polynomial::convertTimeBase(const Time& t)
+{
+    forAll(coeffs_, i)
+    {
+        scalar value = coeffs_[i].first();
+        coeffs_[i].first() = t.userTimeToTime(value);
+    }
+}
+
 
 Foam::scalar Foam::polynomial::value(const scalar x) const
 {

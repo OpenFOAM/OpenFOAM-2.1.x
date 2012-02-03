@@ -316,6 +316,7 @@ Foam::InjectionModel<CloudType>::InjectionModel
     {
         this->coeffDict().lookup("massTotal") >> massTotal_;
         this->coeffDict().lookup("SOI") >> SOI_;
+        SOI_ = owner.db().time().userTimeToTime(SOI_);
     }
     else
     {

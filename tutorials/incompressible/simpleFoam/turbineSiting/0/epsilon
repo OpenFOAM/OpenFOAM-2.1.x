@@ -40,7 +40,8 @@ boundaryField
     inlet
     {
         type            atmBoundaryLayerInletEpsilon;
-        Ustar           $Ustar;
+        Uref            $Uref;
+        Href            $Href;
         z               $zDirection;
         z0              $z0;
         value           $internalField;

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -106,17 +106,28 @@ public:
 
     // Member Functions
 
-        //- Return Table value
-        virtual Type value(const scalar x) const
-        {
-            return TableBase<Type>::value(x);
-        }
+        // Manipulation
 
-        //- Integrate between two (scalar) values
-        virtual Type integrate(const scalar x1, const scalar x2) const
-        {
-            return TableBase<Type>::integrate(x1, x2);
-        }
+            //- Convert time
+            virtual void convertTimeBase(const Time& t)
+            {
+                TableBase<Type>::convertTimeBase(t);
+            }
+
+
+        // Evaluation
+
+            //- Return Table value
+            virtual Type value(const scalar x) const
+            {
+                return TableBase<Type>::value(x);
+            }
+
+            //- Integrate between two (scalar) values
+            virtual Type integrate(const scalar x1, const scalar x2) const
+            {
+                return TableBase<Type>::integrate(x1, x2);
+            }
 
 
     // I/O

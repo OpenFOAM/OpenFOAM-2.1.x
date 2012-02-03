@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -24,7 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "PatchInjection.H"
-#include "DataEntry.H"
+#include "TimeDataEntry.H"
 #include "distributionModel.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -47,7 +47,12 @@ Foam::PatchInjection<CloudType>::PatchInjection
     U0_(this->coeffDict().lookup("U0")),
     flowRateProfile_
     (
-        DataEntry<scalar>::New("flowRateProfile", this->coeffDict())
+        TimeDataEntry<scalar>
+        (
+            owner.db().time(),
+            "flowRateProfile",
+            this->coeffDict()
+        )
     ),
     sizeDistribution_
     (
@@ -76,6 +81,8 @@ Foam::PatchInjection<CloudType>::PatchInjection
 
     const polyPatch& patch = owner.mesh().boundaryMesh()[patchId_];
 
+    duration_ = owner.db().time().userTimeToTime(duration_);
+
     cellOwners_ = patch.faceCells();
 
     label patchSize = cellOwners_.size();
@@ -84,7 +91,7 @@ Foam::PatchInjection<CloudType>::PatchInjection
     fraction_ = scalar(patchSize)/totalPatchSize;
 
     // Set total volume/mass to inject
-    this->volumeTotal_ = fraction_*flowRateProfile_().integrate(0.0, duration_);
+    this->volumeTotal_ = fraction_*flowRateProfile_.integrate(0.0, duration_);
     this->massTotal_ *= fraction_;
 }
 
@@ -101,7 +108,7 @@ Foam::PatchInjection<CloudType>::PatchInjection
     duration_(im.duration_),
     parcelsPerSecond_(im.parcelsPerSecond_),
     U0_(im.U0_),
-    flowRateProfile_(im.flowRateProfile_().clone().ptr()),
+    flowRateProfile_(im.flowRateProfile_),
     sizeDistribution_(im.sizeDistribution_().clone().ptr()),
     cellOwners_(im.cellOwners_),
     fraction_(im.fraction_)
@@ -171,7 +178,7 @@ Foam::scalar Foam::PatchInjection<CloudType>::volumeToInject
 {
     if ((time0 >= 0.0) && (time0 < duration_))
     {
-        return fraction_*flowRateProfile_().integrate(time0, time1);
+        return fraction_*flowRateProfile_.integrate(time0, time1);
     }
     else
     {

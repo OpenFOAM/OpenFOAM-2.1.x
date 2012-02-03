@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -48,16 +48,18 @@ Foam::InflationInjection<CloudType>::InflationInjection
     duration_(readScalar(this->coeffDict().lookup("duration"))),
     flowRateProfile_
     (
-        DataEntry<scalar>::New
+        TimeDataEntry<scalar>
         (
+            owner.db().time(),
             "flowRateProfile",
             this->coeffDict()
         )
     ),
     growthRate_
     (
-        DataEntry<scalar>::New
+        TimeDataEntry<scalar>
         (
+            owner.db().time(),
             "growthRate",
             this->coeffDict()
         )
@@ -76,6 +78,8 @@ Foam::InflationInjection<CloudType>::InflationInjection
         )
     )
 {
+    duration_ = owner.db().time().userTimeToTime(duration_);
+
     if (selfSeed_)
     {
         dSeed_ = readScalar(this->coeffDict().lookup("dSeed"));
@@ -111,7 +115,7 @@ Foam::InflationInjection<CloudType>::InflationInjection
     }
 
     // Set total volume/mass to inject
-    this->volumeTotal_ = fraction_*flowRateProfile_().integrate(0.0, duration_);
+    this->volumeTotal_ = fraction_*flowRateProfile_.integrate(0.0, duration_);
     this->massTotal_ *= fraction_;
 }
 
@@ -128,8 +132,8 @@ Foam::InflationInjection<CloudType>::InflationInjection
     generationCells_(im.generationCells_),
     inflationCells_(im.inflationCells_),
     duration_(im.duration_),
-    flowRateProfile_(im.flowRateProfile_().clone().ptr()),
-    growthRate_(im.growthRate_().clone().ptr()),
+    flowRateProfile_(im.flowRateProfile_),
+    growthRate_(im.growthRate_),
     newParticles_(im.newParticles_),
     volumeAccumulator_(im.volumeAccumulator_),
     fraction_(im.fraction_),
@@ -167,7 +171,7 @@ Foam::label Foam::InflationInjection<CloudType>::parcelsToInject
     List<DynamicList<typename CloudType::parcelType*> >& cellOccupancy =
         this->owner().cellOccupancy();
 
-    scalar gR = growthRate_().value(time1);
+    scalar gR = growthRate_.value(time1);
 
     scalar dT = time1 - time0;
 
@@ -202,7 +206,7 @@ Foam::label Foam::InflationInjection<CloudType>::parcelsToInject
     if ((time0 >= 0.0) && (time0 < duration_))
     {
          volumeAccumulator_ +=
-             fraction_*flowRateProfile_().integrate(time0, time1);
+             fraction_*flowRateProfile_.integrate(time0, time1);
     }
 
     labelHashSet cellCentresUsed;
@@ -424,7 +428,7 @@ Foam::scalar Foam::InflationInjection<CloudType>::volumeToInject
 {
     if ((time0 >= 0.0) && (time0 < duration_))
     {
-        return fraction_*flowRateProfile_().integrate(time0, time1);
+        return fraction_*flowRateProfile_.integrate(time0, time1);
     }
     else
     {

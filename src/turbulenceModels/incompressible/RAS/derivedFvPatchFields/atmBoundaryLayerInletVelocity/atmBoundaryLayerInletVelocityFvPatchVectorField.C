@@ -88,16 +88,16 @@ atmBoundaryLayerInletVelocityFvPatchVectorField
 )
 :
     fixedValueFvPatchVectorField(p, iF),
-    Ustar_(0),
+    Ustar_(p.size()),
     n_(dict.lookup("n")),
     z_(dict.lookup("z")),
-    z0_(readScalar(dict.lookup("z0"))),
+    z0_("z0", dict, p.size()),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.41)),
     Uref_(readScalar(dict.lookup("Uref"))),
     Href_(readScalar(dict.lookup("Href"))),
     zGround_("zGround", dict, p.size())
 {
-    if (mag(n_) < SMALL || mag(z_) < SMALL || mag(z0_) < SMALL)
+    if (mag(n_) < SMALL || mag(z_) < SMALL)
     {
         FatalErrorIn
         (
@@ -115,7 +115,10 @@ atmBoundaryLayerInletVelocityFvPatchVectorField
     n_ /= mag(n_);
     z_ /= mag(z_);
 
-    Ustar_ = kappa_*Uref_/(log((Href_  + z0_)/max(z0_ , 0.001)));
+    forAll (Ustar_, i)
+    {
+        Ustar_[i] = kappa_*Uref_/(log((Href_  + z0_[i])/max(z0_[i] , 0.001)));
+    }
 
     evaluate();
 }
@@ -153,12 +156,12 @@ void atmBoundaryLayerInletVelocityFvPatchVectorField::updateCoeffs()
         if ((coord[i] - zGround_[i]) < Href_)
         {
             Un[i] =
-                (Ustar_/kappa_)
-              * log((coord[i] - zGround_[i] + z0_)/max(z0_, 0.001));
+                (Ustar_[i]/kappa_)
+              * log((coord[i] - zGround_[i] + z0_[i])/max(z0_[i], 0.001));
         }
         else
         {
-            Un[i] = (Uref_);
+            Un[i] = Uref_;
         }
     }
 
@@ -171,8 +174,7 @@ void atmBoundaryLayerInletVelocityFvPatchVectorField::updateCoeffs()
 void atmBoundaryLayerInletVelocityFvPatchVectorField::write(Ostream& os) const
 {
     fvPatchVectorField::write(os);
-    os.writeKeyword("z0")
-        << z0_ << token::END_STATEMENT << nl;
+    zGround_.writeEntry("z0", os) ;
     os.writeKeyword("n")
         << n_ << token::END_STATEMENT << nl;
     os.writeKeyword("z")

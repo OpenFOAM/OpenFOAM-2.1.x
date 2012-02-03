@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "TableBase.H"
+#include "Time.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -293,6 +294,17 @@ bool Foam::TableBase<Type>::checkMaxBounds
     }
 
     return false;
+}
+
+
+template<class Type>
+void Foam::TableBase<Type>::convertTimeBase(const Time& t)
+{
+    forAll(table_, i)
+    {
+        scalar value = table_[i].first();
+        table_[i].first() = t.userTimeToTime(value);
+    }
 }
 
 

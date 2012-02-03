@@ -51,6 +51,8 @@ atmBoundaryLayerInletEpsilonFvPatchScalarField
     z_(pTraits<vector>::zero),
     z0_(0),
     kappa_(0.41),
+    Uref_(0),
+    Href_(0),
     zGround_(0)
 {}
 
@@ -69,6 +71,8 @@ atmBoundaryLayerInletEpsilonFvPatchScalarField
     z_(ptf.z_),
     z0_(ptf.z0_),
     kappa_(ptf.kappa_),
+    Uref_(ptf.Uref_),
+    Href_(ptf.Href_),
     zGround_(ptf.zGround_)
 {}
 
@@ -82,10 +86,12 @@ atmBoundaryLayerInletEpsilonFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    Ustar_(readScalar(dict.lookup("Ustar"))),
+    Ustar_(p.size()),
     z_(dict.lookup("z")),
-    z0_(readScalar(dict.lookup("z0"))),
+    z0_("z0", dict, p.size()),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.41)),
+    Uref_(readScalar(dict.lookup("Uref"))),
+    Href_(readScalar(dict.lookup("Href"))),
     zGround_("zGround", dict, p.size())
 {
     if (mag(z_) < SMALL)
@@ -101,6 +107,11 @@ atmBoundaryLayerInletEpsilonFvPatchScalarField
         )
             << "magnitude of z vector must be greater than zero"
             << abort(FatalError);
+    }
+
+    forAll (Ustar_, i)
+    {
+        Ustar_[i] = kappa_*Uref_/(log((Href_  + z0_[i])/max(z0_[i] , 0.001)));
     }
 
     z_ /= mag(z_);
@@ -121,6 +132,8 @@ atmBoundaryLayerInletEpsilonFvPatchScalarField
     z_(blpsf.z_),
     z0_(blpsf.z0_),
     kappa_(blpsf.kappa_),
+    Uref_(blpsf.Uref_),
+    Href_(blpsf.Href_),
     zGround_(blpsf.zGround_)
 {}
 
@@ -138,14 +151,17 @@ void atmBoundaryLayerInletEpsilonFvPatchScalarField::updateCoeffs()
 void atmBoundaryLayerInletEpsilonFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchScalarField::write(os);
-    os.writeKeyword("Ustar")
-        << Ustar_ << token::END_STATEMENT << nl;
+
     os.writeKeyword("z")
         << z_ << token::END_STATEMENT << nl;
     os.writeKeyword("z0")
         << z0_ << token::END_STATEMENT << nl;
     os.writeKeyword("kappa")
         << kappa_ << token::END_STATEMENT << nl;
+    os.writeKeyword("Uref")
+        << Uref_ << token::END_STATEMENT << nl;
+    os.writeKeyword("Href")
+        << Href_ << token::END_STATEMENT << nl;
     os.writeKeyword("zGround")
         << zGround_ << token::END_STATEMENT << nl;
     writeEntry("value", os);

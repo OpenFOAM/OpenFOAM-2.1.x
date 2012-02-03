@@ -66,6 +66,12 @@ void Foam::actuationDiskSource::checkData() const
            << "disk direction vector is approximately zero"
            << exit(FatalIOError);
     }
+    if (returnReduce(upstreamCellId_, maxOp<label>()) == -1)
+    {
+        FatalErrorIn("Foam::actuationDiskSource::checkData()")
+           << "upstream location " << upstreamPoint_  << " not found in mesh"
+           << exit(FatalIOError);
+    }
 }
 
 
@@ -83,13 +89,17 @@ Foam::actuationDiskSource::actuationDiskSource
     diskDir_(coeffs_.lookup("diskDir")),
     Cp_(readScalar(coeffs_.lookup("Cp"))),
     Ct_(readScalar(coeffs_.lookup("Ct"))),
-    diskArea_(readScalar(coeffs_.lookup("diskArea")))
+    diskArea_(readScalar(coeffs_.lookup("diskArea"))),
+    upstreamPoint_(coeffs_.lookup("upstreamPoint")),
+    upstreamCellId_(-1)
 {
     coeffs_.lookup("fieldNames") >> fieldNames_;
     applied_.setSize(fieldNames_.size(), false);
 
     Info<< "    - creating actuation disk zone: "
         << this->name() << endl;
+
+    upstreamCellId_ = mesh.findCell(upstreamPoint_);
 
     checkData();
 }
