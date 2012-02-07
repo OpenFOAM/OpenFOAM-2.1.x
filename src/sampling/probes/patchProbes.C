@@ -42,6 +42,7 @@ namespace Foam
 
 void Foam::patchProbes::findElements(const fvMesh& mesh)
 {
+    (void)mesh.tetBasePtIs();
 
     const polyBoundaryMesh& bm = mesh.boundaryMesh();
 

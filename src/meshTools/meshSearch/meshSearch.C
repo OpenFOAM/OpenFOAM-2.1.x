@@ -508,7 +508,13 @@ Foam::meshSearch::meshSearch
 :
     mesh_(mesh),
     cellDecompMode_(cellDecompMode)
-{}
+{
+    if (cellDecompMode_ == polyMesh::FACEDIAGTETS)
+    {
+        // Force construction of face diagonals
+        (void)mesh.tetBasePtIs();
+    }
+}
 
 
 // Construct with a custom bounding box
@@ -523,6 +529,12 @@ Foam::meshSearch::meshSearch
     cellDecompMode_(cellDecompMode)
 {
     overallBbPtr_.reset(new treeBoundBox(bb));
+
+    if (cellDecompMode_ == polyMesh::FACEDIAGTETS)
+    {
+        // Force construction of face diagonals
+        (void)mesh.tetBasePtIs();
+    }
 }
 
 

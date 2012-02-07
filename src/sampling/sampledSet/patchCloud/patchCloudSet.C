@@ -114,7 +114,7 @@ void Foam::patchCloudSet::calcSamples
         10,             // leafsize
         3.0             // duplicity
     );
-
+    (void)mesh().tetBasePtIs();
 
 
     // All the info for nearest. Construct to miss
