@@ -30,6 +30,9 @@ tmp<fv::convectionScheme<scalar> > mvConvection
                 combustion->R(Yi)
             );
 
+            YiEqn.relax();
+            YiEqn.solve(mesh.solver("Yi"));
+
             Yi.max(0.0);
             Yt += Yi;
         }
