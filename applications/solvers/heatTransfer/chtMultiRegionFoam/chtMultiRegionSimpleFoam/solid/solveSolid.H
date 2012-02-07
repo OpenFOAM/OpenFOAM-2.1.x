@@ -12,3 +12,5 @@
     Info<< "Min/max T:" << min(T).value() << ' '
         << max(T).value() << endl;
 }
+
+thermo.correct();
