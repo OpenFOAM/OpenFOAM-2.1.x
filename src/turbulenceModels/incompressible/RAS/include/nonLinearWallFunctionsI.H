@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -104,7 +104,7 @@ Description
                         *magFaceGradU[facei]
                         *Cmu25*sqrt(k_[faceCelli])
                         /(kappa_.value()*y_[patchi][facei])
-                      - (nonlinearStress_[faceCelli] && gradU_[faceCelli]);
+                      - (nonlinearStress_[faceCelli] && gradU[faceCelli]);
                 }
             }
         }

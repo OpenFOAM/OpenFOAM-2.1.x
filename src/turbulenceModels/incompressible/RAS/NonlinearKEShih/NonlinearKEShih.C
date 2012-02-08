@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -190,16 +190,15 @@ NonlinearKEShih::NonlinearKEShih
         mesh_
     ),
 
-    gradU_(fvc::grad(U)),
     eta_
     (
         k_/bound(epsilon_, epsilonMin_)
-       *sqrt(2.0*magSqr(0.5*(gradU_ + gradU_.T())))
+       *sqrt(2.0*magSqr(0.5*(fvc::grad(U) + T(fvc::grad(U)))))
     ),
     ksi_
     (
         k_/epsilon_
-       *sqrt(2.0*magSqr(0.5*(gradU_ - gradU_.T())))
+       *sqrt(2.0*magSqr(0.5*(fvc::grad(U) - T(fvc::grad(U)))))
     ),
     Cmu_(2.0/(3.0*(A1_ + eta_ + alphaKsi_*ksi_))),
     fEta_(A2_ + pow(eta_, 3.0)),
@@ -215,11 +214,11 @@ NonlinearKEShih::NonlinearKEShih
            *(
                 Ctau1_/fEta_
                *(
-                    (gradU_ & gradU_)
-                  + (gradU_ & gradU_)().T()
+                    (fvc::grad(U) & fvc::grad(U))
+                  + (fvc::grad(U) & fvc::grad(U))().T()
                 )
-              + Ctau2_/fEta_*(gradU_ & gradU_.T())
-              + Ctau3_/fEta_*(gradU_.T() & gradU_)
+              + Ctau2_/fEta_*(fvc::grad(U) & T(fvc::grad(U)))
+              + Ctau3_/fEta_*(T(fvc::grad(U)) & fvc::grad(U))
             )
         )
     )
@@ -323,16 +322,17 @@ void NonlinearKEShih::correct()
         return;
     }
 
-    gradU_ = fvc::grad(U_);
+    tmp<volTensorField> tgradU = fvc::grad(U_);
+    const volTensorField& gradU = tgradU();
 
     // generation term
-    tmp<volScalarField> S2 = symm(gradU_) && gradU_;
+    tmp<volScalarField> S2 = symm(gradU) && gradU;
 
     volScalarField G
     (
         "RASModel::G",
         Cmu_*sqr(k_)/epsilon_*S2
-      - (nonlinearStress_ && gradU_)
+      - (nonlinearStress_ && gradU)
     );
 
     #include "nonLinearWallFunctionsI.H"
@@ -375,8 +375,8 @@ void NonlinearKEShih::correct()
 
     // Re-calculate viscosity
 
-    eta_ = k_/epsilon_*sqrt(2.0*magSqr(0.5*(gradU_ + gradU_.T())));
-    ksi_ = k_/epsilon_*sqrt(2.0*magSqr(0.5*(gradU_ - gradU_.T())));
+    eta_ = k_/epsilon_*sqrt(2.0*magSqr(0.5*(gradU + T(gradU))));
+    ksi_ = k_/epsilon_*sqrt(2.0*magSqr(0.5*(gradU - T(gradU))));
     Cmu_ = 2.0/(3.0*(A1_ + eta_ + alphaKsi_*ksi_));
     fEta_ = A2_ + pow(eta_, 3.0);
 
@@ -390,11 +390,11 @@ void NonlinearKEShih::correct()
        *(
             Ctau1_/fEta_
            *(
-                (gradU_ & gradU_)
-              + (gradU_ & gradU_)().T()
+                (gradU & gradU)
+              + (gradU & gradU)().T()
             )
-          + Ctau2_/fEta_*(gradU_ & gradU_.T())
-          + Ctau3_/fEta_*(gradU_.T() & gradU_)
+          + Ctau2_/fEta_*(gradU & T(gradU))
+          + Ctau3_/fEta_*(T(gradU) & gradU)
         )
     );
 }

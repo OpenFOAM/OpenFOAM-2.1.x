@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -220,16 +220,15 @@ LienCubicKELowRe::LienCubicKELowRe
 
     y_(mesh_),
 
-    gradU_(fvc::grad(U)),
     eta_
     (
         k_/bound(epsilon_, epsilonMin_)
-       *sqrt(2.0*magSqr(0.5*(gradU_ + gradU_.T())))
+       *sqrt(2.0*magSqr(0.5*(fvc::grad(U) + T(fvc::grad(U)))))
     ),
     ksi_
     (
         k_/epsilon_
-       *sqrt(2.0*magSqr(0.5*(gradU_ - gradU_.T())))
+       *sqrt(2.0*magSqr(0.5*(fvc::grad(U) - T(fvc::grad(U)))))
     ),
     Cmu_(2.0/(3.0*(A1_ + eta_ + alphaKsi_*ksi_))),
     fEta_(A2_ + pow3(eta_)),
@@ -237,7 +236,7 @@ LienCubicKELowRe::LienCubicKELowRe
     C5viscosity_
     (
         -2.0*pow3(Cmu_)*pow4(k_)/pow3(epsilon_)
-       *(magSqr(gradU_ + gradU_.T()) - magSqr(gradU_ - gradU_.T()))
+       *(magSqr(fvc::grad(U) + T(fvc::grad(U))) - magSqr(fvc::grad(U) - T(fvc::grad(U))))
     ),
 
     yStar_(sqrt(k_)*y_/nu() + SMALL),
@@ -265,27 +264,27 @@ LienCubicKELowRe::LienCubicKELowRe
            *(
                 Ctau1_/fEta_
                *(
-                    (gradU_ & gradU_)
-                  + (gradU_ & gradU_)().T()
+                    (fvc::grad(U) & fvc::grad(U))
+                  + (fvc::grad(U) & fvc::grad(U))().T()
                 )
-              + Ctau2_/fEta_*(gradU_ & gradU_.T())
-              + Ctau3_/fEta_*(gradU_.T() & gradU_)
+              + Ctau2_/fEta_*(fvc::grad(U) & T(fvc::grad(U)))
+              + Ctau3_/fEta_*(T(fvc::grad(U)) & fvc::grad(U))
             )
             // cubic term C4
           - 20.0*pow4(k_)/pow3(epsilon_)
            *pow3(Cmu_)
            *(
-                ((gradU_ & gradU_) & gradU_.T())
-              + ((gradU_ & gradU_.T()) & gradU_.T())
-              - ((gradU_.T() & gradU_) & gradU_)
-              - ((gradU_.T() & gradU_.T()) & gradU_)
+                ((fvc::grad(U) & fvc::grad(U)) & T(fvc::grad(U)))
+              + ((fvc::grad(U) & T(fvc::grad(U))) & T(fvc::grad(U)))
+              - ((T(fvc::grad(U)) & fvc::grad(U)) & fvc::grad(U))
+              - ((T(fvc::grad(U)) & T(fvc::grad(U))) & fvc::grad(U))
             )
             // cubic term C5, explicit part
           + min
             (
                 C5viscosity_,
                 dimensionedScalar("0", C5viscosity_.dimensions(), 0.0)
-            )*gradU_
+            )*fvc::grad(U)
         )
     )
 {
@@ -325,7 +324,7 @@ tmp<volSymmTensorField> LienCubicKELowRe::R() const
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
-            ((2.0/3.0)*I)*k_ - nut_*twoSymm(gradU_) + nonlinearStress_,
+            ((2.0/3.0)*I)*k_ - nut_*twoSymm(fvc::grad(U_)) + nonlinearStress_,
             k_.boundaryField().types()
         )
     );
@@ -406,10 +405,11 @@ void LienCubicKELowRe::correct()
         y_.correct();
     }
 
-    gradU_ = fvc::grad(U_);
+    tmp<volTensorField> tgradU = fvc::grad(U_);
+    const volTensorField& gradU = tgradU();
 
     // generation term
-    tmp<volScalarField> S2 = symm(gradU_) && gradU_;
+    tmp<volScalarField> S2 = symm(gradU) && gradU;
 
     yStar_ = sqrt(k_)*y_/nu() + SMALL;
     tmp<volScalarField> Rt = sqr(k_)/(nu()*epsilon_);
@@ -427,7 +427,7 @@ void LienCubicKELowRe::correct()
     volScalarField G
     (
         "RASModel::G",
-        Cmu_*fMu*sqr(k_)/epsilon_*S2 - (nonlinearStress_ && gradU_)
+        Cmu_*fMu*sqr(k_)/epsilon_*S2 - (nonlinearStress_ && gradU)
     );
 
     // Dissipation equation
@@ -473,14 +473,14 @@ void LienCubicKELowRe::correct()
 
     // Re-calculate viscosity
 
-    eta_ = k_/epsilon_*sqrt(2.0*magSqr(0.5*(gradU_ + gradU_.T())));
-    ksi_ = k_/epsilon_*sqrt(2.0*magSqr(0.5*(gradU_ - gradU_.T())));
+    eta_ = k_/epsilon_*sqrt(2.0*magSqr(0.5*(gradU + gradU.T())));
+    ksi_ = k_/epsilon_*sqrt(2.0*magSqr(0.5*(gradU - gradU.T())));
     Cmu_ = 2.0/(3.0*(A1_ + eta_ + alphaKsi_*ksi_));
     fEta_ = A2_ + pow(eta_, 3.0);
 
     C5viscosity_ =
       - 2.0*pow(Cmu_, 3.0)*pow(k_, 4.0)/pow(epsilon_, 3.0)
-       *(magSqr(gradU_ + gradU_.T()) - magSqr(gradU_ - gradU_.T()));
+       *(magSqr(gradU + gradU.T()) - magSqr(gradU - gradU.T()));
 
     nut_ =
         Cmu_*fMu*sqr(k_)/epsilon_
@@ -498,27 +498,27 @@ void LienCubicKELowRe::correct()
        *(
             Ctau1_/fEta_
            *(
-                (gradU_ & gradU_)
-              + (gradU_ & gradU_)().T()
+                (gradU & gradU)
+              + (gradU & gradU)().T()
             )
-          + Ctau2_/fEta_*(gradU_ & gradU_.T())
-          + Ctau3_/fEta_*(gradU_.T() & gradU_)
+          + Ctau2_/fEta_*(gradU & gradU.T())
+          + Ctau3_/fEta_*(gradU.T() & gradU)
         )
         // cubic term C4
       - 20.0*pow(k_, 4.0)/pow(epsilon_, 3.0)
        *pow(Cmu_, 3.0)
        *(
-            ((gradU_ & gradU_) & gradU_.T())
-          + ((gradU_ & gradU_.T()) & gradU_.T())
-          - ((gradU_.T() & gradU_) & gradU_)
-          - ((gradU_.T() & gradU_.T()) & gradU_)
+            ((gradU & gradU) & gradU.T())
+          + ((gradU & gradU.T()) & gradU.T())
+          - ((gradU.T() & gradU) & gradU)
+          - ((gradU.T() & gradU.T()) & gradU)
         )
         // cubic term C5, explicit part
       + min
         (
             C5viscosity_,
             dimensionedScalar("0", C5viscosity_.dimensions(), 0.0)
-        )*gradU_
+        )*gradU
     );
 }
 
