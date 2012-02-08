@@ -107,8 +107,8 @@ temperatureThermoBaffleFvPatchScalarField
             << exit(FatalError);
     }
 
-    const directMappedPatchBase& mpp =
-        refCast<const directMappedPatchBase>(patch().patch());
+    const mappedPatchBase& mpp =
+        refCast<const mappedPatchBase>(patch().patch());
 
     const word nbrMesh = mpp.sampleRegion();
 
