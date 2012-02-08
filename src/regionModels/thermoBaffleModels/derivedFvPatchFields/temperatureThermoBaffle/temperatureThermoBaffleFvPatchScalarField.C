@@ -107,6 +107,11 @@ temperatureThermoBaffleFvPatchScalarField
             << exit(FatalError);
     }
 
+    const directMappedPatchBase& mpp =
+        refCast<const directMappedPatchBase>(patch().patch());
+
+    const word nbrMesh = mpp.sampleRegion();
+
     const fvMesh& thisMesh = patch().boundaryMesh().mesh();
 
     typedef regionModels::thermoBaffleModels::thermoBaffleModel baffle;
@@ -114,14 +119,15 @@ temperatureThermoBaffleFvPatchScalarField
     if
     (
         thisMesh.name() == polyMesh::defaultRegion
-     && !thisMesh.foundObject<baffle>("thermoBaffle")
+     && !thisMesh.foundObject<baffle>(nbrMesh)
      && !owner_
     )
     {
-        Info << "Creating thermal baffle..." << endl;
+        Info << "Creating thermal baffle..." <<  nbrMesh << endl;
         baffle_.reset(baffle::New(thisMesh, dict).ptr());
         owner_ = true;
         dict.lookup("thermoType") >> solidThermoType_;
+        baffle_->rename(nbrMesh);
     }
 
 }
