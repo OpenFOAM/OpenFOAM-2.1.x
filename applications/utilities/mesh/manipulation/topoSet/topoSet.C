@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
                 break;
 
                 case topoSetSource::REMOVE:
-                    Info<< "    Removing " << currentSet().type() << endl;
+                    Info<< "    Removing set" << endl;
                     removeSet(mesh, setType, setName);
                 break;
 
