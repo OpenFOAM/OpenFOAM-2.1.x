@@ -9,7 +9,9 @@
             (Alpha/(scalar(1.001) - Alpha))*(sqr(rhoc)/rho)*Vdj*Vdj,
             "div(phiVdj,Vdj)"
         )
-      - fvm::laplacian(mu, U, "laplacian(muEff,U)")
+      - fvm::laplacian(muEff, U, "laplacian(muEff,U)")
+      - (fvc::grad(U) & fvc::grad(muEff))
+    //- fvc::div(muEff*dev2(T(fvc::grad(U))))
     );
 
     UEqn.relax();

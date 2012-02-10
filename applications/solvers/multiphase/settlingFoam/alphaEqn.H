@@ -10,12 +10,15 @@
         phi + rhoc*(mesh.Sf() & fvc::interpolate(Vdj))
     );
 
-    solve
+    fvScalarMatrix AlphaEqn
     (
           fvm::ddt(rho, Alpha)
         + fvm::div(phiAlpha, Alpha)
         - fvm::laplacian(mut, Alpha)
     );
+
+    AlphaEqn.relax();
+    AlphaEqn.solve();
 
     Info<< "Solid phase fraction = "
         << Alpha.weightedAverage(mesh.V()).value()

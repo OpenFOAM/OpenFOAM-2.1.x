@@ -36,14 +36,14 @@ solvers
     {
         solver          PBiCG;
         preconditioner  DILU;
-        tolerance       1e-07;
+        tolerance       1e-8;
         relTol          0.1;
     }
 
     "(U|Alpha|k|epsilon)Final"
     {
         $k;
-        tolerance       1e-07;
+        tolerance       1e-8;
         relTol          0;
     }
 
@@ -51,21 +51,21 @@ solvers
     {
         solver          PCG;
         preconditioner  DIC;
-        tolerance       1e-07;
+        tolerance       1e-8;
         relTol          0.1;
     }
 
     rhoFinal
     {
         $rho;
-        tolerance       1e-07;
+        tolerance       1e-8;
         relTol          0;
     }
 }
 
 PIMPLE
 {
-    nCorrectors     2;
+    nCorrectors     3;
     nNonOrthogonalCorrectors 0;
 }
 
@@ -76,6 +76,7 @@ relaxationFactors
     }
     equations
     {
+        "Alpha.*"       1;
         "U.*"           1;
         "k.*"           1;
         "epsilon.*"     1;

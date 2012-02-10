@@ -61,6 +61,7 @@
     dimensionedScalar rhod(transportProperties.lookup("rhod"));
 
     dimensionedScalar muc(transportProperties.lookup("muc"));
+    dimensionedScalar muMax(transportProperties.lookup("muMax"));
 
     dimensionedScalar plasticViscosityCoeff
     (
@@ -328,12 +329,12 @@
     );
 
 
-    Info<< "Calculating field mu\n" << endl;
-    volScalarField mu
+    Info<< "Calculating field muEff\n" << endl;
+    volScalarField muEff
     (
         IOobject
         (
-            "mu",
+            "muEff",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
@@ -345,7 +346,7 @@
 
     Info<< "Calculating field (g.h)f\n" << endl;
     volScalarField gh("gh", g & mesh.C());
-    surfaceScalarField ghf(surfaceScalarField("gh", g & mesh.Cf()));
+    surfaceScalarField ghf("gh", g & mesh.Cf());
 
     volScalarField p
     (

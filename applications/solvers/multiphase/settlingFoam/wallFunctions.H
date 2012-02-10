@@ -1,9 +1,10 @@
 {
     labelList cellBoundaryFaceCount(epsilon.size(), 0);
 
-    scalar Cmu25 = ::pow(Cmu.value(), 0.25);
-    scalar Cmu75 = ::pow(Cmu.value(), 0.75);
-    scalar kappa_ = kappa.value();
+    const scalar Cmu25 = ::pow(Cmu.value(), 0.25);
+    const scalar Cmu75 = ::pow(Cmu.value(), 0.75);
+    const scalar kappa_ = kappa.value();
+    const scalar muc_ = muc.value();
 
     const fvPatchList& patches = mesh.boundary();
 
@@ -32,9 +33,6 @@
 
         if (isA<wallFvPatch>(curPatch))
         {
-            const scalarField& rhow = rho.boundaryField()[patchi];
-
-            const scalarField muw(mul.boundaryField()[patchi]);
             const scalarField& mutw = mut.boundaryField()[patchi];
 
             scalarField magFaceGradU
@@ -46,10 +44,6 @@
             {
                 label faceCelli = curPatch.faceCells()[facei];
 
-                scalar yPlus =
-                    Cmu25*y[patchi][facei]*::sqrt(k[faceCelli])
-                   /(muw[facei]/rhow[facei]);
-
                 // For corner cells (with two boundary or more faces),
                 // epsilon and G in the near-wall cell are calculated
                 // as an average
@@ -57,16 +51,14 @@
                 cellBoundaryFaceCount[faceCelli]++;
 
                 epsilon[faceCelli] +=
-                    Cmu75*rho[faceCelli]*::pow(k[faceCelli], 1.5)
+                    Cmu75*::pow(k[faceCelli], 1.5)
                    /(kappa_*y[patchi][facei]);
 
-                if (yPlus > 11.6)
-                {
-                    G[faceCelli] +=
-                        mutw[facei]*magFaceGradU[facei]
-                       *Cmu25*::sqrt(k[faceCelli])
-                       /(kappa_*y[patchi][facei]);
-                }
+                G[faceCelli] +=
+                    (mutw[facei] + muc_)
+                   *magFaceGradU[facei]
+                   *Cmu25*::sqrt(k[faceCelli])
+                   /(kappa_*y[patchi][facei]);
             }
         }
     }
@@ -86,6 +78,7 @@
 
                 epsilon[faceCelli] /= cellBoundaryFaceCount[faceCelli];
                 G[faceCelli] /= cellBoundaryFaceCount[faceCelli];
+                cellBoundaryFaceCount[faceCelli] = 1;
             }
         }
     }

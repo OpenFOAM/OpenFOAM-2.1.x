@@ -63,7 +63,7 @@ boundary
     }
     bottomWall
     {
-        type patch;
+        type wall;
         faces
         (
             (0 1 7 6)

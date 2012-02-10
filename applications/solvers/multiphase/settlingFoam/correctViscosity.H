@@ -34,4 +34,6 @@
             )
           + mul;
     }
+
+    mul = min(mul, muMax);
 }

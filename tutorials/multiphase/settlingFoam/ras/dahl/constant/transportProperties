@@ -29,6 +29,8 @@ yieldStressExponent yieldStressExponent [ 0 0 0 0 0 0 0 ] 1050.8;
 
 yieldStressOffset yieldStressOffset [ 0 0 0 0 0 0 0 ] 0;
 
+muMax           muMax [ 1 -1 -1 0 0 0 0 ] 10.0;
+
 rhoc            rhoc [ 1 -3 0 0 0 0 0 ] 996;
 
 rhod            rhod [ 1 -3 0 0 0 0 0 ] 1996;

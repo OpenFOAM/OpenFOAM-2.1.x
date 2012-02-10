@@ -5,7 +5,9 @@ if (turbulence)
         y.correct();
     }
 
+    dimensionedScalar k0("k0", k.dimensions(), 0);
     dimensionedScalar kMin("kMin", k.dimensions(), SMALL);
+    dimensionedScalar epsilon0("epsilon0", epsilon.dimensions(), 0);
     dimensionedScalar epsilonMin("epsilonMin", epsilon.dimensions(), SMALL);
 
     volScalarField divU(fvc::div(phi/fvc::interpolate(rho)));
@@ -28,13 +30,13 @@ if (turbulence)
       + fvm::div(phi, epsilon)
       - fvm::laplacian
         (
-            mut/sigmaEps + mul, epsilon,
+            mut/sigmaEps + muc, epsilon,
             "laplacian(DepsilonEff,epsilon)"
         )
      ==
-        C1*G*epsilon/k
+        C1*G*epsilon/(k + kMin)
       - fvm::SuSp(C1*(1.0 - C3)*Gcoef + (2.0/3.0*C1)*rho*divU, epsilon)
-      - fvm::Sp(C2*rho*epsilon/k, epsilon)
+      - fvm::Sp(C2*rho*epsilon/(k + kMin), epsilon)
     );
 
     #include "wallDissipation.H"
@@ -42,7 +44,7 @@ if (turbulence)
     epsEqn.relax();
     epsEqn.solve();
 
-    bound(epsilon, epsilonMin);
+    bound(epsilon, epsilon0);
 
 
     // Turbulent kinetic energy equation
@@ -52,19 +54,19 @@ if (turbulence)
       + fvm::div(phi, k)
       - fvm::laplacian
         (
-            mut/sigmak + mul, k,
+            mut/sigmak + muc, k,
             "laplacian(DkEff,k)"
         )
      ==
         G
       - fvm::SuSp(Gcoef + 2.0/3.0*rho*divU, k)
-      - fvm::Sp(rho*epsilon/k, k)
+      - fvm::Sp(rho*epsilon/(k + kMin), k)
     );
 
     kEqn.relax();
     kEqn.solve();
 
-    bound(k, kMin);
+    bound(k, k0);
 
 
     //- Re-calculate viscosity
@@ -73,4 +75,4 @@ if (turbulence)
     #include "wallViscosity.H"
 }
 
-mu = mut + mul;
+muEff = mut + mul;
