@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -596,7 +596,7 @@ void Foam::fvMatrix<Type>::relax(const scalar alpha)
         scalar sumNon = 0.0;
         forAll(D, celli)
         {
-            scalar d = (sumOff[celli] - D[celli])/D[celli];
+            scalar d = (sumOff[celli] - D[celli])/mag(D[celli]);
 
             if (d > 0)
             {
@@ -621,8 +621,11 @@ void Foam::fvMatrix<Type>::relax(const scalar alpha)
 
 
     // Ensure the matrix is diagonally dominant...
-    // (assumes that the central coefficient is positive)
-    max(D, D, sumOff);
+    // Assumes that the central coefficient is positive and ensures it is
+    forAll(D, celli)
+    {
+        D[celli] = max(mag(D[celli]), sumOff[celli]);
+    }
 
     // ... then relax
     D /= alpha;
