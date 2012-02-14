@@ -126,7 +126,9 @@ Foam::Ostream& Foam::operator<<(Foam::Ostream& os, const Foam::UList<T>& L)
         os << nl << L.size() << nl;
         if (L.size())
         {
-            os.write(reinterpret_cast<const char*>(L.v_), L.byteSize());
+            // Note: do not use byteSize to avoid overflow on really big
+            //       arrays.
+            os.write(reinterpret_cast<const char*>(L.v_), L.size()*sizeof(T));
         }
     }
 
