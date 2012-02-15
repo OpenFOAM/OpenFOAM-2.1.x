@@ -75,7 +75,7 @@ void Foam::probes::findElements(const fvMesh& mesh)
             faceList_[probeI] = -1;
         }
 
-        if (1 && (elementList_[probeI] != -1 || faceList_[probeI] != -1))
+        if (debug && (elementList_[probeI] != -1 || faceList_[probeI] != -1))
         {
             Pout<< "probes : found point " << location
                 << " in cell " << elementList_[probeI]
