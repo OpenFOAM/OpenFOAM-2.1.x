@@ -118,6 +118,10 @@ protected:
             labelList intCoupledPatchIDs_;
 
 
+        //- Region name
+        word regionName_;
+
+
     // Protected member functions
 
         //- Read control parameters from dictionary

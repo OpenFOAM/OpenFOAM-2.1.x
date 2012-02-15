@@ -53,6 +53,13 @@ bool thermoBaffleModel::read()
 }
 
 
+bool thermoBaffleModel::read(const dictionary& dict)
+{
+    regionModel1D::read(dict);
+    return true;
+}
+
+
 void thermoBaffleModel::init()
 {
     if (active_)
