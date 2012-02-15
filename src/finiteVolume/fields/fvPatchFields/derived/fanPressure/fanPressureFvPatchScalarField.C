@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -134,17 +134,17 @@ void Foam::fanPressureFvPatchScalarField::updateCoeffs()
     int dir = 2*direction_ - 1;
 
     // Average volumetric flow rate
-    scalar aveFlowRate = 0;
+    scalar volFlowRate = 0;
 
     if (phi.dimensions() == dimVelocity*dimArea)
     {
-        aveFlowRate = dir*gSum(phip)/gSum(patch().magSf());
+        volFlowRate = dir*gSum(phip);
     }
     else if (phi.dimensions() == dimVelocity*dimArea*dimDensity)
     {
         const scalarField& rhop =
             patch().lookupPatchField<volScalarField, scalar>(rhoName());
-        aveFlowRate = dir*gSum(phip/rhop)/gSum(patch().magSf());
+        volFlowRate = dir*gSum(phip/rhop);
     }
     else
     {
@@ -157,7 +157,7 @@ void Foam::fanPressureFvPatchScalarField::updateCoeffs()
     }
 
     // Pressure drop for this flow rate
-    const scalar pdFan = fanCurve_(max(aveFlowRate, 0.0));
+    const scalar pdFan = fanCurve_(max(volFlowRate, 0.0));
 
     totalPressureFvPatchScalarField::updateCoeffs
     (
