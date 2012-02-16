@@ -91,8 +91,11 @@ protected:
 
     // Protected Member Functions
 
-        //- Read control parameters from dictionary
+        //- Read control parameters from IOdictionary
         virtual bool read();
+
+        //- Read control parameters from dictionary
+        virtual bool read(const dictionary&);
 
 
 public:

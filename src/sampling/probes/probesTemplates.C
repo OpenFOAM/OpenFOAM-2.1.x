@@ -25,6 +25,7 @@ License
 
 #include "probes.H"
 #include "volFields.H"
+#include "surfaceFields.H"
 #include "IOmanip.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -86,11 +87,32 @@ void Foam::probes::sampleAndWrite
 }
 
 
-template <class Type>
+template<class Type>
 void Foam::probes::sampleAndWrite
 (
-    const fieldGroup<Type>& fields
+    const GeometricField<Type, fvsPatchField, surfaceMesh>& vField
 )
+{
+    Field<Type> values(sample(vField));
+
+    if (Pstream::master())
+    {
+        unsigned int w = IOstream::defaultPrecision() + 7;
+        OFstream& os = *probeFilePtrs_[vField.name()];
+
+        os  << setw(w) << vField.time().value();
+
+        forAll(values, probeI)
+        {
+            os  << ' ' << setw(w) << values[probeI];
+        }
+        os  << endl;
+    }
+}
+
+
+template <class Type>
+void Foam::probes::sampleAndWrite(const fieldGroup<Type>& fields)
 {
     forAll(fields, fieldI)
     {
@@ -138,6 +160,54 @@ void Foam::probes::sampleAndWrite
 }
 
 
+template<class Type>
+void Foam::probes::sampleAndWriteSurfaceFields(const fieldGroup<Type>& fields)
+{
+    forAll(fields, fieldI)
+    {
+        if (loadFromFiles_)
+        {
+            sampleAndWrite
+            (
+                GeometricField<Type, fvsPatchField, surfaceMesh>
+                (
+                    IOobject
+                    (
+                        fields[fieldI],
+                        mesh_.time().timeName(),
+                        mesh_,
+                        IOobject::MUST_READ,
+                        IOobject::NO_WRITE,
+                        false
+                    ),
+                    mesh_
+                )
+            );
+        }
+        else
+        {
+            objectRegistry::const_iterator iter = mesh_.find(fields[fieldI]);
+
+            if
+            (
+                iter != objectRegistry::end()
+             && iter()->type()
+             == GeometricField<Type, fvsPatchField, surfaceMesh>::typeName
+            )
+            {
+                sampleAndWrite
+                (
+                    mesh_.lookupObject
+                    <GeometricField<Type, fvsPatchField, surfaceMesh> >
+                    (
+                        fields[fieldI]
+                    )
+                );
+            }
+        }
+    }
+}
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class Type>
@@ -184,5 +254,49 @@ Foam::probes::sample(const word& fieldName) const
     );
 }
 
+
+template<class Type>
+Foam::tmp<Foam::Field<Type> >
+Foam::probes::sample
+(
+    const GeometricField<Type, fvsPatchField, surfaceMesh>& vField
+) const
+{
+    const Type unsetVal(-VGREAT*pTraits<Type>::one);
+
+    tmp<Field<Type> > tValues
+    (
+        new Field<Type>(this->size(), unsetVal)
+    );
+
+    Field<Type>& values = tValues();
+
+    forAll(*this, probeI)
+    {
+        if (faceList_[probeI] >= 0)
+        {
+            values[probeI] = vField[faceList_[probeI]];
+        }
+    }
+
+    Pstream::listCombineGather(values, isNotEqOp<Type>());
+    Pstream::listCombineScatter(values);
+
+    return tValues;
+}
+
+
+template<class Type>
+Foam::tmp<Foam::Field<Type> >
+Foam::probes::sampleSurfaceFields(const word& fieldName) const
+{
+    return sample
+    (
+        mesh_.lookupObject<GeometricField<Type, fvsPatchField, surfaceMesh> >
+        (
+            fieldName
+        )
+    );
+}
 
 // ************************************************************************* //

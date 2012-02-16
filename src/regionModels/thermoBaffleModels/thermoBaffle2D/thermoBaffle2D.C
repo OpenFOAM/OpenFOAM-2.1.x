@@ -27,6 +27,7 @@ License
 #include "thermoBaffle2D.H"
 
 #include "fvm.H"
+#include "fvcDiv.H"
 #include "addToRunTimeSelectionTable.H"
 #include "zeroGradientFvPatchFields.H"
 #include "fvMatrices.H"
@@ -55,6 +56,13 @@ bool thermoBaffle2D::read()
 {
     this->solution().lookup("nNonOrthCorr") >> nNonOrthCorr_;
     return regionModel1D::read();
+}
+
+
+bool thermoBaffle2D::read(const dictionary& dict)
+{
+    this->solution().lookup("nNonOrthCorr") >> nNonOrthCorr_;
+    return regionModel1D::read(dict);
 }
 
 
@@ -128,8 +136,21 @@ void thermoBaffle2D::solveEnergy()
         Q
     );
 
+    if (moveMesh_)
+    {
+        surfaceScalarField phiMesh
+        (
+            fvc::interpolate(rhoCp*T_)*regionMesh().phi()
+        );
+
+        TEqn -= fvc::div(phiMesh);
+    }
+
     TEqn.relax();
     TEqn.solve();
+
+    Info<< "T gas min/max   = " << min(T_).value() << ", "
+        << max(T_).value() << endl;
 
     thermo_->correct();
 }
@@ -157,7 +178,7 @@ thermoBaffle2D::thermoBaffle2D
             regionMesh().time().timeName(),
             regionMesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         regionMesh(),
         dimensionedScalar
@@ -175,7 +196,7 @@ thermoBaffle2D::thermoBaffle2D
             regionMesh().time().timeName(),
             regionMesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         regionMesh(),
         dimensionedScalar
@@ -209,7 +230,7 @@ thermoBaffle2D::thermoBaffle2D
             regionMesh().time().timeName(),
             regionMesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         regionMesh(),
         dimensionedScalar
@@ -227,7 +248,7 @@ thermoBaffle2D::thermoBaffle2D
             regionMesh().time().timeName(),
             regionMesh(),
             IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         regionMesh(),
         dimensionedScalar

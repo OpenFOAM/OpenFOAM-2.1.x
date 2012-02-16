@@ -25,6 +25,7 @@ License
 
 #include "probes.H"
 #include "volFields.H"
+#include "surfaceFields.H"
 #include "IOobjectList.H"
 #include "stringListOps.H"
 
@@ -37,6 +38,12 @@ void Foam::probes::clearFieldGroups()
     sphericalTensorFields_.clear();
     symmTensorFields_.clear();
     tensorFields_.clear();
+
+    surfaceScalarFields_.clear();
+    surfaceVectorFields_.clear();
+    surfaceSphericalTensorFields_.clear();
+    surfaceSymmTensorFields_.clear();
+    surfaceTensorFields_.clear();
 }
 
 
@@ -69,6 +76,31 @@ Foam::label Foam::probes::appendFieldGroup
     else if (fieldType == volTensorField::typeName)
     {
         tensorFields_.append(fieldName);
+        return 1;
+    }
+    else if (fieldType == surfaceScalarField::typeName)
+    {
+        surfaceScalarFields_.append(fieldName);
+        return 1;
+    }
+    else if (fieldType == surfaceVectorField::typeName)
+    {
+        surfaceVectorFields_.append(fieldName);
+        return 1;
+    }
+    else if (fieldType == surfaceSphericalTensorField::typeName)
+    {
+        surfaceSphericalTensorFields_.append(fieldName);
+        return 1;
+    }
+    else if (fieldType == surfaceSymmTensorField::typeName)
+    {
+        surfaceSymmTensorFields_.append(fieldName);
+        return 1;
+    }
+    else if (fieldType == surfaceTensorField::typeName)
+    {
+        surfaceTensorFields_.append(fieldName);
         return 1;
     }
 

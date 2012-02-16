@@ -74,9 +74,22 @@ class patchProbes
         );
 
 
+        //- Sample and write a particular surface field
+        template<class Type>
+        void sampleAndWrite
+        (
+            const GeometricField<Type, fvsPatchField, surfaceMesh>&
+        );
+
+
         //- Sample and write all the fields of the given type
         template <class Type>
         void sampleAndWrite(const fieldGroup<Type>&);
+
+
+         //- Sample and write all the surface fields of the given type
+        template<class Type>
+        void sampleAndWriteSurfaceFields(const fieldGroup<Type>&);
 
 
         //- Sample a volume field at all locations
@@ -84,6 +97,14 @@ class patchProbes
         tmp<Field<Type> > sample
         (
             const GeometricField<Type, fvPatchField, volMesh>&
+        ) const;
+
+
+        //- Sample a surface field at all locations
+        template<class Type>
+        tmp<Field<Type> > sample
+        (
+            const GeometricField<Type, fvsPatchField, surfaceMesh>&
         ) const;
 
 

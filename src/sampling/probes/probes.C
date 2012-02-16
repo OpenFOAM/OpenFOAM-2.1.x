@@ -41,16 +41,45 @@ void Foam::probes::findElements(const fvMesh& mesh)
     elementList_.clear();
     elementList_.setSize(size());
 
+    faceList_.clear();
+    faceList_.setSize(size());
+
     forAll(*this, probeI)
     {
         const vector& location = operator[](probeI);
 
-        elementList_[probeI] = mesh.findCell(location);
+        const label cellI = mesh.findCell(location);
 
-        if (debug && elementList_[probeI] != -1)
+        elementList_[probeI] = cellI;
+
+        if (cellI != -1)
+        {
+            const labelList& cellFaces = mesh.cells()[cellI];
+            const vector& cellCentre = mesh.cellCentres()[cellI];
+            scalar minDistance = GREAT;
+            label minFaceID = -1;
+            forAll (cellFaces, i)
+            {
+                label faceI = cellFaces[i];
+                vector dist = mesh.faceCentres()[faceI] - cellCentre;
+                if (mag(dist) < minDistance)
+                {
+                    minDistance = mag(dist);
+                    minFaceID = faceI;
+                }
+            }
+            faceList_[probeI] = minFaceID;
+        }
+        else
+        {
+            faceList_[probeI] = -1;
+        }
+
+        if (debug && (elementList_[probeI] != -1 || faceList_[probeI] != -1))
         {
             Pout<< "probes : found point " << location
-                << " in cell " << elementList_[probeI] << endl;
+                << " in cell " << elementList_[probeI]
+                << " and face " << faceList_[probeI] << endl;
         }
     }
 
@@ -60,17 +89,28 @@ void Foam::probes::findElements(const fvMesh& mesh)
     {
         const vector& location = operator[](probeI);
         label cellI = elementList_[probeI];
+        label faceI =  faceList_[probeI];
 
         // Check at least one processor with cell.
         reduce(cellI, maxOp<label>());
+        reduce(faceI, maxOp<label>());
 
         if (cellI == -1)
         {
             if (Pstream::master())
             {
-                WarningIn("probes::read()")
+                WarningIn("findElements::findElements(const fvMesh&)")
                     << "Did not find location " << location
                     << " in any cell. Skipping location." << endl;
+            }
+        }
+        else if (faceI == -1)
+        {
+            if (Pstream::master())
+            {
+                WarningIn("probes::findElements(const fvMesh&)")
+                    << "Did not find location " << location
+                    << " in any face. Skipping location." << endl;
             }
         }
         else
@@ -78,12 +118,26 @@ void Foam::probes::findElements(const fvMesh& mesh)
             // Make sure location not on two domains.
             if (elementList_[probeI] != -1 && elementList_[probeI] != cellI)
             {
-                WarningIn("probes::read()")
+                WarningIn("probes::findElements(const fvMesh&)")
                     << "Location " << location
                     << " seems to be on multiple domains:"
                     << " cell " << elementList_[probeI]
                     << " on my domain " << Pstream::myProcNo()
                         << " and cell " << cellI << " on some other domain."
+                    << endl
+                    << "This might happen if the probe location is on"
+                    << " a processor patch. Change the location slightly"
+                    << " to prevent this." << endl;
+            }
+
+            if (faceList_[probeI] != -1 && faceList_[probeI] != faceI)
+            {
+                WarningIn("probes::findElements(const fvMesh&)")
+                    << "Location " << location
+                    << " seems to be on multiple domains:"
+                    << " cell " << faceList_[probeI]
+                    << " on my domain " << Pstream::myProcNo()
+                        << " and face " << faceI << " on some other domain."
                     << endl
                     << "This might happen if the probe location is on"
                     << " a processor patch. Change the location slightly"
@@ -108,6 +162,12 @@ Foam::label Foam::probes::prepare()
         currentFields.insert(sphericalTensorFields_);
         currentFields.insert(symmTensorFields_);
         currentFields.insert(tensorFields_);
+
+        currentFields.insert(surfaceScalarFields_);
+        currentFields.insert(surfaceVectorFields_);
+        currentFields.insert(surfaceSphericalTensorFields_);
+        currentFields.insert(surfaceSymmTensorFields_);
+        currentFields.insert(surfaceTensorFields_);
 
         if (debug)
         {
@@ -239,6 +299,12 @@ void Foam::probes::write()
         sampleAndWrite(sphericalTensorFields_);
         sampleAndWrite(symmTensorFields_);
         sampleAndWrite(tensorFields_);
+
+        sampleAndWriteSurfaceFields(surfaceScalarFields_);
+        sampleAndWriteSurfaceFields(surfaceVectorFields_);
+        sampleAndWriteSurfaceFields(surfaceSphericalTensorFields_);
+        sampleAndWriteSurfaceFields(surfaceSymmTensorFields_);
+        sampleAndWriteSurfaceFields(surfaceTensorFields_);
     }
 }
 
