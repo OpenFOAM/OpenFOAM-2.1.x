@@ -230,10 +230,10 @@ Foam::Ostream& Foam::ensightFile::write
 
 Foam::Ostream& Foam::ensightFile::write(const scalar value)
 {
+    float fvalue(value);
+
     if (format() == IOstream::BINARY)
     {
-        float fvalue(value);
-
         write
         (
             reinterpret_cast<char const *>(&fvalue),
@@ -243,7 +243,7 @@ Foam::Ostream& Foam::ensightFile::write(const scalar value)
     else
     {
         stdStream().width(12);
-        stdStream() << value;
+        stdStream() << fvalue;
     }
 
     return *this;
