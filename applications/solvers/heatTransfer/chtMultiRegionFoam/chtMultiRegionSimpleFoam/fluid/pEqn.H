@@ -7,6 +7,7 @@
     volScalarField rAU(1.0/UEqn().A());
     surfaceScalarField rhorAUf("(rho*(1|A(U)))", fvc::interpolate(rho*rAU));
 
+    p_rgh.boundaryField().updateCoeffs();
     U = rAU*UEqn().H();
     UEqn.clear();
 
