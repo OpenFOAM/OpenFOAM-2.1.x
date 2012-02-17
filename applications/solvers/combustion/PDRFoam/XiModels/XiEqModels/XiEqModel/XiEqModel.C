@@ -77,11 +77,6 @@ Foam::XiEqModel::XiEqModel
             IOobject::NO_WRITE
         ),
         Su.mesh()
-    ),
-    uPrimeCoef_(XiEqModelCoeffs_.lookupOrDefault<scalar>("uPrimeCoef", 0.0)),
-    subGridSchelkin_
-    (
-        XiEqModelCoeffs_.lookupOrDefault<bool>("subGridSchelkin", false)
     )
 {}
 
@@ -97,10 +92,6 @@ Foam::XiEqModel::~XiEqModel()
 bool Foam::XiEqModel::read(const dictionary& XiEqProperties)
 {
     XiEqModelCoeffs_ = XiEqProperties.subDict(type() + "Coeffs");
-
-    uPrimeCoef_ = XiEqModelCoeffs_.lookupOrDefault<scalar>("uPrimeCoef", 0.0);
-    subGridSchelkin_ =
-        XiEqModelCoeffs_.lookupOrDefault<bool>("subGridSchelkin", false);
 
     return true;
 }
@@ -119,7 +110,7 @@ void Foam::XiEqModel::writeFields() const
 }
 
 Foam::tmp<Foam::volScalarField>
-Foam::XiEqModel::calculateSchelkinEffect() const
+Foam::XiEqModel::calculateSchelkinEffect(const scalar uPrimeCoef) const
 {
     const fvMesh& mesh = Su_.mesh();
 
@@ -188,9 +179,9 @@ Foam::XiEqModel::calculateSchelkinEffect() const
 
     const scalarField cellWidth(pow(mesh.V(), 1.0/3.0));
 
-    const scalarField upLocal(uPrimeCoef_*sqrt((U & CT & U)*cellWidth));
+    const scalarField upLocal(uPrimeCoef*sqrt((U & CT & U)*cellWidth));
 
-    const scalarField deltaUp(upLocal*(max(scalar(1.0), pow(nr, 0.5)) - 1.0));
+    //const scalarField deltaUp(upLocal*(max(scalar(1.0), pow(nr, 0.5)) - 1.0));
 
     //Re use tN
     N.internalField() = upLocal*(max(scalar(1.0), pow(nr, 0.5)) - 1.0);

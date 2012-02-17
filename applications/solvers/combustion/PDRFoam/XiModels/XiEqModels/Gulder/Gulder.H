@@ -61,6 +61,12 @@ class Gulder
         //- Minimum laminar burning velocity
         const dimensionedScalar SuMin_;
 
+        //- Schelkin effect Model constant
+        scalar uPrimeCoef_;
+
+        //- Use sub-grid Schelkin effect
+        bool subGridSchelkin_;
+
 
     // Private Member Functions
 

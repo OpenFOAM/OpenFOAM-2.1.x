@@ -65,6 +65,7 @@ Foam::XiEqModels::instability::~instability()
 Foam::tmp<Foam::volScalarField> Foam::XiEqModels::instability::XiEq() const
 {
     volScalarField turbXiEq(XiEqModel_->XiEq());
+
     return XiEqIn/turbXiEq + turbXiEq;
 }
 

@@ -70,6 +70,12 @@ class SCOPEXiEq
         //- Minimum Su
         dimensionedScalar SuMin_;
 
+        //- Schelkin effect Model constant
+        scalar uPrimeCoef_;
+
+        //- Use sub-grid Schelkin effect
+        bool subGridSchelkin_;
+
         //- The SCOPE laminar flame speed model used to obtain the
         //  Marstein number.  Note: the laminar flame speed need not be
         //  obtained form the same model.
