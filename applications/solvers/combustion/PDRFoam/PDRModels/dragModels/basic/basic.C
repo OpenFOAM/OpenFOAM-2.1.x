@@ -121,7 +121,8 @@ Foam::tmp<Foam::volSymmTensorField> Foam::PDRDragModels::basic::Dcu() const
         const volScalarField& betav =
             U_.db().lookupObject<volScalarField>("betav");
 
-        DragDcu = (0.5*rho_)*CR_*mag(U_) + (Csu*I)*betav*turbulence_.muEff()*sqr(Aw_);
+        DragDcu =
+            (0.5*rho_)*CR_*mag(U_) + (Csu*I)*betav*turbulence_.muEff()*sqr(Aw_);
     }
 
     return tDragDcu;
