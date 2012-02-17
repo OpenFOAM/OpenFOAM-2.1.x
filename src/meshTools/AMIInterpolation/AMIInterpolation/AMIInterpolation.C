@@ -1166,10 +1166,13 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::normaliseWeights
         const label nFace = returnReduce(wght.size(), sumOp<scalar>());
         reduce(tSum, sumOp<scalar>());
 
-        Info<< "AMI: Patch " << patchName << " weights min/max/average = "
-            << returnReduce(minBound, minOp<scalar>()) << ", "
-            << returnReduce(maxBound, maxOp<scalar>()) << ", "
-            << tSum/nFace << endl;
+        if (nFace)
+        {
+            Info<< "AMI: Patch " << patchName << " weights min/max/average = "
+                << returnReduce(minBound, minOp<scalar>()) << ", "
+                << returnReduce(maxBound, maxOp<scalar>()) << ", "
+                << tSum/nFace << endl;
+        }
     }
 }
 
