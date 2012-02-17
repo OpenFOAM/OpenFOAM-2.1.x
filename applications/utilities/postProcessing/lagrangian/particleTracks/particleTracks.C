@@ -79,9 +79,23 @@ int main(int argc, char *argv[])
             label origId = iter().origId();
             label origProc = iter().origProc();
 
+            if (origProc >= maxIds.size())
+            {
+                // Expand size
+                maxIds.setSize(origProc+1, -1);
+            }
+
             maxIds[origProc] = max(maxIds[origProc], origId);
         }
     }
+
+    label maxNProcs = returnReduce(maxIds.size(), maxOp<label>());
+
+    Info<< "Detected particles originating from " << maxNProcs
+        << " processors." << nl << endl;
+
+    maxIds.setSize(maxNProcs, -1);
+
     Pstream::listCombineGather(maxIds, maxEqOp<label>());
     Pstream::listCombineScatter(maxIds);
 

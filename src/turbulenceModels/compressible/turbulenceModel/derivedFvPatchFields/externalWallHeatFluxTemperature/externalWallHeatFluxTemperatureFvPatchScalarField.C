@@ -230,7 +230,7 @@ void Foam::externalWallHeatFluxTemperatureFvPatchScalarField::updateCoeffs()
         else //out
         {
             this->refGrad()[i] = 0.0;
-            this->refValue()[i] = KDelta[i]*q[i] + patchInternalField()()[i];
+            this->refValue()[i] = q[i]/KDelta[i] + patchInternalField()()[i];
             this->valueFraction()[i] = 1.0;
         }
     }
@@ -261,10 +261,31 @@ void Foam::externalWallHeatFluxTemperatureFvPatchScalarField::write
 {
     mixedFvPatchScalarField::write(os);
     temperatureCoupledBase::write(os);
-    q_.writeEntry("q", os);
-    h_.writeEntry("h", os);
-    Ta_.writeEntry("Ta", os);
-    this->writeEntry("value", os);
+    switch (oldMode_)
+    {
+        case fixedHeatFlux:
+        {
+            q_.writeEntry("q", os);
+            break;
+        }
+        case fixedHeatTransferCoeff:
+        {
+            h_.writeEntry("h", os);
+            Ta_.writeEntry("Ta", os);
+            break;
+        }
+        default:
+        {
+            FatalErrorIn
+            (
+                "void externalWallHeatFluxTemperatureFvPatchScalarField::write"
+                "("
+                    "Ostream& os"
+                ") const"
+            )   << "Illegal heat flux mode " << operationModeNames[oldMode_]
+                << abort(FatalError);
+        }
+    }
 }
 
 

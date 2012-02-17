@@ -202,6 +202,7 @@ Foam::patchProbes::patchProbes
     // Not easy to workaround (apart from feeding through flag into constructor)
     // so clear out any cells found for now.
     elementList_.clear();
+    faceList_.clear();
 
     read(dict);
 }
@@ -222,6 +223,12 @@ void Foam::patchProbes::write()
         sampleAndWrite(sphericalTensorFields_);
         sampleAndWrite(symmTensorFields_);
         sampleAndWrite(tensorFields_);
+
+        sampleAndWriteSurfaceFields(surfaceScalarFields_);
+        sampleAndWriteSurfaceFields(surfaceVectorFields_);
+        sampleAndWriteSurfaceFields(surfaceSphericalTensorFields_);
+        sampleAndWriteSurfaceFields(surfaceSymmTensorFields_);
+        sampleAndWriteSurfaceFields(surfaceTensorFields_);
     }
 }
 

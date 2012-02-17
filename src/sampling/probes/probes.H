@@ -42,7 +42,8 @@ SourceFiles
 #include "polyMesh.H"
 #include "pointField.H"
 #include "volFieldsFwd.H"
-
+#include "surfaceFieldsFwd.H"
+#include "surfaceMesh.H"
 #include "wordReList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -104,15 +105,25 @@ protected:
 
         // Calculated
 
-            //- Categorized scalar/vector/tensor fields
+            //- Categorized scalar/vector/tensor vol fields
             fieldGroup<scalar> scalarFields_;
             fieldGroup<vector> vectorFields_;
             fieldGroup<sphericalTensor> sphericalTensorFields_;
             fieldGroup<symmTensor> symmTensorFields_;
             fieldGroup<tensor> tensorFields_;
 
+            //- Categorized scalar/vector/tensor surf fields
+            fieldGroup<scalar> surfaceScalarFields_;
+            fieldGroup<vector> surfaceVectorFields_;
+            fieldGroup<sphericalTensor> surfaceSphericalTensorFields_;
+            fieldGroup<symmTensor> surfaceSymmTensorFields_;
+            fieldGroup<tensor> surfaceTensorFields_;
+
             // Cells to be probed (obtained from the locations)
             labelList elementList_;
+
+            // Faces to be probed
+            labelList faceList_;
 
             //- Current open files
             HashPtrTable<OFstream> probeFilePtrs_;
@@ -145,9 +156,21 @@ private:
             const GeometricField<Type, fvPatchField, volMesh>&
         );
 
+
+        //- Sample and write a particular surface field
+        template<class Type>
+        void sampleAndWrite
+        (
+            const GeometricField<Type, fvsPatchField, surfaceMesh>&
+        );
+
         //- Sample and write all the fields of the given type
         template<class Type>
         void sampleAndWrite(const fieldGroup<Type>&);
+
+        //- Sample and write all the surface fields of the given type
+        template<class Type>
+        void sampleAndWriteSurfaceFields(const fieldGroup<Type>&);
 
         //- Disallow default bitwise copy construct
         probes(const probes&);
@@ -242,9 +265,21 @@ public:
             const GeometricField<Type, fvPatchField, volMesh>&
         ) const;
 
-        //- Sample a single field on all sample locations
+        //- Sample a single vol field on all sample locations
         template <class Type>
         tmp<Field<Type> > sample(const word& fieldName) const;
+
+        //- Sample a single scalar field on all sample locations
+        template <class Type>
+        tmp<Field<Type> > sampleSurfaceFields(const word& fieldName) const;
+
+        //- Sample a surface field at all locations
+        template<class Type>
+        tmp<Field<Type> > sample
+        (
+            const GeometricField<Type, fvsPatchField, surfaceMesh>&
+        ) const;
+
 };
 
 
