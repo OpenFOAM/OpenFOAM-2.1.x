@@ -203,7 +203,7 @@ void Foam::mergePolyMesh::addMesh(const polyMesh& m)
         // Grab zone ID.  If a point is not in a zone, it will return -1
         zoneID = pz.whichZone(pointI);
 
-        if (zoneID > 0)
+        if (zoneID >= 0)
         {
             // Translate zone ID into the new index
             zoneID = pointZoneIndices[zoneID];
@@ -240,7 +240,7 @@ void Foam::mergePolyMesh::addMesh(const polyMesh& m)
         // Grab zone ID.  If a cell is not in a zone, it will return -1
         zoneID = cz.whichZone(cellI);
 
-        if (zoneID > 0)
+        if (zoneID >= 0)
         {
             // Translate zone ID into the new index
             zoneID = cellZoneIndices[zoneID];
@@ -343,7 +343,7 @@ void Foam::mergePolyMesh::addMesh(const polyMesh& m)
         newZone = fz.whichZone(faceI);
         newZoneFlip = false;
 
-        if (newZone > -1)
+        if (newZone >= 0)
         {
             newZoneFlip = fz[newZone].flipMap()[fz[newZone].whichFace(faceI)];
 
