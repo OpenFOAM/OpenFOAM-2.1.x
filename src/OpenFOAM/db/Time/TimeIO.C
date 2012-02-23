@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -293,12 +293,14 @@ bool Foam::Time::writeObject
 {
     if (outputTime())
     {
+        const word tmName(timeName());
+
         IOdictionary timeDict
         (
             IOobject
             (
                 "time",
-                timeName(),
+                tmName,
                 "uniform",
                 *this,
                 IOobject::NO_READ,
@@ -308,6 +310,7 @@ bool Foam::Time::writeObject
         );
 
         timeDict.add("value", value());
+        timeDict.add("name", string(tmName));
         timeDict.add("index", timeIndex_);
         timeDict.add("deltaT", deltaT_);
         timeDict.add("deltaT0", deltaT0_);
@@ -317,7 +320,7 @@ bool Foam::Time::writeObject
 
         if (writeOK && purgeWrite_)
         {
-            previousOutputTimes_.push(timeName());
+            previousOutputTimes_.push(tmName);
 
             while (previousOutputTimes_.size() > purgeWrite_)
             {

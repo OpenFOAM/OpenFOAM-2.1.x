@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -221,20 +221,43 @@ void Foam::Time::setControls()
         timeIndex_ = startTimeIndex_;
     }
 
-    scalar timeValue;
-    if (timeDict.readIfPresent("value", timeValue))
-    {
-        word storedTimeName(timeName(timeValue));
 
-        if (storedTimeName != timeName())
+    // Check if values stored in time dictionary are consistent
+
+    // 1. Based on time name
+    bool checkValue = true;
+
+    string storedTimeName;
+    if (timeDict.readIfPresent("name", storedTimeName))
+    {
+        if (storedTimeName == timeName())
         {
-            IOWarningIn("Time::setControls()", timeDict)
-                << "Time read from time dictionary " << storedTimeName
-                << " differs from actual time " << timeName() << '.' << nl
-                << "    This may cause unexpected database behaviour."
-                << " If you are not interested" << nl
-                << "    in preserving time state delete the time dictionary."
-                << endl;
+            // Same time. No need to check stored value
+            checkValue = false;
+        }
+    }
+
+    // 2. Based on time value
+    //    (consistent up to the current time writing precision so it won't
+    //     trigger if we just change the write precision)
+    if (checkValue)
+    {
+        scalar storedTimeValue;
+        if (timeDict.readIfPresent("value", storedTimeValue))
+        {
+            word storedTimeName(timeName(storedTimeValue));
+
+            if (storedTimeName != timeName())
+            {
+                IOWarningIn("Time::setControls()", timeDict)
+                    << "Time read from time dictionary " << storedTimeName
+                    << " differs from actual time " << timeName() << '.' << nl
+                    << "    This may cause unexpected database behaviour."
+                    << " If you are not interested" << nl
+                    << "    in preserving time state delete"
+                    << " the time dictionary."
+                    << endl;
+            }
         }
     }
 }
