@@ -253,7 +253,7 @@ public:
 
             void clear()
             {
-                return IDLList<ParticleType>::clear();
+                IDLList<ParticleType>::clear();
             };
 
             //- Transfer particle to cloud
