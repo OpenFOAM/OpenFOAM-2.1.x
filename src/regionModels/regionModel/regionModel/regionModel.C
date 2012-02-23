@@ -119,7 +119,13 @@ void Foam::regionModels::regionModel::initialise()
             const mappedPatchBase& mapPatch =
                 refCast<const mappedPatchBase>(regionPatch);
 
-            if (primaryMesh_.time().foundObject<polyMesh>(mapPatch.sampleRegion()))
+            if
+            (
+                primaryMesh_.time().foundObject<polyMesh>
+                (
+                    mapPatch.sampleRegion()
+                )
+            )
             {
                 const label primaryPatchI = mapPatch.samplePolyPatch().index();
                 primaryPatchIDs.append(primaryPatchI);

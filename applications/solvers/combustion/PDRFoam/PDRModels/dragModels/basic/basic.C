@@ -91,24 +91,81 @@ Foam::PDRDragModels::basic::~basic()
 
 Foam::tmp<Foam::volSymmTensorField> Foam::PDRDragModels::basic::Dcu() const
 {
-    const volScalarField& betav =
-        U_.db().lookupObject<volScalarField>("betav");
+    tmp<volSymmTensorField> tDragDcu
+    (
+        new volSymmTensorField
+        (
+            IOobject
+            (
+                "tDragDcu",
+                U_.mesh().time().constant(),
+                U_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            U_.mesh(),
+            dimensionedSymmTensor
+            (
+                "zero",
+                dimMass/dimTime/pow(dimLength, 3),
+                pTraits<symmTensor>::zero
+            ),
+            zeroGradientFvPatchSymmTensorField::typeName
+        )
+    );
 
-    return (0.5*rho_)*CR_*mag(U_) + (Csu*I)*betav*turbulence_.muEff()*sqr(Aw_);
+    volSymmTensorField& DragDcu = tDragDcu();
+
+    if (on_)
+    {
+        const volScalarField& betav =
+            U_.db().lookupObject<volScalarField>("betav");
+
+        DragDcu =
+            (0.5*rho_)*CR_*mag(U_) + (Csu*I)*betav*turbulence_.muEff()*sqr(Aw_);
+    }
+
+    return tDragDcu;
 }
 
 
 Foam::tmp<Foam::volScalarField> Foam::PDRDragModels::basic::Gk() const
 {
-    const volScalarField& betav =
-        U_.db().lookupObject<volScalarField>("betav");
+    tmp<volScalarField> tGk
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "tGk",
+                U_.mesh().time().constant(),
+                U_.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            U_.mesh(),
+            dimensionedScalar("zero", dimMass/dimLength/pow(dimTime, 3), 0.0),
+            zeroGradientFvPatchVectorField::typeName
+        )
+    );
 
-    const volSymmTensorField& CT =
-        U_.db().lookupObject<volSymmTensorField>("CT");
+    volScalarField& Gk = tGk();
 
-    return
-        (0.5*rho_)*mag(U_)*(U_ & CT & U_)
-      + Csk*betav*turbulence_.muEff()*sqr(Aw_)*magSqr(U_);
+    if (on_)
+    {
+        const volScalarField& betav =
+            U_.db().lookupObject<volScalarField>("betav");
+
+        const volSymmTensorField& CT =
+            U_.db().lookupObject<volSymmTensorField>("CT");
+
+        Gk =
+            (0.5*rho_)*mag(U_)*(U_ & CT & U_)
+          + Csk*betav*turbulence_.muEff()*sqr(Aw_)*magSqr(U_);
+    }
+
+
+    return tGk;
 }
 
 

@@ -60,7 +60,7 @@ laplacianSchemes
     laplacian(muEff,U) Gauss linear limited 0.333;
     laplacian(DkEff,k) Gauss linear limited 0.333;
     laplacian(DepsilonEff,epsilon) Gauss linear limited 0.333;
-    laplacian((rho*inv((((1)*A(U))+((((0.5*rho)*CR)*mag(U))+((((Csu*(1))*betav)*muEff)*sqr(Aw)))))),p) Gauss linear limited 0.333;
+    laplacian((rho*inv((((1)*A(U))+tDragDcu))),p) Gauss linear limited 0.333;
     laplacian(Db,b) Gauss linear limited 0.333;
     laplacian(Db,ft) Gauss linear limited 0.333;
     laplacian(Db,h) Gauss linear limited 0.333;

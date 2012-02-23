@@ -50,7 +50,12 @@ Foam::XiEqModels::Gulder::Gulder
 :
     XiEqModel(XiEqProperties, thermo, turbulence, Su),
     XiEqCoef_(readScalar(XiEqModelCoeffs_.lookup("XiEqCoef"))),
-    SuMin_(0.01*Su.average())
+    SuMin_(0.01*Su.average()),
+    uPrimeCoef_(readScalar(XiEqModelCoeffs_.lookup("uPrimeCoef"))),
+    subGridSchelkin_
+    (
+        readBool(XiEqModelCoeffs_.lookup("subGridSchelkin"))
+    )
 {}
 
 
@@ -67,9 +72,9 @@ Foam::tmp<Foam::volScalarField> Foam::XiEqModels::Gulder::XiEq() const
     volScalarField up(sqrt((2.0/3.0)*turbulence_.k()));
     const volScalarField& epsilon = turbulence_.epsilon();
 
-    if (subGridSchelkin())
+    if (subGridSchelkin_)
     {
-        up.internalField() += calculateSchelkinEffect();
+        up.internalField() += calculateSchelkinEffect(uPrimeCoef_);
     }
 
     volScalarField tauEta(sqrt(mag(thermo_.muu()/(thermo_.rhou()*epsilon))));

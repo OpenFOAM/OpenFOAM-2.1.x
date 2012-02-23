@@ -80,12 +80,6 @@ protected:
         //
         volSymmTensorField nsv_;
 
-        //- Schelkin effect Model constant
-        scalar uPrimeCoef_;
-
-        //- Use sub-grid Schelkin effect
-        bool subGridSchelkin_;
-
 
 private:
 
@@ -162,14 +156,8 @@ public:
             return turbulence_.muEff();
         }
 
-        //- Return state of the sub-grid Schelkin effect
-        bool subGridSchelkin() const
-        {
-            return subGridSchelkin_;
-        }
-
         //- Return the sub-grid Schelkin effect
-        tmp<volScalarField> calculateSchelkinEffect() const;
+        tmp<volScalarField> calculateSchelkinEffect(const scalar) const;
 
         //- Update properties from given dictionary
         virtual bool read(const dictionary& XiEqProperties) = 0;
