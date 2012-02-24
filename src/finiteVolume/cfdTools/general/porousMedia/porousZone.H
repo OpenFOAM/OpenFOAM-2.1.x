@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -42,7 +42,7 @@ Description
 
     powerLaw (\e C0 and \e C1 parameters)
     \f[
-        S = - \rho C_0 |U|^{(C_1 - 1)/2} U
+        S = - \rho C_0 |U|^{(C_1 - 1)} U
     \f]
 
     Darcy-Forchheimer (@e d and \e f parameters)
