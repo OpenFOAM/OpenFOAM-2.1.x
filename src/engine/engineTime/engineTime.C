@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -91,9 +91,10 @@ Foam::engineTime::engineTime
 
     timeAdjustment();
 
-    startTime_ = degToTime(startTime_);
-    value()    = degToTime(value());
-    deltaT0_   = deltaT_;
+    startTime_  = degToTime(startTime_);
+    value()     = degToTime(value());
+    deltaTSave_ = deltaT_;
+    deltaT0_    = deltaT_;
 }
 
 
