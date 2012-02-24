@@ -228,6 +228,13 @@ protected:
         //- Calculate AMI interpolator
         void calcAMI() const;
 
+        //- Helper to read field or non-uniform list from dictionary
+        static tmp<pointField> readListOrField
+        (
+            const word& keyword,
+            const dictionary& dict,
+            const label size
+        );
 
 public:
 

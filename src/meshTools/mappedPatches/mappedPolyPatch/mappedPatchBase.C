@@ -659,6 +659,82 @@ void Foam::mappedPatchBase::calcAMI() const
 }
 
 
+// Hack to read old (List-based) format. See Field.C. The difference
+// is only that in case of falling back to old format it expects a non-uniform
+// list instead of a single vector.
+Foam::tmp<Foam::pointField> Foam::mappedPatchBase::readListOrField
+(
+    const word& keyword,
+    const dictionary& dict,
+    const label size
+)
+{
+    tmp<pointField> tfld(new pointField());
+    pointField& fld = tfld();
+
+    if (size)
+    {
+        ITstream& is = dict.lookup(keyword);
+
+        // Read first token
+        token firstToken(is);
+
+        if (firstToken.isWord())
+        {
+            if (firstToken.wordToken() == "uniform")
+            {
+                fld.setSize(size);
+                fld = pTraits<vector>(is);
+            }
+            else if (firstToken.wordToken() == "nonuniform")
+            {
+                is >> static_cast<List<vector>&>(fld);
+                if (fld.size() != size)
+                {
+                    FatalIOErrorIn
+                    (
+                        "mappedPatchBase::readListOrField"
+                        "(const word& keyword, const dictionary&, const label)",
+                        dict
+                    )   << "size " << fld.size()
+                        << " is not equal to the given value of " << size
+                        << exit(FatalIOError);
+                }
+            }
+            else
+            {
+                FatalIOErrorIn
+                (
+                    "mappedPatchBase::readListOrField"
+                    "(const word& keyword, const dictionary&, const label)",
+                    dict
+                )   << "expected keyword 'uniform' or 'nonuniform', found "
+                    << firstToken.wordToken()
+                    << exit(FatalIOError);
+            }
+        }
+        else
+        {
+            if (is.version() == 2.0)
+            {
+                IOWarningIn
+                (
+                    "mappedPatchBase::readListOrField"
+                    "(const word& keyword, const dictionary&, const label)",
+                    dict
+                )   << "expected keyword 'uniform' or 'nonuniform', "
+                       "assuming List format for backwards compatibility."
+                       "Foam version 2.0." << endl;
+
+                is.putBack(firstToken);
+                is >> static_cast<List<vector>&>(fld);
+            }
+        }
+    }
+    return tfld;
+}
+
+
 // * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * * * * * //
 
 Foam::mappedPatchBase::mappedPatchBase
@@ -803,7 +879,8 @@ Foam::mappedPatchBase::mappedPatchBase
 
             case NONUNIFORM:
             {
-                offsets_ = pointField(dict.lookup("offsets"));
+                //offsets_ = pointField(dict.lookup("offsets"));
+                offsets_ = readListOrField("offsets", dict, patch_.size());
             }
             break;
 
@@ -822,7 +899,8 @@ Foam::mappedPatchBase::mappedPatchBase
     else if (dict.found("offsets"))
     {
         offsetMode_ = NONUNIFORM;
-        offsets_ = pointField(dict.lookup("offsets"));
+        //offsets_ = pointField(dict.lookup("offsets"));
+        offsets_ = readListOrField("offsets", dict, patch_.size());
     }
     else
     {
@@ -987,8 +1065,7 @@ void Foam::mappedPatchBase::write(Ostream& os) const
         }
         case NONUNIFORM:
         {
-            os.writeKeyword("offsets") << offsets_ << token::END_STATEMENT
-                << nl;
+            offsets_.writeEntry("offsets", os);
             break;
         }
         case NORMAL:
