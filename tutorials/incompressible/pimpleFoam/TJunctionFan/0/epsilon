@@ -17,7 +17,7 @@ FoamFile
 
 dimensions      [0 2 -3 0 0 0 0];
 
-internalField   uniform 1;
+internalField   uniform 200;
 
 boundaryField
 {
@@ -27,19 +27,19 @@ boundaryField
         mixingLength    0.01;
         phi             phi;
         k               k;
-        value           uniform 1;
+        value           $internalField;
     }
     outlet1
     {
         type            inletOutlet;
-        inletValue      uniform 1;
-        value           uniform 1;
+        inletValue      $internalField;
+        value           $internalField;
     }
     outlet2
     {
         type            inletOutlet;
-        inletValue      uniform 1;
-        value           uniform 1;
+        inletValue      $internalField;
+        value           $internalField;
     }
     baffles
     {
@@ -47,7 +47,7 @@ boundaryField
         Cmu             0.09;
         kappa           0.41;
         E               9.8;
-        value           uniform 1;
+        value           $internalField;
     }
     fan_half0
     {
@@ -63,7 +63,7 @@ boundaryField
         Cmu             0.09;
         kappa           0.41;
         E               9.8;
-        value           uniform 1;
+        value           $internalField;
     }
 }
 
