@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -89,8 +89,8 @@ void Foam::mappedPatchBase::reverseDistribute(List<Type>& lst) const
         }
         default:
         {
-            label cSize = patch_.size();
-            map().reverseDistribute(cSize, lst);
+            map().reverseDistribute(sampleSize(), lst);
+            break;
         }
     }
 }
@@ -116,7 +116,7 @@ void Foam::mappedPatchBase::reverseDistribute
         }
         default:
         {
-            label cSize = patch_.size();
+            label cSize = sampleSize();
             map().distribute
             (
                 Pstream::defaultCommsType,
@@ -128,6 +128,7 @@ void Foam::mappedPatchBase::reverseDistribute
                 bop,
                 pTraits<Type>::zero
             );
+            break;
         }
     }
 }

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -39,6 +39,37 @@ inline const Foam::word& Foam::mappedPatchBase::sampleRegion() const
 inline const Foam::word& Foam::mappedPatchBase::samplePatch() const
 {
     return samplePatch_;
+}
+
+
+inline Foam::label Foam::mappedPatchBase::sampleSize() const
+{
+    switch (mode_)
+    {
+        case NEARESTPATCHFACEAMI:
+        {
+            return samplePolyPatch().size();
+        }
+        case NEARESTCELL:
+        {
+            return sampleMesh().nCells();
+        }
+        case NEARESTPATCHFACE:
+        {
+            return samplePolyPatch().size();
+        }
+        case NEARESTFACE:
+        {
+            const polyMesh& mesh = sampleMesh();
+            return mesh.nFaces() - mesh.nInternalFaces();
+        }
+        default:
+        {
+            FatalErrorIn("mappedPatchBase::sampleSize()")
+                << "problem." << abort(FatalError);
+            return -1;
+        }
+    }
 }
 
 

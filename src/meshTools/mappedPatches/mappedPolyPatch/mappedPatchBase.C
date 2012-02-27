@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -723,7 +723,7 @@ Foam::tmp<Foam::pointField> Foam::mappedPatchBase::readListOrField
                     "(const word& keyword, const dictionary&, const label)",
                     dict
                 )   << "expected keyword 'uniform' or 'nonuniform', "
-                       "assuming List format for backwards compatibility."
+                       "assuming List format for backwards compatibility. "
                        "Foam version 2.0." << endl;
 
                 is.putBack(firstToken);
