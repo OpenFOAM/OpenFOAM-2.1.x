@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,6 +25,80 @@ License
 
 #include "DispersionRASModel.H"
 #include "demandDrivenData.H"
+#include "incompressible/turbulenceModel/turbulenceModel.H"
+#include "compressible/turbulenceModel/turbulenceModel.H"
+
+// * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
+
+template<class CloudType>
+Foam::tmp<Foam::volScalarField>
+Foam::DispersionRASModel<CloudType>::kModel() const
+{
+    const objectRegistry& obr = this->owner().mesh();
+    const word turbName = "turbulenceModel";
+
+    if (obr.foundObject<compressible::turbulenceModel>(turbName))
+    {
+        const compressible::turbulenceModel& model =
+            obr.lookupObject<compressible::turbulenceModel>(turbName);
+        return model.k();
+    }
+    else if (obr.foundObject<incompressible::turbulenceModel>(turbName))
+    {
+        const incompressible::turbulenceModel& model =
+            obr.lookupObject<incompressible::turbulenceModel>(turbName);
+        return model.k();
+    }
+    else
+    {
+        FatalErrorIn
+        (
+            "Foam::tmp<Foam::volScalarField>"
+            "Foam::DispersionRASModel<CloudType>::kModel() const"
+        )
+            << "Turbulence model not found in mesh database" << nl
+            << "Database objects include: " << obr.sortedToc()
+            << abort(FatalError);
+
+        return tmp<volScalarField>(NULL);
+    }
+}
+
+
+template<class CloudType>
+Foam::tmp<Foam::volScalarField>
+Foam::DispersionRASModel<CloudType>::epsilonModel() const
+{
+    const objectRegistry& obr = this->owner().mesh();
+    const word turbName = "turbulenceModel";
+
+    if (obr.foundObject<compressible::turbulenceModel>(turbName))
+    {
+        const compressible::turbulenceModel& model =
+            obr.lookupObject<compressible::turbulenceModel>(turbName);
+        return model.epsilon();
+    }
+    else if (obr.foundObject<incompressible::turbulenceModel>(turbName))
+    {
+        const incompressible::turbulenceModel& model =
+            obr.lookupObject<incompressible::turbulenceModel>(turbName);
+        return model.epsilon();
+    }
+    else
+    {
+        FatalErrorIn
+        (
+            "Foam::tmp<Foam::volScalarField>"
+            "Foam::DispersionRASModel<CloudType>::epsilonModel() const"
+        )
+            << "Turbulence model not found in mesh database" << nl
+            << "Database objects include: " << obr.sortedToc()
+            << abort(FatalError);
+
+        return tmp<volScalarField>(NULL);
+    }
+}
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -36,16 +110,6 @@ Foam::DispersionRASModel<CloudType>::DispersionRASModel
 )
 :
     DispersionModel<CloudType>(owner),
-    turbulence_
-    (
-        owner.mesh().objectRegistry::template lookupObject
-        <
-            compressible::RASModel
-        >
-        (
-            "RASProperties"
-        )
-    ),
     kPtr_(NULL),
     ownK_(false),
     epsilonPtr_(NULL),
@@ -60,7 +124,6 @@ Foam::DispersionRASModel<CloudType>::DispersionRASModel
 )
 :
     DispersionModel<CloudType>(dm),
-    turbulence_(dm.turbulence_),
     kPtr_(dm.kPtr_),
     ownK_(dm.ownK_),
     epsilonPtr_(dm.epsilonPtr_),
@@ -87,7 +150,7 @@ void Foam::DispersionRASModel<CloudType>::cacheFields(const bool store)
 {
     if (store)
     {
-        tmp<volScalarField> tk = this->turbulence().k();
+        tmp<volScalarField> tk = this->kModel();
         if (tk.isTmp())
         {
             kPtr_ = tk.ptr();
@@ -99,7 +162,7 @@ void Foam::DispersionRASModel<CloudType>::cacheFields(const bool store)
             ownK_ = false;
         }
 
-        tmp<volScalarField> tepsilon = this->turbulence().epsilon();
+        tmp<volScalarField> tepsilon = this->epsilonModel();
         if (tepsilon.isTmp())
         {
             epsilonPtr_ = tepsilon.ptr();

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -38,7 +38,6 @@ SourceFiles
 
 #include "ParticleForce.H"
 #include "cachedRandom.H"
-#include "turbulenceModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -65,9 +64,6 @@ class BrownianMotionForce
         //- Turbulence flag
         bool turbulence_;
 
-        //- Reference to a compressible turbulence model
-        const compressible::turbulenceModel* turbulenceModelPtr_;
-
         //- Pointer to the turbulence kinetic energy field
         const volScalarField* kPtr_;
 
@@ -79,6 +75,9 @@ class BrownianMotionForce
 
         //- Inverse erf for Gaussian distribution
         scalar erfInv(const scalar y) const;
+
+        //- Return the k field from the turbulence model
+        tmp<volScalarField> kModel() const;
 
 
 public:

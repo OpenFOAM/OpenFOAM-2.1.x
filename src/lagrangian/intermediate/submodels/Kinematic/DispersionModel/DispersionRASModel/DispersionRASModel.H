@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,6 +25,7 @@ Class
     Foam::DispersionRASModel
 
 Description
+    Base class for particle dispersion models based on RAS turbulence.
 
 \*---------------------------------------------------------------------------*/
 
@@ -32,7 +33,6 @@ Description
 #define DispersionRASModel_H
 
 #include "DispersionModel.H"
-#include "RASModel.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -53,9 +53,6 @@ protected:
 
     // Protected data
 
-        //- Reference to the compressible turbulence model
-        const compressible::RASModel& turbulence_;
-
         // Locally cached turbulence fields
 
             //- Turbulence k
@@ -69,6 +66,15 @@ protected:
 
             //- Take ownership of the epsilon field
             bool ownEpsilon_;
+
+
+    // Protected Functions
+
+        //- Return the k field from the turbulence model
+        tmp<volScalarField> kModel() const;
+
+        //- Return the epsilon field from the turbulence model
+        tmp<volScalarField> epsilonModel() const;
 
 
 public:
@@ -103,12 +109,6 @@ public:
 
         //- Cache carrier fields
         virtual void cacheFields(const bool store);
-
-        //- Return const access to the turbulence model
-        const compressible::RASModel& turbulence() const
-        {
-            return turbulence_;
-        }
 
 
         // I-O

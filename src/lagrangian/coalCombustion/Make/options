@@ -14,10 +14,7 @@ EXE_INC = \
     -I$(LIB_SRC)/thermophysicalModels/SLGThermo/lnInclude \
     -I$(LIB_SRC)/thermophysicalModels/radiationModels/lnInclude \
     -I$(LIB_SRC)/turbulenceModels \
-    -I$(LIB_SRC)/turbulenceModels/compressible/turbulenceModel/lnInclude \
-    -I$(LIB_SRC)/turbulenceModels/compressible/RAS/lnInclude \
-    -I$(LIB_SRC)/turbulenceModels/LES/LESdeltas/lnInclude \
-    -I$(LIB_SRC)/turbulenceModels/compressible/LES/lnInclude \
+    -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/regionModels/regionModel/lnInclude \
     -I$(LIB_SRC)/regionModels/surfaceFilmModels/lnInclude \
     -I$(LIB_SRC)/dynamicFvMesh/lnInclude \
@@ -42,6 +39,7 @@ LIB_LIBS = \
     -lcompressibleRASModels \
     -lcompressibleLESModels \
     -lLESdeltas \
+    -lincompressibleTransportModels \
     -lregionModels \
     -lsurfaceFilmModels \
     -ldynamicFvMesh \
