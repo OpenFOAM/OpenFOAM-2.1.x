@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -72,16 +72,15 @@ Foam::vector Foam::StochasticDispersionRAS<CloudType>::update
 
     const scalar cps = 0.16432;
 
-    const volScalarField& k = *this->kPtr_;
-    const volScalarField& epsilon = *this->epsilonPtr_;
+    const scalar k = this->kPtr_->internalField()[cellI];
+    const scalar epsilon =
+        this->epsilonPtr_->internalField()[cellI] + ROOTVSMALL;
 
     const scalar UrelMag = mag(U - Uc - UTurb);
 
-    const scalar tTurbLoc = min
-    (
-        k[cellI]/epsilon[cellI],
-        cps*pow(k[cellI], 1.5)/epsilon[cellI]/(UrelMag + SMALL)
-    );
+    const scalar tTurbLoc =
+        min(k/epsilon, cps*pow(k, 1.5)/epsilon/(UrelMag + SMALL));
+
 
     // Parcel is perturbed by the turbulence
     if (dt < tTurbLoc)
@@ -92,7 +91,7 @@ Foam::vector Foam::StochasticDispersionRAS<CloudType>::update
         {
             tTurb = 0.0;
 
-            scalar sigma = sqrt(2.0*k[cellI]/3.0);
+            scalar sigma = sqrt(2.0*k/3.0);
             vector dir = 2.0*rnd.sample01<vector>() - vector::one;
             dir /= mag(dir) + SMALL;
 

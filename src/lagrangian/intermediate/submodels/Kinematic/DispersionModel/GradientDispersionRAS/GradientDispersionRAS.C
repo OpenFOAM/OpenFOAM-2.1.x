@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -103,17 +103,16 @@ Foam::vector Foam::GradientDispersionRAS<CloudType>::update
 
     const scalar cps = 0.16432;
 
-    const volScalarField& k = *this->kPtr_;
-    const volScalarField& epsilon = *this->epsilonPtr_;
-    const volVectorField& gradk = *this->gradkPtr_;
+    const scalar k = this->kPtr_->internalField()[cellI];
+    const scalar epsilon =
+        this->epsilonPtr_->internalField()[cellI] + ROOTVSMALL;
+    const vector& gradk = this->gradkPtr_->internalField()[cellI];
 
     const scalar UrelMag = mag(U - Uc - UTurb);
 
-    const scalar tTurbLoc = min
-    (
-        k[cellI]/epsilon[cellI],
-        cps*pow(k[cellI], 1.5)/epsilon[cellI]/(UrelMag + SMALL)
-    );
+    const scalar tTurbLoc =
+        min(k/epsilon, cps*pow(k, 1.5)/epsilon/(UrelMag + SMALL));
+
 
     // Parcel is perturbed by the turbulence
     if (dt < tTurbLoc)
@@ -124,8 +123,8 @@ Foam::vector Foam::GradientDispersionRAS<CloudType>::update
         {
             tTurb = 0.0;
 
-            scalar sigma = sqrt(2.0*k[cellI]/3.0);
-            vector dir = -gradk[cellI]/(mag(gradk[cellI]) + SMALL);
+            scalar sigma = sqrt(2.0*k/3.0);
+            vector dir = -gradk/(mag(gradk) + SMALL);
 
             // Numerical Recipes... Ch. 7. Random Numbers...
             scalar x1 = 0.0;
