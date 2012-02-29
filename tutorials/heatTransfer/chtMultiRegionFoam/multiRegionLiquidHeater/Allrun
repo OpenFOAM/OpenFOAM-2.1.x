@@ -42,7 +42,7 @@ runParallel `getApplication` 4
 # Reconstruct
 for i in bottomWater topAir heater leftSolid rightSolid
 do
-   reconstructPar -region $i > log.reconstructPar.$i2 >&1
+   reconstructPar -region $i > log.reconstructPar.$i 2>&1
 done
 
 
