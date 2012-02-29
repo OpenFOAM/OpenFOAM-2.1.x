@@ -8,8 +8,8 @@
     const volScalarField& cp = tcp();
 
     tmp<volScalarField> tkappa = thermo.K();
-    //tmp<volSymmTensorField> tkappa = thermo.directionalkappa();
     const volScalarField& kappa = tkappa();
+    //tmp<volSymmTensorField> tkappa = thermo.directionalK();
     //const volSymmTensorField& kappa = tkappa();
 
     volScalarField& T = thermo.T();

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -68,6 +68,16 @@ private:
         void calculate();
 
 
+        // Per patch helpers to get mixture properties on a patch
+
+            tmp<scalarField> rho(const label patchI) const;
+
+            tmp<scalarField> sigmaS(const label patchI) const;
+
+            tmp<scalarField> kappa(const label patchI) const;
+
+            tmp<scalarField> emissivity(const label patchI) const;
+
 public:
 
     //- Runtime type information
@@ -89,6 +99,9 @@ public:
 
     // Member functions
 
+        //- Update properties
+        virtual void correct();
+
         //- Return the compostion of the solid mixture
         virtual MixtureType& composition()
         {
@@ -101,32 +114,44 @@ public:
             return *this;
         }
 
-        //- Update properties
-        virtual void correct();
 
-        // Access functions
+        // Derived thermal properties
 
             //- Thermal conductivity [W/m/K]
-            virtual const volScalarField& K() const;
+            virtual tmp<volScalarField> K() const;
+
+            //- Thermal conductivity [W/m/K]
+            virtual tmp<volSymmTensorField> directionalK() const
+            {
+                notImplemented("solidMixtureThermo::directionalK() const");
+                return tmp<volSymmTensorField>(NULL);
+            }
+
+            //- Specific heat capacity [J/(kg.K)]
+            virtual tmp<volScalarField> Cp() const;
+
+            //- Sensible enthalpy [J/(kg.K)]
+            virtual tmp<volScalarField> hs() const;
+
+            //- Heat of formation [J/kg]
+            virtual tmp<volScalarField> Hf() const;
 
 
-            // Derived properties
+        // Per patch calculation
 
-                //- Specific heat capacity [J/(kg.K)]
-                virtual tmp<volScalarField> Cp() const;
+            //- Thermal conductivity [W/(m.K)]
+            virtual tmp<scalarField> K(const label patchI) const;
 
-                //- Heat of formation [J/kg]
-                virtual tmp<volScalarField> Hf() const;
+            //- Thermal conductivity [W/(m.K)]
+            virtual tmp<symmTensorField> directionalK(const label) const
+            {
+                notImplemented
+                (
+                    "solidMixtureThermo::directionalK(const label) const"
+                );
+                return tmp<symmTensorField>(NULL);
+            }
 
-                //- Sensible enthalpy [J/(kg.K)]
-                virtual tmp<volScalarField> hs() const;
-
-
-        // Patches variables
-
-
-            //- Density [kg/m3]
-            virtual tmp<scalarField> rho(const label patchI) const;
 
             //- Specific heat capacity [J/(kg.K)]
             virtual tmp<scalarField> Cp(const label patchI) const;
@@ -134,20 +159,8 @@ public:
             //- Sensible enthalpy [J/(kg.K)]
             virtual tmp<scalarField> hs(const label patchI) const;
 
-            //- Thermal conductivity [W/(m.K)]
-            virtual tmp<scalarField> K(const label patchI) const;
-
             //- Heat of formation [J/kg]
             virtual tmp<scalarField> Hf(const label patchI) const;
-
-            //- Scatter coefficient [1/m]
-            virtual tmp<scalarField> sigmaS(const label patchI) const;
-
-            //- Absorptivity [1/m]
-            virtual tmp<scalarField> kappa(const label patchI) const;
-
-            //- Emissivity []
-            virtual tmp<scalarField> emissivity(const label patchI) const;
 
 
         //- Read thermophysicalProperties dictionary

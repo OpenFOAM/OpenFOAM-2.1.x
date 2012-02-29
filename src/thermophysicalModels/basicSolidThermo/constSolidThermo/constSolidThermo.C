@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -132,34 +132,13 @@ void Foam::constSolidThermo::correct()
 {}
 
 
-Foam::tmp<Foam::volScalarField> Foam::constSolidThermo::Cp() const
-{
-    return tmp<volScalarField>
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "Cp",
-                mesh_.time().timeName(),
-                mesh_,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            mesh_,
-            constCp_
-        )
-    );
-}
-
-
-const Foam::volScalarField& Foam::constSolidThermo::K() const
+Foam::tmp<Foam::volScalarField> Foam::constSolidThermo::K() const
 {
     return K_;
 }
 
 
-const Foam::volSymmTensorField& Foam::constSolidThermo::directionalK() const
+Foam::tmp<Foam::volSymmTensorField> Foam::constSolidThermo::directionalK() const
 {
     dimensionedSymmTensor t
     (
@@ -194,6 +173,27 @@ const Foam::volSymmTensorField& Foam::constSolidThermo::directionalK() const
 }
 
 
+Foam::tmp<Foam::volScalarField> Foam::constSolidThermo::Cp() const
+{
+    return tmp<volScalarField>
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "Cp",
+                mesh_.time().timeName(),
+                mesh_,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            mesh_,
+            constCp_
+        )
+    );
+}
+
+
 Foam::tmp<Foam::volScalarField> Foam::constSolidThermo::Hf() const
 {
     return tmp<volScalarField>
@@ -210,38 +210,6 @@ Foam::tmp<Foam::volScalarField> Foam::constSolidThermo::Hf() const
             ),
             mesh_,
             constHf_
-        )
-    );
-}
-
-
-Foam::tmp<Foam::scalarField> Foam::constSolidThermo::rho
-(
-    const label patchI
-) const
-{
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            T_.boundaryField()[patchI].size(),
-            constRho_.value()
-        )
-    );
-}
-
-
-Foam::tmp<Foam::scalarField> Foam::constSolidThermo::Cp
-(
-    const label patchI
-) const
-{
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            T_.boundaryField()[patchI].size(),
-            constCp_.value()
         )
     );
 }
@@ -281,6 +249,22 @@ Foam::tmp<Foam::symmTensorField> Foam::constSolidThermo::directionalK
 }
 
 
+Foam::tmp<Foam::scalarField> Foam::constSolidThermo::Cp
+(
+    const label patchI
+) const
+{
+    return tmp<scalarField>
+    (
+        new scalarField
+        (
+            T_.boundaryField()[patchI].size(),
+            constCp_.value()
+        )
+    );
+}
+
+
 Foam::tmp<Foam::scalarField> Foam::constSolidThermo::Hf
 (
     const label patchI
@@ -292,54 +276,6 @@ Foam::tmp<Foam::scalarField> Foam::constSolidThermo::Hf
         (
             T_.boundaryField()[patchI].size(),
             constHf_.value()
-        )
-    );
-}
-
-
-Foam::tmp<Foam::scalarField> Foam::constSolidThermo::emissivity
-(
-    const label patchI
-) const
-{
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            T_.boundaryField()[patchI].size(),
-            constEmissivity_.value()
-        )
-    );
-}
-
-
-Foam::tmp<Foam::scalarField> Foam::constSolidThermo::kappa
-(
-    const label patchI
-) const
-{
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            T_.boundaryField()[patchI].size(),
-            constKappa_.value()
-        )
-    );
-}
-
-
-Foam::tmp<Foam::scalarField> Foam::constSolidThermo::sigmaS
-(
-    const label patchI
-) const
-{
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            T_.boundaryField()[patchI].size(),
-            constSigmaS_.value()
         )
     );
 }

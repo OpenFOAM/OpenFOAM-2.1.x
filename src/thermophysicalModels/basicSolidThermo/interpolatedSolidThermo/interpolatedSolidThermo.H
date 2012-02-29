@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -60,6 +60,21 @@ private:
         const dictionary dict_;
 
 
+        // Helper functions
+
+            //- Density [kg/m3]
+            tmp<scalarField> rho(const label patchI) const;
+
+            //- Scatter coefficient [1/m]
+            tmp<scalarField> sigmaS(const label) const;
+
+            //- Absorption coefficient [1/m]
+            tmp<scalarField> kappa(const label) const;
+
+             //- Emissivity []
+            tmp<scalarField> emissivity(const label) const;
+
+
 public:
 
     // Constructors
@@ -98,23 +113,11 @@ public:
 
         // Per patch calculation
 
-            //- Density [kg/m3]
-            virtual tmp<scalarField> rho(const label patchI) const;
-
             //- Specific heat capacity [J/kg/K)]
             virtual tmp<scalarField> Cp(const label patchI) const;
 
             //- Heat of formation [J/kg]
             virtual tmp<scalarField> Hf(const label patchI) const;
-
-            //- Scatter coefficient [1/m]
-            virtual tmp<scalarField> sigmaS(const label) const;
-
-            //- Absorption coefficient [1/m]
-            virtual tmp<scalarField> kappa(const label) const;
-
-             //- Emissivity []
-            virtual tmp<scalarField> emissivity(const label) const;
 
 
         // I-O

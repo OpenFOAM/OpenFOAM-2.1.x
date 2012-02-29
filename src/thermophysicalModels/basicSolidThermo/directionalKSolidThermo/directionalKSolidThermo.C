@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -136,12 +136,10 @@ void Foam::directionalKSolidThermo::init()
 {
     KValues_ = Field<vector>(subDict(typeName + "Coeffs").lookup("KValues"));
 
-    const fvMesh& mesh = K().mesh();
-
     // Determine transforms for cell centres
-    forAll(mesh.C(), cellI)
+    forAll(mesh_.C(), cellI)
     {
-        vector dir = mesh.C()[cellI] - coordSys_.origin();
+        vector dir = mesh_.C()[cellI] - coordSys_.origin();
         dir /= mag(dir);
 
         // Define local coordinate system with
@@ -158,9 +156,9 @@ void Foam::directionalKSolidThermo::init()
         ccTransforms_[cellI] = cs.R();
     }
 
-    forAll(mesh.C().boundaryField(), patchI)
+    forAll(mesh_.C().boundaryField(), patchI)
     {
-        const fvPatchVectorField& patchC = mesh.C().boundaryField()[patchI];
+        const fvPatchVectorField& patchC = mesh_.C().boundaryField()[patchI];
         fvPatchTensorField& patchT = ccTransforms_.boundaryField()[patchI];
 
         tensorField tc(patchT.size());
@@ -192,13 +190,13 @@ void Foam::directionalKSolidThermo::init()
                 IOobject
                 (
                     "Kxx",
-                    mesh.time().timeName(),
-                    mesh,
+                    mesh_.time().timeName(),
+                    mesh_,
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE,
                     false
                 ),
-                mesh,
+                mesh_,
                 dimless
             );
             Kxx.internalField() = transform
@@ -230,13 +228,13 @@ void Foam::directionalKSolidThermo::init()
                 IOobject
                 (
                     "Kyy",
-                    mesh.time().timeName(),
-                    mesh,
+                    mesh_.time().timeName(),
+                    mesh_,
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE,
                     false
                 ),
-                mesh,
+                mesh_,
                 dimless
             );
             Kyy.internalField() = transform
@@ -268,13 +266,13 @@ void Foam::directionalKSolidThermo::init()
                 IOobject
                 (
                     "Kzz",
-                    mesh.time().timeName(),
-                    mesh,
+                    mesh_.time().timeName(),
+                    mesh_,
                     IOobject::NO_READ,
                     IOobject::AUTO_WRITE,
                     false
                 ),
-                mesh,
+                mesh_,
                 dimless
             );
             Kzz.internalField() = transform
@@ -363,7 +361,7 @@ void Foam::directionalKSolidThermo::correct()
 }
 
 
-const Foam::volSymmTensorField&
+Foam::tmp<Foam::volSymmTensorField>
 Foam::directionalKSolidThermo::directionalK() const
 {
     return directionalK_;
@@ -395,105 +393,6 @@ void Foam::directionalKSolidThermo::calculate()
     {
         directionalK_.boundaryField()[patchI] == this->directionalK(patchI)();
     }
-}
-
-
-const Foam::volScalarField& Foam::directionalKSolidThermo::K() const
-{
-    forAll(KValues_, i)
-    {
-        const vector& v = KValues_[i];
-        if
-        (
-            v.x() != v.y()
-         || v.x() != v.z()
-         || v.y() != v.z()
-        )
-        {
-            FatalErrorIn("directionalKSolidThermo::K() const")
-                << "Supplied K values " << KValues_
-                << " are not isotropic." << exit(FatalError);
-        }
-    }
-
-    // Get temperature interpolated properties (principal directions)
-    Field<vector> localK
-    (
-        interpolateXY
-        (
-            T_.internalField(),
-            TValues_,
-            KValues_
-        )
-    );
-
-    tmp<volScalarField> tK
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "K",
-                mesh_.time().timeName(),
-                mesh_,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            mesh_,
-            dimEnergy/dimTime/(dimLength*dimTemperature)
-        )
-    );
-    volScalarField& K = tK();
-
-    K.internalField() = interpolateXY
-    (
-        T_.internalField(),
-        TValues_,
-        KValues_.component(0)()
-    );
-
-    forAll(K.boundaryField(), patchI)
-    {
-        K.boundaryField()[patchI] == this->K(patchI)();
-    }
-
-    return tK;
-}
-
-
-Foam::tmp<Foam::scalarField> Foam::directionalKSolidThermo::K
-(
-    const label patchI
-) const
-{
-    forAll(KValues_, i)
-    {
-        const vector& v = KValues_[i];
-        if
-        (
-            v.x() != v.y()
-         || v.x() != v.z()
-         || v.y() != v.z()
-        )
-        {
-            FatalErrorIn("directionalKSolidThermo::K() const")
-                << "Supplied K values " << KValues_
-                << " are not isotropic." << exit(FatalError);
-        }
-    }
-
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            interpolateXY
-            (
-                T_.boundaryField()[patchI],
-                TValues_,
-                KValues_.component(0)()
-            )
-        )
-    );
 }
 
 

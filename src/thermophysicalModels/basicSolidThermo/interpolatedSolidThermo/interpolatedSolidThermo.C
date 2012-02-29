@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,6 +25,88 @@ License
 
 #include "interpolatedSolidThermo.H"
 #include "interpolateXY.H"
+
+
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+Foam::tmp<Foam::scalarField> Foam::interpolatedSolidThermo::rho
+(
+    const label patchI
+) const
+{
+    return tmp<scalarField>
+    (
+        new scalarField
+        (
+            interpolateXY
+            (
+                T_.boundaryField()[patchI],
+                TValues_,
+                rhoValues_
+            )
+        )
+    );
+}
+
+
+Foam::tmp<Foam::scalarField> Foam::interpolatedSolidThermo::emissivity
+(
+    const label patchI
+) const
+{
+    return tmp<scalarField>
+    (
+        new scalarField
+        (
+            interpolateXY
+            (
+                T_.boundaryField()[patchI],
+                TValues_,
+                emissivityValues_
+            )
+        )
+    );
+}
+
+
+Foam::tmp<Foam::scalarField> Foam::interpolatedSolidThermo::kappa
+(
+    const label patchI
+) const
+{
+    return tmp<scalarField>
+    (
+        new scalarField
+        (
+            interpolateXY
+            (
+                T_.boundaryField()[patchI],
+                TValues_,
+                kappaValues_
+            )
+        )
+    );
+}
+
+
+Foam::tmp<Foam::scalarField> Foam::interpolatedSolidThermo::sigmaS
+(
+    const label patchI
+) const
+{
+    return tmp<scalarField>
+    (
+        new scalarField
+        (
+            interpolateXY
+            (
+                T_.boundaryField()[patchI],
+                TValues_,
+                sigmaSValues_
+            )
+        )
+    );
+}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -56,6 +138,7 @@ Foam::interpolatedSolidThermo::interpolatedSolidThermo
 {
     calculate();
 }
+
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
@@ -195,26 +278,6 @@ Foam::tmp<Foam::volScalarField> Foam::interpolatedSolidThermo::Hf() const
 }
 
 
-Foam::tmp<Foam::scalarField> Foam::interpolatedSolidThermo::rho
-(
-    const label patchI
-) const
-{
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            interpolateXY
-            (
-                T_.boundaryField()[patchI],
-                TValues_,
-                rhoValues_
-            )
-        )
-    );
-}
-
-
 Foam::tmp<Foam::scalarField> Foam::interpolatedSolidThermo::Cp
 (
     const label patchI
@@ -249,66 +312,6 @@ Foam::tmp<Foam::scalarField> Foam::interpolatedSolidThermo::Hf
                 T_.boundaryField()[patchI],
                 TValues_,
                 HfValues_
-            )
-        )
-    );
-}
-
-
-Foam::tmp<Foam::scalarField> Foam::interpolatedSolidThermo::emissivity
-(
-    const label patchI
-) const
-{
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            interpolateXY
-            (
-                T_.boundaryField()[patchI],
-                TValues_,
-                emissivityValues_
-            )
-        )
-    );
-}
-
-
-Foam::tmp<Foam::scalarField> Foam::interpolatedSolidThermo::kappa
-(
-    const label patchI
-) const
-{
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            interpolateXY
-            (
-                T_.boundaryField()[patchI],
-                TValues_,
-                kappaValues_
-            )
-        )
-    );
-}
-
-
-Foam::tmp<Foam::scalarField> Foam::interpolatedSolidThermo::sigmaS
-(
-    const label patchI
-) const
-{
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            interpolateXY
-            (
-                T_.boundaryField()[patchI],
-                TValues_,
-                sigmaSValues_
             )
         )
     );
