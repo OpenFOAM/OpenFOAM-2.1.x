@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -257,20 +257,6 @@ const Foam::volScalarField& Foam::basicSolidThermo::emissivity() const
 }
 
 
-const Foam::volScalarField&  Foam::basicSolidThermo::K() const
-{
-    notImplemented("basicSolidThermo::K()");
-    return volScalarField::null();
-}
-
-
-const Foam::volSymmTensorField& Foam::basicSolidThermo::directionalK() const
-{
-    notImplemented("basicSolidThermo::directionalK()");
-    return const_cast<volSymmTensorField&>(volSymmTensorField::null());
-}
-
-
 Foam::basicSolidMixture& Foam::basicSolidThermo::composition()
 {
     notImplemented("basicSolidThermo::composition()");
@@ -287,7 +273,7 @@ const Foam::basicSolidMixture& Foam::basicSolidThermo::composition() const
 
 Foam::tmp<Foam::volScalarField> Foam::basicSolidThermo::hs() const
 {
-    notImplemented("basicSolidThermo::hs()");
+    notImplemented("basicSolidThermo::hs() const");
     return volScalarField::null();
 }
 
@@ -295,28 +281,8 @@ Foam::tmp<Foam::volScalarField> Foam::basicSolidThermo::hs() const
 Foam::tmp<Foam::scalarField> Foam::basicSolidThermo::hs(const label patchI)
 const
 {
-    notImplemented("basicSolidThermo::hs(const label)");
+    notImplemented("basicSolidThermo::hs(const label) const");
     return scalarField::null();
-}
-
-
-Foam::tmp<Foam::scalarField> Foam::basicSolidThermo::K
-(
-    const label patchI
-)const
-{
-    notImplemented("basicSolidThermo::K(const label)");
-    return scalarField::null();
-}
-
-
-Foam::tmp<Foam::symmTensorField> Foam::basicSolidThermo::directionalK
-(
-    const label
-)const
-{
-    notImplemented("basicSolidThermo::directionalK(const label)");
-    return symmTensorField::null();
 }
 
 

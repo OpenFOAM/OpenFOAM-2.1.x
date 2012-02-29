@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -144,35 +144,35 @@ public:
 
         // Access to thermodynamic state variables
 
-            //- Density [kg/m^3]
-            const volScalarField& rho() const;
-
-            //- Thermal conductivity [W/m/K]
-            virtual const volScalarField& K() const;
-
-            //- Thermal conductivity [W/m/K]
-            virtual const volSymmTensorField& directionalK() const;
-
-            //- Absorption coefficient [1/m]
-            const volScalarField& kappa() const;
-
-            //- Emissivity coefficient
-            const volScalarField& sigmaS() const;
-
-            //- Emissivity coefficient [1/m]
-            const volScalarField& emissivity() const;
-
             //- Temperature [K]
-            const volScalarField& T() const;
+            virtual const volScalarField& T() const;
 
             //- non-const access for T
-            volScalarField& T();
+            virtual volScalarField& T();
+
+            //- Density [kg/m^3]
+            virtual const volScalarField& rho() const;
 
             //- non-const access for rho
-            volScalarField& rho();
+            virtual volScalarField& rho();
+
+            //- Absorption coefficient [1/m]
+            virtual const volScalarField& kappa() const;
+
+            //- Emissivity coefficient
+            virtual const volScalarField& sigmaS() const;
+
+            //- Emissivity coefficient [1/m]
+            virtual const volScalarField& emissivity() const;
 
 
         // Derived thermal properties
+
+            //- Thermal conductivity [W/m/K]
+            virtual tmp<volScalarField> K() const = 0;
+
+            //- Thermal conductivity [W/m/K]
+            virtual tmp<volSymmTensorField> directionalK() const = 0;
 
             //- Specific heat capacity [J/kg/K]
             virtual tmp<volScalarField> Cp() const = 0;
@@ -186,8 +186,11 @@ public:
 
         // Per patch calculation
 
-            //- Density [kg/m3]
-            virtual tmp<scalarField> rho(const label patchI) const = 0;
+            //- Thermal conductivity [W//m/K]
+            virtual tmp<scalarField> K(const label patchI) const = 0;
+
+            //- Thermal conductivity [W//m/K]
+            virtual tmp<symmTensorField> directionalK(const label) const = 0;
 
             //- Specific heat capacity [J/kg/K)]
             virtual tmp<scalarField> Cp(const label patchI) const = 0;
@@ -195,23 +198,8 @@ public:
             //- Sensible enthalpy [J/kg]
             virtual tmp<scalarField> hs(const label patchI) const;
 
-            //- Thermal conductivity [W//m/K]
-            virtual tmp<scalarField> K(const label patchI) const;
-
-            //- Thermal conductivity [W//m/K]
-            virtual tmp<symmTensorField> directionalK(const label) const;
-
             //- Heat of formation [J/kg]
             virtual tmp<scalarField> Hf(const label patchI) const = 0;
-
-            //- Scatter coefficient [1/m]
-            virtual tmp<scalarField> sigmaS(const label) const = 0;
-
-            //- Absorption coefficient [1/m]
-            virtual tmp<scalarField> kappa(const label) const = 0;
-
-            //- Emissivity []
-            virtual tmp<scalarField> emissivity(const label) const = 0;
 
     // I-O
 

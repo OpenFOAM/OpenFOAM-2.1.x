@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -100,7 +100,6 @@ Foam::isotropicKSolidThermo::isotropicKSolidThermo(const fvMesh& mesh)
 
 void Foam::isotropicKSolidThermo::correct()
 {
-
     // Correct K
     K_.internalField() = interpolateXY
     (
@@ -111,10 +110,21 @@ void Foam::isotropicKSolidThermo::correct()
 
     forAll(K_.boundaryField(), patchI)
     {
-        K_.boundaryField()[patchI] == this->K(patchI)();
+        K_.boundaryField()[patchI] == interpolateXY
+        (
+            T_.boundaryField()[patchI],
+            TValues_,
+            KValues_
+        );
     }
 
     interpolatedSolidThermo::calculate();
+}
+
+
+Foam::tmp<Foam::volScalarField> Foam::isotropicKSolidThermo::K() const
+{
+    return K_;
 }
 
 
@@ -123,19 +133,7 @@ Foam::tmp<Foam::scalarField> Foam::isotropicKSolidThermo::K
     const label patchI
 ) const
 {
-
-    return tmp<scalarField>
-    (
-        new scalarField
-        (
-            interpolateXY
-            (
-                T_.boundaryField()[patchI],
-                TValues_,
-                KValues_
-            )
-        )
-    );
+    return K_.boundaryField()[patchI];
 }
 
 
@@ -153,6 +151,7 @@ bool Foam::isotropicKSolidThermo::writeData(Ostream& os) const
 
     return ok && os.good();
 }
+
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -362,7 +362,7 @@ void thermoBaffle2D::info() const
             (
                 mag(regionMesh().Sf().boundaryField()[patchI])
               * pT.snGrad()
-              * thermo_->K().boundaryField()[patchI]
+              * thermo_->K(patchI)
             ) << endl;
     }
 }

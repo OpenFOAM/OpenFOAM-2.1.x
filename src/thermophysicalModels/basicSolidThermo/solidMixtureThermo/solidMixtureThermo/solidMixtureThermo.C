@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -63,6 +63,96 @@ void Foam::solidMixtureThermo<MixtureType>::calculate()
 }
 
 
+template<class MixtureType>
+Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::rho
+(
+    const label patchI
+) const
+{
+    const scalarField& patchT = T_.boundaryField()[patchI];
+    const polyPatch& pp = mesh_.boundaryMesh()[patchI];
+    const labelUList& cells = pp.faceCells();
+
+    tmp<scalarField> tRho(new scalarField(patchT.size()));
+    scalarField& Rho = tRho();
+
+    forAll(patchT, celli)
+    {
+        Rho[celli] = MixtureType::rho(patchT[celli], cells[celli]);
+    }
+
+    return tRho;
+}
+
+
+template<class MixtureType>
+Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::sigmaS
+(
+    const label patchI
+) const
+{
+    const scalarField& patchT = T_.boundaryField()[patchI];
+    const polyPatch& pp = mesh_.boundaryMesh()[patchI];
+    const labelUList& cells = pp.faceCells();
+
+    tmp<scalarField> tsigmaS(new scalarField(patchT.size()));
+    scalarField& sigmaS = tsigmaS();
+
+    forAll(patchT, celli)
+    {
+        sigmaS[celli] =
+            MixtureType::sigmaS(patchT[celli], cells[celli]);
+    }
+
+    return tsigmaS;
+}
+
+
+template<class MixtureType>
+Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::kappa
+(
+    const label patchI
+) const
+{
+    const scalarField& patchT = T_.boundaryField()[patchI];
+   const polyPatch& pp = mesh_.boundaryMesh()[patchI];
+    const labelUList& cells = pp.faceCells();
+
+    tmp<scalarField> tKappa(new scalarField(patchT.size()));
+    scalarField& kappa = tKappa();
+
+    forAll(patchT, celli)
+    {
+        kappa[celli] =
+            MixtureType::kappa(patchT[celli], cells[celli]);
+    }
+
+    return tKappa;
+}
+
+
+template<class MixtureType>
+Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::emissivity
+(
+    const label patchI
+) const
+{
+    const scalarField& patchT = T_.boundaryField()[patchI];
+    const polyPatch& pp = mesh_.boundaryMesh()[patchI];
+    const labelUList& cells = pp.faceCells();
+
+    tmp<scalarField> te(new scalarField(patchT.size()));
+    scalarField& e = te();
+
+    forAll(patchT, celli)
+    {
+        e[celli] = MixtureType::emissivity(patchT[celli], cells[celli]);
+    }
+
+    return te;
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class MixtureType>
@@ -117,6 +207,7 @@ Foam::solidMixtureThermo<MixtureType>::solidMixtureThermo
     calculate();
 }
 
+
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class MixtureType>
@@ -134,7 +225,7 @@ void Foam::solidMixtureThermo<MixtureType>::correct()
 
 
 template<class MixtureType>
-const Foam::volScalarField& Foam::solidMixtureThermo<MixtureType>::K() const
+Foam::tmp<Foam::volScalarField> Foam::solidMixtureThermo<MixtureType>::K() const
 {
     return K_;
 }
@@ -261,7 +352,7 @@ Foam::solidMixtureThermo<MixtureType>::Hf() const
 
 
 template<class MixtureType>
-Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::rho
+Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::K
 (
     const label patchI
 ) const
@@ -270,15 +361,15 @@ Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::rho
     const polyPatch& pp = mesh_.boundaryMesh()[patchI];
     const labelUList& cells = pp.faceCells();
 
-    tmp<scalarField> tRho(new scalarField(patchT.size()));
-    scalarField& Rho = tRho();
+    tmp<scalarField> tK(new scalarField(patchT.size()));
+    scalarField& K = tK();
 
     forAll(patchT, celli)
     {
-        Rho[celli] = MixtureType::rho(patchT[celli], cells[celli]);
+        K[celli] = MixtureType::K(patchT[celli], cells[celli]);
     }
 
-    return tRho;
+    return tK;
 }
 
 
@@ -327,28 +418,6 @@ Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::hs
 
 
 template<class MixtureType>
-Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::K
-(
-    const label patchI
-) const
-{
-    const scalarField& patchT = T_.boundaryField()[patchI];
-    const polyPatch& pp = mesh_.boundaryMesh()[patchI];
-    const labelUList& cells = pp.faceCells();
-
-    tmp<scalarField> tK(new scalarField(patchT.size()));
-    scalarField& K = tK();
-
-    forAll(patchT, celli)
-    {
-        K[celli] = MixtureType::K(patchT[celli], cells[celli]);
-    }
-
-    return tK;
-}
-
-
-template<class MixtureType>
 Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::Hf
 (
     const label patchI
@@ -367,74 +436,6 @@ Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::Hf
     }
 
     return tHf;
-}
-
-
-template<class MixtureType>
-Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::sigmaS
-(
-    const label patchI
-) const
-{
-    const scalarField& patchT = T_.boundaryField()[patchI];
-    const polyPatch& pp = mesh_.boundaryMesh()[patchI];
-    const labelUList& cells = pp.faceCells();
-
-    tmp<scalarField> tsigmaS(new scalarField(patchT.size()));
-    scalarField& sigmaS = tsigmaS();
-
-    forAll(patchT, celli)
-    {
-        sigmaS[celli] =
-            MixtureType::sigmaS(patchT[celli], cells[celli]);
-    }
-
-    return tsigmaS;
-}
-
-
-template<class MixtureType>
-Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::kappa
-(
-    const label patchI
-) const
-{
-    const scalarField& patchT = T_.boundaryField()[patchI];
-   const polyPatch& pp = mesh_.boundaryMesh()[patchI];
-    const labelUList& cells = pp.faceCells();
-
-    tmp<scalarField> tKappa(new scalarField(patchT.size()));
-    scalarField& kappa = tKappa();
-
-    forAll(patchT, celli)
-    {
-        kappa[celli] =
-            MixtureType::kappa(patchT[celli], cells[celli]);
-    }
-
-    return tKappa;
-}
-
-
-template<class MixtureType>
-Foam::tmp<Foam::scalarField> Foam::solidMixtureThermo<MixtureType>::emissivity
-(
-    const label patchI
-) const
-{
-    const scalarField& patchT = T_.boundaryField()[patchI];
-    const polyPatch& pp = mesh_.boundaryMesh()[patchI];
-    const labelUList& cells = pp.faceCells();
-
-    tmp<scalarField> te(new scalarField(patchT.size()));
-    scalarField& e = te();
-
-    forAll(patchT, celli)
-    {
-        e[celli] = MixtureType::emissivity(patchT[celli], cells[celli]);
-    }
-
-    return te;
 }
 
 

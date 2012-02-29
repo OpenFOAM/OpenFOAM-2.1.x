@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -116,16 +116,24 @@ public:
 
         //- Access functions
 
-            //- Thermal conductivity [W/(m.K)]
-            virtual const volSymmTensorField& directionalK() const;
+            //- Thermal conductivity [W/m/K]
+            virtual tmp<volScalarField> K() const
+            {
+                notImplemented("directionalKSolidThermo::K() const");
+                return tmp<volScalarField>(NULL);
+            }
 
-            //- Iostropic thermal conductivity [W/(m.K)]
-            virtual const volScalarField& K() const;
+            //- Thermal conductivity [W/m/K]
+            virtual tmp<volSymmTensorField> directionalK() const;
 
-        // Per patch calculation
+         // Per patch calculation
 
             //- Thermal conductivity [W//m/K]
-            virtual tmp<scalarField> K(const label patchI) const;
+            virtual tmp<scalarField> K(const label patchI) const
+            {
+                notImplemented("directionalKSolidThermo::K(const label) const");
+                return tmp<scalarField>(NULL);
+            }
 
             //- Thermal conductivity [W//m/K]
             virtual tmp<symmTensorField> directionalK(const label) const;
