@@ -555,9 +555,13 @@ Foam::List<Foam::tetIndices> Foam::polyMeshTetDecomposition::faceTetIndices
     {
         WarningIn
         (
-            "Foam::List<Foam::FixedList<Foam::label, 4> >"
-            "Foam::Cloud<ParticleType>::"
-            "faceTetIndices(label fI, label cI) const"
+            "Foam::List<Foam::tetIndices> "
+            "Foam::polyMeshTetDecomposition::faceTetIndices"
+            "("
+                "const polyMesh&, "
+                "label, "
+                "label"
+            ")"
         )
             << "No base point for face " << fI << ", " << f
             << ", produces a valid tet decomposition."
