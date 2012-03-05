@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -43,32 +43,26 @@ inline bool wallPointData<Type>::update
 {
     scalar dist2 = magSqr(pt - w2.origin());
 
-    if (!valid(td))
+    if (valid(td))
+    {
+        scalar diff = distSqr() - dist2;
+
+        if (diff < 0)
+        {
+            // already nearer to pt
+            return false;
+        }
+
+        if ((diff < SMALL) || ((distSqr() > SMALL) && (diff/distSqr() < tol)))
+        {
+            // don't propagate small changes
+            return false;
+        }
+    }
+
+    // Either *this is not yet valid or w2 is closer
     {
         // current not yet set so use any value
-        distSqr() = dist2;
-        origin() = w2.origin();
-        data_ = w2.data();
-
-        return true;
-    }
-
-    scalar diff = distSqr() - dist2;
-
-    if (diff < 0)
-    {
-        // already nearer to pt
-        return false;
-    }
-
-    if ((diff < SMALL) || ((distSqr() > SMALL) && (diff/distSqr() < tol)))
-    {
-        // don't propagate small changes
-        return false;
-    }
-    else
-    {
-        // update with new values
         distSqr() = dist2;
         origin() = w2.origin();
         data_ = w2.data();
