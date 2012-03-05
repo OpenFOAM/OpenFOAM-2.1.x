@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -26,6 +26,8 @@ License
 #include "BrownianMotionForce.H"
 #include "mathematicalConstants.H"
 #include "demandDrivenData.H"
+#include "incompressible/turbulenceModel/turbulenceModel.H"
+#include "compressible/turbulenceModel/turbulenceModel.H"
 
 using namespace Foam::constant;
 
@@ -50,6 +52,41 @@ Foam::scalar Foam::BrownianMotionForce<CloudType>::erfInv(const scalar y) const
 }
 
 
+template<class CloudType>
+Foam::tmp<Foam::volScalarField>
+Foam::BrownianMotionForce<CloudType>::kModel() const
+{
+    const objectRegistry& obr = this->owner().mesh();
+    const word turbName = "turbulenceModel";
+
+    if (obr.foundObject<compressible::turbulenceModel>(turbName))
+    {
+        const compressible::turbulenceModel& model =
+            obr.lookupObject<compressible::turbulenceModel>(turbName);
+        return model.k();
+    }
+    else if (obr.foundObject<incompressible::turbulenceModel>(turbName))
+    {
+        const incompressible::turbulenceModel& model =
+            obr.lookupObject<incompressible::turbulenceModel>(turbName);
+        return model.k();
+    }
+    else
+    {
+        FatalErrorIn
+        (
+            "Foam::tmp<Foam::volScalarField>"
+            "Foam::BrownianMotionForce<CloudType>::kModel() const"
+        )
+            << "Turbulence model not found in mesh database" << nl
+            << "Database objects include: " << obr.sortedToc()
+            << abort(FatalError);
+
+        return tmp<volScalarField>(NULL);
+    }
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class CloudType>
@@ -64,37 +101,9 @@ Foam::BrownianMotionForce<CloudType>::BrownianMotionForce
     rndGen_(owner.rndGen()),
     lambda_(readScalar(this->coeffs().lookup("lambda"))),
     turbulence_(readBool(this->coeffs().lookup("turbulence"))),
-    turbulenceModelPtr_(NULL),
     kPtr_(NULL),
     ownK_(false)
-{
-    if (turbulence_)
-    {
-        HashTable<const compressible::turbulenceModel*> models =
-            this->mesh().objectRegistry::template lookupClass
-            <
-                compressible::turbulenceModel
-            >();
-
-        if (models.size() == 1)
-        {
-            turbulenceModelPtr_ = models.begin()();
-        }
-        else
-        {
-            FatalErrorIn
-            (
-                "Foam::BrownianMotionForce<CloudType>::BrownianMotionForce"
-                "("
-                    "CloudType&, "
-                    "const fvMesh&, "
-                    "const dictionary&"
-                ")"
-            )   << "Unable to find a valid turbulence model in mesh database"
-                << exit(FatalError);
-        }
-    }
-}
+{}
 
 
 template<class CloudType>
@@ -107,7 +116,6 @@ Foam::BrownianMotionForce<CloudType>::BrownianMotionForce
     rndGen_(bmf.rndGen_),
     lambda_(bmf.lambda_),
     turbulence_(bmf.turbulence_),
-    turbulenceModelPtr_(NULL),
     kPtr_(NULL),
     ownK_(false)
 {}
@@ -117,9 +125,7 @@ Foam::BrownianMotionForce<CloudType>::BrownianMotionForce
 
 template<class CloudType>
 Foam::BrownianMotionForce<CloudType>::~BrownianMotionForce()
-{
-    turbulenceModelPtr_ = NULL;
-}
+{}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -131,7 +137,7 @@ void Foam::BrownianMotionForce<CloudType>::cacheFields(const bool store)
     {
         if (store)
         {
-            tmp<volScalarField> tk = turbulenceModelPtr_->k();
+            tmp<volScalarField> tk = kModel();
             if (tk.isTmp())
             {
                 kPtr_ = tk.ptr();
