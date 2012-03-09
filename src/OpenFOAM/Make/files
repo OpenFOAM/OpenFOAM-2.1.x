@@ -487,9 +487,6 @@ $(constraintPointPatches)/wedge/wedgePointPatch.C
 
 derivedPointPatches = $(pointPatches)/derived
 $(derivedPointPatches)/coupled/coupledFacePointPatch.C
-/*
-$(derivedPointPatches)/global/globalPointPatch.C
-*/
 $(derivedPointPatches)/wall/wallPointPatch.C
 
 pointBoundaryMesh = $(pointMesh)/pointBoundaryMesh
@@ -558,11 +555,9 @@ $(constraintPointPatchFields)/wedge/wedgePointPatchFields.C
 derivedPointPatchFields = $(pointPatchFields)/derived
 $(derivedPointPatchFields)/slip/slipPointPatchFields.C
 $(derivedPointPatchFields)/fixedNormalSlip/fixedNormalSlipPointPatchFields.C
-/*
-$(derivedPointPatchFields)/global/globalPointPatchFields.C
-*/
 $(derivedPointPatchFields)/uniformFixedValue/uniformFixedValuePointPatchFields.C
 $(derivedPointPatchFields)/timeVaryingUniformFixedValue/timeVaryingUniformFixedValuePointPatchFields.C
+$(derivedPointPatchFields)/codedFixedValue/codedFixedValuePointPatchFields.C
 
 fields/GeometricFields/pointFields/pointFields.C
 
