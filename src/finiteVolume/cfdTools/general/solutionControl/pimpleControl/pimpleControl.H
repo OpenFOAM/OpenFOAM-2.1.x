@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -65,6 +65,9 @@ protected:
 
             //- Flag to indicate whether to only solve turbulence on final iter
             bool turbOnFinalIterOnly_;
+
+            //- Converged flag
+            bool converged_;
 
 
     // Protected Member Functions

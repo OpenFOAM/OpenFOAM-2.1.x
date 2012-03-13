@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -126,7 +126,8 @@ Foam::pimpleControl::pimpleControl(fvMesh& mesh)
     nCorrPIMPLE_(0),
     nCorrPISO_(0),
     corrPISO_(0),
-    turbOnFinalIterOnly_(true)
+    turbOnFinalIterOnly_(true),
+    converged_(false)
 {
     read();
 
@@ -194,12 +195,27 @@ bool Foam::pimpleControl::loop()
     }
 
     bool completed = false;
-    if (criteriaSatisfied())
+    if (converged_ || criteriaSatisfied())
     {
-        Info<< algorithmName_ << ": converged in " << corr_ - 1 << " iterations"
-            << endl;
-        completed = true;
-        corr_ = 0;
+        if (converged_)
+        {
+            Info<< algorithmName_ << ": converged in " << corr_ - 1
+                << " iterations" << endl;
+
+            mesh_.data::remove("finalIteration");
+            corr_ = 0;
+            converged_ = false;
+
+            completed = true;
+        }
+        else
+        {
+            Info<< algorithmName_ << ": iteration " << corr_ << endl;
+            storePrevIterFields();
+
+            mesh_.data::add("finalIteration", true);
+            converged_ = true;
+        }
     }
     else
     {
