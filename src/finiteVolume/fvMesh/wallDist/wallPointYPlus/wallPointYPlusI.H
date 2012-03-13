@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -42,24 +42,28 @@ inline bool wallPointYPlus::update
 {
     scalar dist2 = magSqr(pt - w2.origin());
 
-    scalar diff = distSqr() - dist2;
-
-    if (diff < 0)
+    if (valid(td))
     {
-        // already nearer to pt
-        return false;
+        scalar diff = distSqr() - dist2;
+
+        if (diff < 0)
+        {
+            // already nearer to pt
+            return false;
+        }
+
+        if ((diff < SMALL) || ((distSqr() > SMALL) && (diff/distSqr() < tol)))
+        {
+            // don't propagate small changes
+            return false;
+        }
     }
 
-    if ((diff < SMALL) || ((distSqr() > SMALL) && (diff/distSqr() < tol)))
-    {
-        // don't propagate small changes
-        return false;
-    }
-    else
+
+    // Either *this is not yet valid or w2 is closer
     {
         // only propagate if interesting (i.e. y+ < 100)
         scalar yPlus = Foam::sqrt(dist2)/w2.data();
-
 
         if (yPlus < yPlusCutOff)
         {

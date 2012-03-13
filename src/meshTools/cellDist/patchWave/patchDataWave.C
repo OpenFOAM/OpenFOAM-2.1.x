@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -101,8 +101,9 @@ Foam::label Foam::patchDataWave<TransferType>::getValues
         else
         {
             // Illegal/unset value. What to do with data?
+            // Note: mag for now. Should maybe be member of TransferType?
 
-            distance_[cellI] = dist;
+            distance_[cellI] = mag(dist);
 
             //cellData_[cellI] = point::max;
             cellData_[cellI] = cellInfo[cellI].data();
@@ -149,7 +150,7 @@ Foam::label Foam::patchDataWave<TransferType>::getValues
             {
                 // Illegal/unset value. What to do with data?
 
-                patchField[patchFaceI] = dist;
+                patchField[patchFaceI] = mag(dist);
 
                 //patchDataField[patchFaceI] = point::max;
                 patchDataField[patchFaceI] = faceInfo[meshFaceI].data();

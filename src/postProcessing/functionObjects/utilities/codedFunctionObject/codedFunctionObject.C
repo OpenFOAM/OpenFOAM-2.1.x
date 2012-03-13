@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -63,6 +63,7 @@ void Foam::codedFunctionObject::prepare
     dynCode.setFilterVariable("codeRead", codeRead_);
     dynCode.setFilterVariable("codeExecute", codeExecute_);
     dynCode.setFilterVariable("codeEnd", codeEnd_);
+    dynCode.setFilterVariable("codeData", codeData_);
     //dynCode.setFilterVariable("codeWrite", codeWrite_);
 
     // compile filtered C template
@@ -191,6 +192,24 @@ bool Foam::codedFunctionObject::read(const dictionary& dict)
 {
     dict.lookup("redirectType") >> redirectType_;
 
+    const entry* dataPtr = dict.lookupEntryPtr
+    (
+        "codeData",
+        false,
+        false
+    );
+    if (dataPtr)
+    {
+        codeData_ = stringOps::trim(dataPtr->stream());
+        stringOps::inplaceExpand(codeData_, dict);
+        dynamicCodeContext::addLineDirective
+        (
+            codeData_,
+            dataPtr->startLineNumber(),
+            dict.name()
+        );
+    }
+
     const entry* readPtr = dict.lookupEntryPtr
     (
         "codeRead",
@@ -233,7 +252,7 @@ bool Foam::codedFunctionObject::read(const dictionary& dict)
         false,
         false
     );
-    if (execPtr)
+    if (endPtr)
     {
         codeEnd_ = stringOps::trim(endPtr->stream());
         stringOps::inplaceExpand(codeEnd_, dict);
