@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -455,9 +455,6 @@ public:
 
 
         // Check
-
-            //- Total mass injected
-            inline scalar massInjected() const;
 
             //- Total mass in system
             inline scalar massInSystem() const;
