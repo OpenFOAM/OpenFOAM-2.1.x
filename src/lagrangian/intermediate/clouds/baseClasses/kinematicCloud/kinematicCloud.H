@@ -73,6 +73,9 @@ public:
 
         // Check
 
+            //-  Number of parcels
+            virtual label nParcels() const = 0;
+
             //- Total mass in system
             virtual scalar massInSystem() const = 0;
 

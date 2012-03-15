@@ -228,6 +228,13 @@ Foam::KinematicCloud<CloudType>::UIntegrator() const
 
 
 template<class CloudType>
+inline Foam::label Foam::KinematicCloud<CloudType>::nParcels() const
+{
+    return this->size();
+}
+
+
+template<class CloudType>
 inline Foam::scalar Foam::KinematicCloud<CloudType>::massInSystem() const
 {
     scalar sysMass = 0.0;

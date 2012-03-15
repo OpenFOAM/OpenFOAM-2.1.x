@@ -456,6 +456,9 @@ public:
 
         // Check
 
+            //- Total number of parcels
+            inline label nParcels() const;
+
             //- Total mass in system
             inline scalar massInSystem() const;
 
