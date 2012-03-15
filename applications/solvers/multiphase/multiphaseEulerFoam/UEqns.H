@@ -15,12 +15,17 @@ forAllIter(PtrDictionary<phaseModel>, fluid.phases(), iter)
         phasei,
         new fvVectorMatrix
         (
-            (scalar(1) + fluid.Cvm(phase)/phase.rho())*
+            fvm::ddt(alpha, U)
+          + fvm::div(phase.phiAlpha(), U)
+          - fvm::Sp(fvc::ddt(alpha) + fvc::div(phase.phiAlpha()), U)
+
+          + (alpha/phase.rho())*fluid.Cvm(phase)*
             (
-                fvm::ddt(alpha, U)
-              + fvm::div(phase.phiAlpha(), U)
-              - fvm::Sp(fvc::ddt(alpha) + fvc::div(phase.phiAlpha()), U)
+                fvm::ddt(U)
+              + fvm::div(phase.phi(), U)
+              - fvm::Sp(fvc::div(phase.phi()), U)
             )
+
           - fvm::laplacian(alpha*nuEff, U)
           - fvc::div
             (
