@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -101,6 +101,13 @@ becomes
 
     BBB=mapped between original mesh and new extrusion
     CCC=polypatch
+
+
+Notes:
+    - when extruding cyclics with only one cell inbetween it does not
+      detect this as a cyclic since the face is the same face. It will
+      only work if the coupled edge extrudes a different face so if there
+      are more than 1 cell inbetween.
 
 \*---------------------------------------------------------------------------*/
 
@@ -1032,6 +1039,42 @@ label findUncoveredPatchFace
 }
 
 
+// Same as findUncoveredPatchFace, except explicitly checks for cyclic faces
+label findUncoveredCyclicPatchFace
+(
+    const fvMesh& mesh,
+    const UIndirectList<label>& extrudeMeshFaces,// mesh faces that are extruded
+    const label meshEdgeI                       // mesh edge
+)
+{
+    // Make set of extruded faces.
+    labelHashSet extrudeFaceSet(extrudeMeshFaces.size());
+    forAll(extrudeMeshFaces, i)
+    {
+        extrudeFaceSet.insert(extrudeMeshFaces[i]);
+    }
+
+    const polyBoundaryMesh& pbm = mesh.boundaryMesh();
+    const labelList& eFaces = mesh.edgeFaces()[meshEdgeI];
+    forAll(eFaces, i)
+    {
+        label faceI = eFaces[i];
+        label patchI = pbm.whichPatch(faceI);
+
+        if
+        (
+            patchI != -1
+        &&  isA<cyclicPolyPatch>(pbm[patchI])
+        && !extrudeFaceSet.found(faceI)
+        )
+        {
+            return faceI;
+        }
+    }
+    return -1;
+}
+
+
 // Calculate per edge min and max zone
 void calcEdgeMinMaxZone
 (
@@ -1288,12 +1331,13 @@ void addCouplingPatches
 }
 
 
-// Sets sidePatch[edgeI] to interprocessor patch. Adds any
-// interprocessor patches if necessary.
-void addProcPatches
+// Sets sidePatch[edgeI] to interprocessor or cyclic patch. Adds any
+// coupled patches if necessary.
+void addCoupledPatches
 (
     const fvMesh& mesh,
     const primitiveFacePatch& extrudePatch,
+    const labelList& extrudeMeshFaces,
     const labelList& extrudeMeshEdges,
     const mapDistribute& extrudeEdgeFacesMap,
     const labelListList& extrudeEdgeGlobalFaces,
@@ -1342,7 +1386,7 @@ void addProcPatches
         labelMin        // null value
     );
 
-    Pout<< "Adding inter-processor patches:" << nl << nl
+    Pout<< "Adding processor or cyclic patches:" << nl << nl
         << "patchID\tpatch" << nl
         << "-------\t-----"
         << endl;
@@ -1367,35 +1411,84 @@ void addProcPatches
                 nbrProcI = maxProcID[edgeI];
             }
 
-            word name =
-                "procBoundary"
-              + Foam::name(Pstream::myProcNo())
-              + "to"
-              + Foam::name(nbrProcI);
 
-            sidePatchID[edgeI] = findPatchID(newPatches, name);
-
-            if (sidePatchID[edgeI] == -1)
+            if (nbrProcI == Pstream::myProcNo())
             {
-                dictionary patchDict;
-                patchDict.add("myProcNo", Pstream::myProcNo());
-                patchDict.add("neighbProcNo", nbrProcI);
+                // Cyclic patch since both procs the same. This cyclic should
+                // already exist in newPatches so no adding necessary.
 
-                sidePatchID[edgeI] = addPatch<processorPolyPatch>
+                label faceI = findUncoveredCyclicPatchFace
                 (
-                    mesh.boundaryMesh(),
-                    name,
-                    patchDict,
-                    newPatches
+                    mesh,
+                    UIndirectList<label>(extrudeMeshFaces, eFaces),
+                    extrudeMeshEdges[edgeI]
                 );
 
-                Pout<< sidePatchID[edgeI] << '\t' << name
-                    << nl;
+                if (faceI != -1)
+                {
+                    const polyBoundaryMesh& patches = mesh.boundaryMesh();
+                    
+                    label newPatchI = findPatchID
+                    (
+                        newPatches,
+                        patches[patches.whichPatch(faceI)].name()
+                    );
+
+                    sidePatchID[edgeI] = newPatchI;
+                }
+                else
+                {
+                    FatalErrorIn
+                    (
+                        "void addCoupledPatches"
+                        "("
+                            "const fvMesh&, "
+                            "const primitiveFacePatch&, "
+                            "const labelList&, "
+                            "const labelList&, "
+                            "const mapDistribute&, "
+                            "const labelListList&, "
+                            "labelList&, "
+                            "DynamicList<polyPatch*>&"
+                        ")"
+                    )   << "Unable to determine coupled patch addressing"
+                        << abort(FatalError);
+                }   
+            }
+            else
+            {
+                // Rrocessor patch
+
+                word name =
+                    "procBoundary"
+                  + Foam::name(Pstream::myProcNo())
+                  + "to"
+                  + Foam::name(nbrProcI);
+
+                sidePatchID[edgeI] = findPatchID(newPatches, name);
+
+                if (sidePatchID[edgeI] == -1)
+                {
+                    dictionary patchDict;
+                    patchDict.add("myProcNo", Pstream::myProcNo());
+                    patchDict.add("neighbProcNo", nbrProcI);
+
+                    sidePatchID[edgeI] = addPatch<processorPolyPatch>
+                    (
+                        mesh.boundaryMesh(),
+                        name,
+                        patchDict,
+                        newPatches
+                    );
+
+                    Pout<< sidePatchID[edgeI] << '\t' << name
+                        << nl;
+                }
             }
         }
     }
     Pout<< "Added " << newPatches.size()-nOldPatches
-        << " inter-processor patches." << nl
+        << " coupled patches." << nl
         << endl;
 }
 
@@ -2251,12 +2344,13 @@ int main(int argc, char *argv[])
 
 
     // Sets sidePatchID[edgeI] to interprocessor patch. Adds any
-    // interprocessor patches if necessary.
+    // interprocessor or cyclic patches if necessary.
     labelList sidePatchID;
-    addProcPatches
+    addCoupledPatches
     (
         mesh,
         extrudePatch,
+        extrudeMeshFaces,
         extrudeMeshEdges,
         extrudeEdgeFacesMap,
         extrudeEdgeGlobalFaces,
@@ -2409,6 +2503,7 @@ int main(int argc, char *argv[])
         mesh.globalData(),
         extrudePatch,
         nonManifoldEdge,
+        false,              // keep cyclic separated regions apart
 
         pointGlobalRegions,
         pointLocalRegions,
@@ -2431,7 +2526,6 @@ int main(int argc, char *argv[])
     pointField localRegionNormals(localToGlobalRegion.size());
     {
         pointField localSum(localToGlobalRegion.size(), vector::zero);
-        labelList localNum(localToGlobalRegion.size(), 0);
 
         forAll(pointLocalRegions, faceI)
         {
@@ -2440,32 +2534,25 @@ int main(int argc, char *argv[])
             {
                 label localRegionI = pRegions[fp];
                 localSum[localRegionI] += extrudePatch.faceNormals()[faceI];
-                localNum[localRegionI]++;
             }
         }
 
         Map<point> globalSum(2*localToGlobalRegion.size());
-        Map<label> globalNum(2*localToGlobalRegion.size());
 
         forAll(localSum, localRegionI)
         {
             label globalRegionI = localToGlobalRegion[localRegionI];
             globalSum.insert(globalRegionI, localSum[localRegionI]);
-            globalNum.insert(globalRegionI, localNum[localRegionI]);
         }
 
         // Reduce
         Pstream::mapCombineGather(globalSum, plusEqOp<point>());
         Pstream::mapCombineScatter(globalSum);
-        Pstream::mapCombineGather(globalNum, plusEqOp<label>());
-        Pstream::mapCombineScatter(globalNum);
 
         forAll(localToGlobalRegion, localRegionI)
         {
             label globalRegionI = localToGlobalRegion[localRegionI];
-            localRegionNormals[localRegionI] =
-                globalSum[globalRegionI]
-              / globalNum[globalRegionI];
+            localRegionNormals[localRegionI] = globalSum[globalRegionI];
         }
         localRegionNormals /= mag(localRegionNormals);
     }

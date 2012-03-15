@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -88,6 +88,8 @@ class createShellMesh
             const labelList&,
             const labelList&,
             const PackedBoolList& sameEdgeOrientation,
+            const bool syncNonCollocated,
+
             PackedBoolList& isChangedEdge,
             DynamicList<label>& changedEdges,
             labelPairList& allEdgeData
@@ -160,6 +162,8 @@ public:
             //  same on all faces connected to a point if they can be
             //  reached through a face-edge-face walk without crossing
             //  the nonManifoldEdge.
+            //  syncNonCollocated = true: edges connected through cyclic become
+            //  single region. false: kept separate.
             //  pointGlobalRegions : non-compact. Guaranteed to be the same
             //  across processors.
             //  pointLocalRegions : compact.
@@ -169,6 +173,7 @@ public:
                 const globalMeshData& globalData,
                 const primitiveFacePatch& patch,
                 const PackedBoolList& nonManifoldEdge,
+                const bool syncNonCollocated,
                 faceList& pointGlobalRegions,
                 faceList& pointLocalRegions,
                 labelList& localToGlobalRegion
