@@ -67,6 +67,7 @@ void Foam::createShellMesh::syncEdges
     const labelList& patchEdges,
     const labelList& coupledEdges,
     const PackedBoolList& sameEdgeOrientation,
+    const bool syncNonCollocated,
 
     PackedBoolList& isChangedEdge,
     DynamicList<label>& changedEdges,
@@ -111,7 +112,11 @@ void Foam::createShellMesh::syncEdges
     (
         cppEdgeData,
         globalData.globalEdgeSlaves(),
-        globalData.globalEdgeTransformedSlaves(),
+        (
+            syncNonCollocated
+          ? globalData.globalEdgeTransformedSlaves()    // transformed elems
+          : labelListList(globalData.globalEdgeSlaves().size()) //no transformed
+        ),
         map,
         minEqOp<labelPair>()
     );
@@ -150,6 +155,7 @@ void Foam::createShellMesh::calcPointRegions
     const globalMeshData& globalData,
     const primitiveFacePatch& patch,
     const PackedBoolList& nonManifoldEdge,
+    const bool syncNonCollocated,
 
     faceList& pointGlobalRegions,
     faceList& pointLocalRegions,
@@ -243,6 +249,7 @@ void Foam::createShellMesh::calcPointRegions
         patchEdges,
         coupledEdges,
         sameEdgeOrientation,
+        syncNonCollocated,
 
         isChangedEdge,
         changedEdges,
@@ -356,6 +363,7 @@ void Foam::createShellMesh::calcPointRegions
             patchEdges,
             coupledEdges,
             sameEdgeOrientation,
+            syncNonCollocated,
 
             isChangedEdge,
             changedEdges,
