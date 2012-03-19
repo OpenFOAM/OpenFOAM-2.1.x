@@ -130,7 +130,7 @@ void Foam::CloudFunctionObjectList<CloudType>::postEvolve()
 template<class CloudType>
 void Foam::CloudFunctionObjectList<CloudType>::postMove
 (
-    const typename CloudType::parcelType& p,
+    typename CloudType::parcelType& p,
     const label cellI,
     const scalar dt
 )
