@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -140,6 +140,8 @@ void Foam::forceCoeffs::write()
                     << "    Cd = " << Cd << nl
                     << "    Cl = " << Cl << nl
                     << "    Cm = " << Cm << nl
+                    << "    Cl(f) = " << Cl/2.0 - Cm << nl
+                    << "    Cl(r) = " << Cl/2.0 + Cm << nl
                     << endl;
             }
         }
