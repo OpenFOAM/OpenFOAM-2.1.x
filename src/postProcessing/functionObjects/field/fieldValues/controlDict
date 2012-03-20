@@ -67,17 +67,14 @@ functions
         sourceName      movingWall;
 
         //// if sampledSurface: dictionary with a sampledSurface
-        //// Note: the sampledSurfaces will have cell-values, i.e.
-        //// non-interpolated. Also will not sample surface fields.
+        //// Note: will not sample surface fields.
         //sampledSurfaceDict
         //{
-        //    type            cuttingPlane;
-        //    planeType       pointAndNormal;
-        //    pointAndNormalDict
-        //    {
-        //        basePoint       (0 0.099 0);
-        //        normalVector    (0 1 0);
-        //    }
+        //    // Sampling on triSurface
+        //    type        sampledTriSurfaceMesh;
+        //    surface     integrationPlane.stl;
+        //    source      cells;  // sample cells or boundaryFaces
+        //    interpolate true;
         //}
 
         // Operation: areaAverage/sum/weightedAverage ...

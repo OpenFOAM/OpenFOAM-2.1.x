@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -53,17 +53,20 @@ namespace Foam
     const char* Foam::NamedEnum
     <
         Foam::fieldValues::faceSource::operationType,
-        8
+        11
     >::names[] =
     {
         "none",
         "sum",
+        "average",
+        "weightedAverage",
         "areaAverage",
         "areaIntegrate",
-        "weightedAverage",
         "min",
         "max",
-        "CoV"
+        "CoV",
+        "areaNormalAverage",
+        "areaNormalIntegrate"
     };
 
 }
@@ -72,7 +75,7 @@ namespace Foam
 const Foam::NamedEnum<Foam::fieldValues::faceSource::sourceType, 3>
     Foam::fieldValues::faceSource::sourceTypeNames_;
 
-const Foam::NamedEnum<Foam::fieldValues::faceSource::operationType, 8>
+const Foam::NamedEnum<Foam::fieldValues::faceSource::operationType, 11>
     Foam::fieldValues::faceSource::operationTypeNames_;
 
 
@@ -313,6 +316,35 @@ void Foam::fieldValues::faceSource::writeFileHeader()
 }
 
 
+template<>
+Foam::vector Foam::fieldValues::faceSource::processValues
+(
+    const Field<vector>& values,
+    const vectorField& Sf,
+    const scalarField& weightField
+) const
+{
+    switch (operation_)
+    {
+        case opAreaNormalAverage:
+        {
+            scalar result = sum(values&Sf)/sum(mag(Sf));
+            return vector(result, 0.0, 0.0);
+        }
+        case opAreaNormalIntegrate:
+        {
+            scalar result = sum(values&Sf);
+            return vector(result, 0.0, 0.0);
+        }
+        default:
+        {
+            // Fall through to other operations
+            return processSameTypeValues(values, Sf, weightField);
+        }
+    }
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::fieldValues::faceSource::faceSource
@@ -326,7 +358,7 @@ Foam::fieldValues::faceSource::faceSource
     fieldValue(name, obr, dict, loadFromFiles),
     source_(sourceTypeNames_.read(dict.lookup("source"))),
     operation_(operationTypeNames_.read(dict.lookup("operation"))),
-    weightFieldName_("undefinedWeightedFieldName"),
+    weightFieldName_("none"),
     nFaces_(0),
     faceId_(),
     facePatchId_(),
