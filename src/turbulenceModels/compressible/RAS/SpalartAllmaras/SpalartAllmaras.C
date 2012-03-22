@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -52,7 +52,7 @@ tmp<volScalarField> SpalartAllmaras::chi() const
 
 tmp<volScalarField> SpalartAllmaras::fv1(const volScalarField& chi) const
 {
-    volScalarField chi3(pow3(chi));
+    const volScalarField chi3(pow3(chi));
     return chi3/(chi3 + pow3(Cv1_));
 }
 
@@ -73,7 +73,7 @@ tmp<volScalarField> SpalartAllmaras::fv3
     const volScalarField& fv1
 ) const
 {
-    volScalarField chiByCv2((1/Cv2_)*chi);
+    const volScalarField chiByCv2((1/Cv2_)*chi);
 
     return
         (scalar(1) + chi*fv1)
@@ -96,14 +96,14 @@ tmp<volScalarField> SpalartAllmaras::fw(const volScalarField& Stilda) const
                    Stilda,
                    dimensionedScalar("SMALL", Stilda.dimensions(), SMALL)
                )
-               *sqr(kappa_*d_)
+              *sqr(kappa_*d_)
             ),
             scalar(10.0)
         )
     );
     r.boundaryField() == 0.0;
 
-    volScalarField g(r + Cw2_*(pow6(r) - r));
+    const volScalarField g(r + Cw2_*(pow6(r) - r));
 
     return g*pow((1.0 + pow6(Cw3_))/(pow6(g) + pow6(Cw3_)), 1.0/6.0);
 }
@@ -261,8 +261,7 @@ tmp<volScalarField> SpalartAllmaras::k() const
 {
     WarningIn("tmp<volScalarField> SpalartAllmaras::k() const")
         << "Turbulence kinetic energy not defined for Spalart-Allmaras model. "
-        << "Returning zero field"
-        << endl;
+        << "Returning zero field" << endl;
 
     return tmp<volScalarField>
     (
@@ -294,7 +293,7 @@ tmp<volScalarField> SpalartAllmaras::epsilon() const
         (
             IOobject
             (
-                "epslion",
+                "epsilon",
                 runTime_.timeName(),
                 mesh_
             ),
@@ -347,7 +346,7 @@ tmp<volSymmTensorField> SpalartAllmaras::devRhoReff() const
 
 tmp<fvVectorMatrix> SpalartAllmaras::divDevRhoReff(volVectorField& U) const
 {
-    volScalarField muEff_(muEff());
+    const volScalarField muEff_(muEff());
 
     return
     (
@@ -404,10 +403,10 @@ void SpalartAllmaras::correct()
         d_.correct();
     }
 
-    volScalarField chi(this->chi());
-    volScalarField fv1(this->fv1(chi));
+    const volScalarField chi(this->chi());
+    const volScalarField fv1(this->fv1(chi));
 
-    volScalarField Stilda
+    const volScalarField Stilda
     (
         fv3(chi, fv1)*::sqrt(2.0)*mag(skew(fvc::grad(U_)))
       + fv2(chi, fv1)*nuTilda_/sqr(kappa_*d_)

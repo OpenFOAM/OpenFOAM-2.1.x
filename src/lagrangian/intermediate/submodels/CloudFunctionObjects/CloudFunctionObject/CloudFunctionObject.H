@@ -132,7 +132,7 @@ public:
             //- Post-move hook
             virtual void postMove
             (
-                const typename CloudType::parcelType& p,
+                typename CloudType::parcelType& p,
                 const label cellI,
                 const scalar dt
             );

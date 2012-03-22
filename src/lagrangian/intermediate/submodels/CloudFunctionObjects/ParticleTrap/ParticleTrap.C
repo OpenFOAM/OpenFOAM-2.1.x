@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,111 +23,102 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CloudFunctionObject.H"
-
-// * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * * //
-
-template<class CloudType>
-void Foam::CloudFunctionObject<CloudType>::write()
-{
-    notImplemented("void Foam::CloudFunctionObject<CloudType>::write()");
-}
-
+#include "ParticleTrap.H"
+#include "fvcGrad.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class CloudType>
-Foam::CloudFunctionObject<CloudType>::CloudFunctionObject(CloudType& owner)
-:
-    SubModelBase<CloudType>(owner)
-{}
-
-
-template<class CloudType>
-Foam::CloudFunctionObject<CloudType>::CloudFunctionObject
+Foam::ParticleTrap<CloudType>::ParticleTrap
 (
     const dictionary& dict,
-    CloudType& owner,
-    const word& type
+    CloudType& owner
 )
 :
-    SubModelBase<CloudType>(owner, dict, typeName, type, "")
+    CloudFunctionObject<CloudType>(dict, owner, typeName),
+    alphaName_
+    (
+        this->coeffDict().template lookupOrDefault<word>("alphaName", "alpha")
+    ),
+    alphaPtr_(NULL),
+    gradAlphaPtr_(NULL),
+    threshold_(readScalar(this->coeffDict().lookup("threshold")))
 {}
 
 
 template<class CloudType>
-Foam::CloudFunctionObject<CloudType>::CloudFunctionObject
+Foam::ParticleTrap<CloudType>::ParticleTrap
 (
-    const CloudFunctionObject<CloudType>& ppm
+    const ParticleTrap<CloudType>& pt
 )
 :
-    SubModelBase<CloudType>(ppm)
+    CloudFunctionObject<CloudType>(pt),
+    alphaName_(pt.alphaName_),
+    alphaPtr_(pt.alphaPtr_),
+    gradAlphaPtr_(NULL),
+    threshold_(pt.threshold_)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class CloudType>
-Foam::CloudFunctionObject<CloudType>::~CloudFunctionObject()
+Foam::ParticleTrap<CloudType>::~ParticleTrap()
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class CloudType>
-void Foam::CloudFunctionObject<CloudType>::preEvolve()
+void Foam::ParticleTrap<CloudType>::preEvolve()
 {
-    // do nothing
-}
-
-
-template<class CloudType>
-void Foam::CloudFunctionObject<CloudType>::postEvolve()
-{
-    if (this->owner().time().outputTime())
+    if (alphaPtr_ == NULL)
     {
-        this->write();
+        const fvMesh& mesh = this->owner().mesh();
+        const volScalarField& alpha =
+            mesh.lookupObject<volScalarField>(alphaName_);
+
+        alphaPtr_ = &alpha;
+    }
+
+    if (gradAlphaPtr_.valid())
+    {
+        gradAlphaPtr_() == fvc::grad(*alphaPtr_);
+    }
+    else
+    {
+        gradAlphaPtr_.reset(new volVectorField(fvc::grad(*alphaPtr_)));
     }
 }
 
 
 template<class CloudType>
-void Foam::CloudFunctionObject<CloudType>::postMove
+void Foam::ParticleTrap<CloudType>::postEvolve()
+{
+    gradAlphaPtr_.clear();
+}
+
+
+template<class CloudType>
+void Foam::ParticleTrap<CloudType>::postMove
 (
-    typename CloudType::parcelType&,
-    const label,
+    parcelType& p,
+    const label cellI,
     const scalar
 )
 {
-    // do nothing
+    if (alphaPtr_->internalField()[cellI] < threshold_)
+    {
+        const vector& gradAlpha = gradAlphaPtr_()[cellI];
+        vector nHat = gradAlpha/mag(gradAlpha);
+        scalar nHatU = nHat & p.U();
+
+        if (nHatU < 0)
+        {
+            p.U() -= 2*nHat*nHatU;
+        }
+    }
 }
 
-
-template<class CloudType>
-void Foam::CloudFunctionObject<CloudType>::postPatch
-(
-    const typename CloudType::parcelType&,
-    const label,
-    const label
-)
-{
-    // do nothing
-}
-
-
-template<class CloudType>
-void Foam::CloudFunctionObject<CloudType>::postFace
-(
-    const typename CloudType::parcelType&,
-    const label
-)
-{
-    // do nothing
-}
-
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#include "CloudFunctionObjectNew.C"
 
 // ************************************************************************* //

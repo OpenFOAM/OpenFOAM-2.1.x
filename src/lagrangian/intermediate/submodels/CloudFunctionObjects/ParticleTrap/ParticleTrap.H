@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,18 +22,27 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::VoidFraction
+    Foam::ParticleTrap
 
 Description
-    Creates particle void fraction field on carrier phase
+    Traps particles within a given phase fraction for multi-phase cases
+
+    Model is activated using:
+
+        particleTrap
+        {
+            alphaName   alpha;      // name volume fraction field
+            threshold   0.95;       // alpha value below which model is active
+        }
+
 
 SourceFiles
-    VoidFraction.C
+    ParticleTrap.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef VoidFraction_H
-#define VoidFraction_H
+#ifndef ParticleTrap_H
+#define ParticleTrap_H
 
 #include "CloudFunctionObject.H"
 #include "volFields.H"
@@ -44,11 +53,11 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                       Class VoidFraction Declaration
+                       Class ParticleTrap Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class CloudType>
-class VoidFraction
+class ParticleTrap
 :
     public CloudFunctionObject<CloudType>
 {
@@ -60,44 +69,45 @@ class VoidFraction
             typedef typename CloudType::parcelType parcelType;
 
 
-        //- Void fraction field
-        autoPtr<volScalarField> thetaPtr_;
+        //- Name of vol fraction field
+        const word alphaName_;
 
+        //- Pointer to the volume fraction field
+        const volScalarField* alphaPtr_;
 
-protected:
+        //- Gradient of the volume fraction field
+        autoPtr<volVectorField> gradAlphaPtr_;
 
-    // Protected Member Functions
-
-        //- Write post-processing info
-        virtual void write();
+        //- Threshold beyond which model is active
+        scalar threshold_;
 
 
 public:
 
     //- Runtime type information
-    TypeName("voidFraction");
+    TypeName("particleTrap");
 
 
     // Constructors
 
         //- Construct from dictionary
-        VoidFraction(const dictionary& dict, CloudType& owner);
+        ParticleTrap(const dictionary& dict, CloudType& owner);
 
         //- Construct copy
-        VoidFraction(const VoidFraction<CloudType>& vf);
+        ParticleTrap(const ParticleTrap<CloudType>& pe);
 
         //- Construct and return a clone
         virtual autoPtr<CloudFunctionObject<CloudType> > clone() const
         {
             return autoPtr<CloudFunctionObject<CloudType> >
             (
-                new VoidFraction<CloudType>(*this)
+                new ParticleTrap<CloudType>(*this)
             );
         }
 
 
     //- Destructor
-    virtual ~VoidFraction();
+    virtual ~ParticleTrap();
 
 
     // Member Functions
@@ -112,8 +122,8 @@ public:
 
             //- Post-move hook
             virtual void postMove
-            (   
-                parcelType& p,
+            (
+                typename CloudType::parcelType& p,
                 const label cellI,
                 const scalar dt
             );
@@ -127,7 +137,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "VoidFraction.C"
+#   include "ParticleTrap.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

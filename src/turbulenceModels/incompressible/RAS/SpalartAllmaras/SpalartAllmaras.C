@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -367,6 +367,10 @@ void SpalartAllmaras::correct()
 
     if (!turbulence_)
     {
+        // Re-calculate viscosity
+        nut_ = nuTilda_*fv1(this->chi());
+        nut_.correctBoundaryConditions();
+
         return;
     }
 
@@ -401,6 +405,7 @@ void SpalartAllmaras::correct()
     bound(nuTilda_, dimensionedScalar("0", nuTilda_.dimensions(), 0.0));
     nuTilda_.correctBoundaryConditions();
 
+    // Re-calculate viscosity
     nut_.internalField() = fv1*nuTilda_.internalField();
     nut_.correctBoundaryConditions();
 }
