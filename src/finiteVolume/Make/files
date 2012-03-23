@@ -171,6 +171,7 @@ $(derivedFvPatchFields)/cylindricalInletVelocity/cylindricalInletVelocityFvPatch
 $(derivedFvPatchFields)/outletMappedUniformInlet/outletMappedUniformInletFvPatchFields.C
 $(derivedFvPatchFields)/waveSurfacePressure/waveSurfacePressureFvPatchScalarField.C
 $(derivedFvPatchFields)/multiphaseFixedFluxPressure/multiphaseFixedFluxPressureFvPatchScalarField.C
+$(derivedFvPatchFields)/phaseHydrostaticPressure/phaseHydrostaticPressureFvPatchScalarField.C
 
 
 fvsPatchFields = fields/fvsPatchFields
