@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -55,7 +55,7 @@ class multiphaseFixedFluxPressureFvPatchScalarField
     // Private data
 
         //- Name of the predicted flux transporting the field
-        word phi0Name_;
+        word phiHbyAName_;
 
         //- Name of the flux transporting the field
         word phiName_;
