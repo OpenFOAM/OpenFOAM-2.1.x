@@ -163,6 +163,7 @@ hexLabel                   {hexDigit}+
 zeroLabel                  {digit}*
 signedInteger              [-+]?{integer}
 word                       ({alpha}|{digit}|{dotColonDash})*
+wordBraces                 ({word}|{lbrac}|{rbrac})*
 
 exponent_part              [eE][-+]?{digit}+
 fractional_constant        [-+]?(({digit}*"."{digit}+)|({digit}+".")|({digit}))
@@ -184,6 +185,7 @@ schemeSymbolList           ({schemeSymbolListElement}+{space})
 
 starStar                   ("**")
 text                       ({space}({word}*{space})*)
+textBraces                 ({space}({wordBraces}*{space})*)
 anythingInBlock            ([^)]*)
 
 dateDDMMYYYY               ({digit}{digit}"/"{digit}{digit}"/"{digit}{digit}{digit}{digit})
@@ -276,10 +278,9 @@ endOfSection               {space}")"{space}
         BEGIN(readHeader);
     }
 
-<readHeader>{anythingInBlock} {
-        Info<< "Header: " << YYText() << endl;
+<readHeader>{quote}{textBraces}{quote} {
+        Info<< "Reading header: " << YYText() << endl;
     }
-
 
 {dimension} {
         BEGIN(readDimension);
