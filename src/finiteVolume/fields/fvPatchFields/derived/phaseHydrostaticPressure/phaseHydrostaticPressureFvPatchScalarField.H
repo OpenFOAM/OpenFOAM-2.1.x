@@ -22,22 +22,28 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::multiphaseFixedFluxPressureFvPatchScalarField
+    Foam::phaseHydrostaticPressureFvPatchScalarField
 
 Description
-    Foam::multiphaseFixedFluxPressureFvPatchScalarField
+    Phase hydrostatic pressure boundary condition calculated as
+
+    pRefValue + rho*g.(x - pRefPoint)
+
+    where rho is provided and assumed uniform
+
+    applied according to the phase-fraction field provided:
+        1 -> fix value to that provided
+        0 -> zero-gradient
 
 SourceFiles
-    multiphaseFixedFluxPressureFvPatchScalarField.C
+    phaseHydrostaticPressureFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef multiphaseFixedFluxPressureFvPatchScalarFields_H
-#define multiphaseFixedFluxPressureFvPatchScalarFields_H
+#ifndef phaseHydrostaticPressureFvPatchScalarField_H
+#define phaseHydrostaticPressureFvPatchScalarField_H
 
-#include "fvPatchFields.H"
-#include "fixedGradientFvPatchFields.H"
-#include "Switch.H"
+#include "mixedFvPatchFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -45,43 +51,48 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-              Class multiphaseFixedFluxPressureFvPatch Declaration
+              Class phaseHydrostaticPressureFvPatch Declaration
 \*---------------------------------------------------------------------------*/
 
-class multiphaseFixedFluxPressureFvPatchScalarField
+class phaseHydrostaticPressureFvPatchScalarField
 :
-    public fixedGradientFvPatchScalarField
+    public mixedFvPatchScalarField
 {
-    // Private data
 
-        //- Name of the predicted flux transporting the field
-        word phi0Name_;
+protected:
 
-        //- Name of the flux transporting the field
-        word phiName_;
+    // Protected data
 
-        //- Name of the density field used to normalise the mass flux
-        //  if neccessary
-        word rhoName_;
+        //- Name of phase-fraction field
+        word phaseName_;
+
+        //- Constant density in the far-field
+        scalar rho_;
+
+        //- Reference pressure
+        scalar pRefValue_;
+
+        //- Reference pressure location
+        vector pRefPoint_;
 
 
 public:
 
     //- Runtime type information
-    TypeName("multiphaseFixedFluxPressure");
+    TypeName("phaseHydrostaticPressure");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        multiphaseFixedFluxPressureFvPatchScalarField
+        phaseHydrostaticPressureFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        multiphaseFixedFluxPressureFvPatchScalarField
+        phaseHydrostaticPressureFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
@@ -89,34 +100,34 @@ public:
         );
 
         //- Construct by mapping given
-        //  multiphaseFixedFluxPressureFvPatchScalarField onto a new patch
-        multiphaseFixedFluxPressureFvPatchScalarField
+        //  phaseHydrostaticPressureFvPatchScalarField onto a new patch
+        phaseHydrostaticPressureFvPatchScalarField
         (
-            const multiphaseFixedFluxPressureFvPatchScalarField&,
+            const phaseHydrostaticPressureFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct as copy
-        multiphaseFixedFluxPressureFvPatchScalarField
+        phaseHydrostaticPressureFvPatchScalarField
         (
-            const multiphaseFixedFluxPressureFvPatchScalarField&
+            const phaseHydrostaticPressureFvPatchScalarField&
         );
 
         //- Construct and return a clone
         virtual tmp<fvPatchScalarField> clone() const
         {
-            return tmp<fvPatchScalarField>
+            return tmp<fvPatchScalarField >
             (
-                new multiphaseFixedFluxPressureFvPatchScalarField(*this)
+                new phaseHydrostaticPressureFvPatchScalarField(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        multiphaseFixedFluxPressureFvPatchScalarField
+        phaseHydrostaticPressureFvPatchScalarField
         (
-            const multiphaseFixedFluxPressureFvPatchScalarField&,
+            const phaseHydrostaticPressureFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -128,18 +139,76 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new multiphaseFixedFluxPressureFvPatchScalarField(*this, iF)
+                new phaseHydrostaticPressureFvPatchScalarField(*this, iF)
             );
         }
 
 
     // Member functions
 
+        // Access
+
+            //- Return the phaseName
+            const word& phaseName() const
+            {
+                return phaseName_;
+            }
+
+            //- Return reference to the phaseName to allow adjustment
+            word& phaseName()
+            {
+                return phaseName_;
+            }
+
+            //- Return the constant density in the far-field
+            scalar rho() const
+            {
+                return rho_;
+            }
+
+            //- Return reference to the constant density in the far-field
+            //  to allow adjustment
+            scalar& rho()
+            {
+                return rho_;
+            }
+
+            //- Return the reference pressure
+            scalar pRefValue() const
+            {
+                return pRefValue_;
+            }
+
+            //- Return reference to the reference pressure to allow adjustment
+            scalar& pRefValue()
+            {
+                return pRefValue_;
+            }
+
+            //- Return the pressure reference location
+            const vector& pRefPoint() const
+            {
+                return pRefPoint_;
+            }
+
+            //- Return reference to the pressure reference location
+            //  to allow adjustment
+            vector& pRefPoint()
+            {
+                return pRefPoint_;
+            }
+
+
         //- Update the coefficients associated with the patch field
         virtual void updateCoeffs();
 
         //- Write
         virtual void write(Ostream&) const;
+
+
+    // Member operators
+
+        virtual void operator=(const fvPatchScalarField& pvf);
 };
 
 

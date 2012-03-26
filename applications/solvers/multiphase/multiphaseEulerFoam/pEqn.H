@@ -47,14 +47,14 @@
     (
         IOobject
         (
-            "phi0",
+            "phiHbyA",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
         mesh,
-        dimensionedScalar("phi0", dimArea*dimVelocity, 0)
+        dimensionedScalar("phiHbyA", dimArea*dimVelocity, 0)
     );
 
     phasei = 0;

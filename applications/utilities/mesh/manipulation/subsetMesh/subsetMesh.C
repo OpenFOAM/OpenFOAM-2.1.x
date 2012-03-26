@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
     );
 
     #include "addOverwriteOption.H"
+    #include "addRegionOption.H"
     argList::validArgs.append("cellSet");
     argList::addOption
     (
@@ -167,7 +168,11 @@ int main(int argc, char *argv[])
     #include "setRootCase.H"
     #include "createTime.H"
     runTime.functionObjects().off();
-    #include "createMesh.H"
+
+    Foam::word meshRegionName = polyMesh::defaultRegion;
+    args.optionReadIfPresent("region", meshRegionName);
+
+    #include "createNamedMesh.H"
 
     const word oldInstance = mesh.pointsInstance();
 

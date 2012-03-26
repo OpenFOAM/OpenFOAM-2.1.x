@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -165,6 +165,9 @@ public:
             // Only updates face addressing
             setMRFFaces();
         }
+
+        //- Add the Coriolis force contribution to the acceleration field
+        void addCoriolis(const volVectorField& U, volVectorField& ddtU) const;
 
         //- Add the Coriolis force contribution to the momentum equation
         void addCoriolis(fvVectorMatrix& UEqn) const;
