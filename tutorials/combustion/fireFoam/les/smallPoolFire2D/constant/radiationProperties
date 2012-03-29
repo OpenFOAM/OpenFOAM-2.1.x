@@ -43,7 +43,7 @@ absorptionEmissionModel greyMeanAbsorptionEmission;
 constantAbsorptionEmissionCoeffs
 {
     a               a [ 0 -1 0 0 0 0 0 ] 0.01;
-    e               e [ 0 -1 0 0 0 0 0 ] 0;
+    e               e [ 0 -1 0 0 0 0 0 ] 0.01;
     E               E [ 1 -1 -3 0 0 0 0 ] 0;
 }
 
@@ -131,6 +131,62 @@ greyMeanAbsorptionEmissionCoeffs
             1.6682e-8
             2.5611e-10
             -2.6558e-14
+            0
+        );
+    }
+
+
+    O2
+    {
+        Tcommon         300;
+        invTemp         true;
+        Tlow            200;
+        Thigh           2500;
+
+        loTcoeffs
+        (
+            0
+            0
+            0
+            0
+            0
+            0
+        );
+        hiTcoeffs
+        (
+            0.1
+            0
+            0
+            0
+            0
+            0
+        );
+    }
+
+
+    N2
+    {
+        Tcommon         300;
+        invTemp         true;
+        Tlow            200;
+        Thigh           2500;
+
+        loTcoeffs
+        (
+            0
+            0
+            0
+            0
+            0
+            0
+        );
+        hiTcoeffs
+        (
+            0.1
+            0
+            0
+            0
+            0
             0
         );
     }
