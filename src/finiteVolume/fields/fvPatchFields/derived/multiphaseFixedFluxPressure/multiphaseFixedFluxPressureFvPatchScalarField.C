@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -39,7 +39,7 @@ multiphaseFixedFluxPressureFvPatchScalarField
 )
 :
     fixedGradientFvPatchScalarField(p, iF),
-    phi0Name_("phi0"),
+    phiHbyAName_("phiHbyA"),
     phiName_("phi"),
     rhoName_("rho")
 {}
@@ -55,7 +55,7 @@ multiphaseFixedFluxPressureFvPatchScalarField
 )
 :
     fixedGradientFvPatchScalarField(ptf, p, iF, mapper),
-    phi0Name_(ptf.phi0Name_),
+    phiHbyAName_(ptf.phiHbyAName_),
     phiName_(ptf.phiName_),
     rhoName_(ptf.rhoName_)
 {}
@@ -70,7 +70,7 @@ multiphaseFixedFluxPressureFvPatchScalarField
 )
 :
     fixedGradientFvPatchScalarField(p, iF),
-    phi0Name_(dict.lookupOrDefault<word>("phi0", "phi0")),
+    phiHbyAName_(dict.lookupOrDefault<word>("phiHbyA", "phiHbyA")),
     phiName_(dict.lookupOrDefault<word>("phi", "phi")),
     rhoName_(dict.lookupOrDefault<word>("rho", "rho"))
 {
@@ -95,7 +95,7 @@ multiphaseFixedFluxPressureFvPatchScalarField
 )
 :
     fixedGradientFvPatchScalarField(wbppsf),
-    phi0Name_(wbppsf.phi0Name_),
+    phiHbyAName_(wbppsf.phiHbyAName_),
     phiName_(wbppsf.phiName_),
     rhoName_(wbppsf.rhoName_)
 {}
@@ -109,7 +109,7 @@ multiphaseFixedFluxPressureFvPatchScalarField
 )
 :
     fixedGradientFvPatchScalarField(wbppsf, iF),
-    phi0Name_(wbppsf.phi0Name_),
+    phiHbyAName_(wbppsf.phiHbyAName_),
     phiName_(wbppsf.phiName_),
     rhoName_(wbppsf.rhoName_)
 {}
@@ -124,14 +124,14 @@ void Foam::multiphaseFixedFluxPressureFvPatchScalarField::updateCoeffs()
         return;
     }
 
-    const surfaceScalarField& phi0 =
-        db().lookupObject<surfaceScalarField>(phi0Name_);
+    const surfaceScalarField& phiHbyA =
+        db().lookupObject<surfaceScalarField>(phiHbyAName_);
 
     const surfaceScalarField& phi =
         db().lookupObject<surfaceScalarField>(phiName_);
 
-    fvsPatchField<scalar> phi0p =
-        patch().patchField<surfaceScalarField, scalar>(phi0);
+    fvsPatchField<scalar> phiHbyAp =
+        patch().patchField<surfaceScalarField, scalar>(phiHbyA);
 
     fvsPatchField<scalar> phip =
         patch().patchField<surfaceScalarField, scalar>(phi);
@@ -147,7 +147,7 @@ void Foam::multiphaseFixedFluxPressureFvPatchScalarField::updateCoeffs()
     const fvsPatchField<scalar>& Dpp =
         patch().lookupPatchField<surfaceScalarField, scalar>("Dp");
 
-    gradient() = (phi0p - phip)/patch().magSf()/Dpp;
+    gradient() = (phiHbyAp - phip)/patch().magSf()/Dpp;
 
     fixedGradientFvPatchScalarField::updateCoeffs();
 }
@@ -159,7 +159,7 @@ void Foam::multiphaseFixedFluxPressureFvPatchScalarField::write
 ) const
 {
     fvPatchScalarField::write(os);
-    writeEntryIfDifferent<word>(os, "phi0", "phi0", phi0Name_);
+    writeEntryIfDifferent<word>(os, "phiHbyA", "phiHbyA", phiHbyAName_);
     writeEntryIfDifferent<word>(os, "phi", "phi", phiName_);
     writeEntryIfDifferent<word>(os, "rho", "rho", rhoName_);
     gradient().writeEntry("gradient", os);
