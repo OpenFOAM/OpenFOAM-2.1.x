@@ -36,8 +36,8 @@ Description
       (nonuniformTransform)cyclic \<zoneA\>_\<zoneB\>
     - extrudes into master direction (i.e. away from the owner cell
       if flipMap is false)
-    - not parallel
 
+\verbatim
 
 Internal face extrusion
 -----------------------
@@ -108,6 +108,8 @@ Notes:
       detect this as a cyclic since the face is the same face. It will
       only work if the coupled edge extrudes a different face so if there
       are more than 1 cell inbetween.
+
+\endverbatim
 
 \*---------------------------------------------------------------------------*/
 
@@ -1427,7 +1429,7 @@ void addCoupledPatches
                 if (faceI != -1)
                 {
                     const polyBoundaryMesh& patches = mesh.boundaryMesh();
-                    
+
                     label newPatchI = findPatchID
                     (
                         newPatches,
@@ -1453,7 +1455,7 @@ void addCoupledPatches
                         ")"
                     )   << "Unable to determine coupled patch addressing"
                         << abort(FatalError);
-                }   
+                }
             }
             else
             {
