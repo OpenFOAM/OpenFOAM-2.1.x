@@ -137,6 +137,61 @@ greyMeanAbsorptionEmissionCoeffs
         );
     }
 
+    O2
+    {
+        Tcommon         300;
+        invTemp         true;
+        Tlow            200;
+        Thigh           2500;
+
+        loTcoeffs
+        (
+            0
+            0
+            0
+            0
+            0
+            0
+        );
+        hiTcoeffs
+        (
+            0.1
+            0
+            0
+            0
+            0
+            0
+        );
+    }
+
+
+    N2
+    {
+        Tcommon         300;
+        invTemp         true;
+        Tlow            200;
+        Thigh           2500;
+
+        loTcoeffs
+        (
+            0
+            0
+            0
+            0
+            0
+            0
+        );
+        hiTcoeffs
+        (
+            0.1
+            0
+            0
+            0
+            0
+            0
+        );
+    }
+
 }
 
 scatterModel    constantScatter;
