@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -32,6 +32,7 @@ License
 #include "surfaceInterpolate.H"
 #include "fvcSurfaceIntegrate.H"
 #include "slicedSurfaceFields.H"
+#include "wedgeFvPatch.H"
 #include "syncTools.H"
 
 #include "fvm.H"
@@ -567,19 +568,29 @@ void Foam::MULES::limiter
             fvsPatchScalarField& lambdaPf = lambdaBf[patchi];
             const scalarField& phiCorrfPf = phiCorrBf[patchi];
 
-            const labelList& pFaceCells = mesh.boundary()[patchi].faceCells();
-
-            forAll(lambdaPf, pFacei)
+            if (isA<wedgeFvPatch>(mesh.boundary()[patchi]))
             {
-                label pfCelli = pFaceCells[pFacei];
+                lambdaPf = 0;
+            }
+            else
+            {
+                const labelList& pFaceCells =
+                    mesh.boundary()[patchi].faceCells();
 
-                if (phiCorrfPf[pFacei] > 0.0)
+                forAll(lambdaPf, pFacei)
                 {
-                    lambdaPf[pFacei] = min(lambdaPf[pFacei], lambdap[pfCelli]);
-                }
-                else
-                {
-                    lambdaPf[pFacei] = min(lambdaPf[pFacei], lambdam[pfCelli]);
+                    label pfCelli = pFaceCells[pFacei];
+
+                    if (phiCorrfPf[pFacei] > 0.0)
+                    {
+                        lambdaPf[pFacei] =
+                            min(lambdaPf[pFacei], lambdap[pfCelli]);
+                    }
+                    else
+                    {
+                        lambdaPf[pFacei] =
+                            min(lambdaPf[pFacei], lambdam[pfCelli]);
+                    }
                 }
             }
         }
