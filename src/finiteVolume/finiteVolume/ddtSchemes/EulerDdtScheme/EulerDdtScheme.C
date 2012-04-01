@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -389,6 +389,8 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
     tmp<fluxFieldType> phiCorr =
         phiAbs.oldTime() - (fvc::interpolate(U.oldTime()) & mesh().Sf());
 
+    phiCorr().boundaryField() = pTraits<typename flux<Type>::type>::zero;
+
     return tmp<fluxFieldType>
     (
         new fluxFieldType
@@ -430,7 +432,7 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
      && phiAbs.dimensions() == dimVelocity*dimArea
     )
     {
-        return tmp<fluxFieldType>
+        tmp<fluxFieldType> ddtPhiCorr
         (
             new fluxFieldType
             (
@@ -446,6 +448,10 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
                 )
             )
         );
+
+        ddtPhiCorr().boundaryField() = pTraits<typename flux<Type>::type>::zero;
+
+        return ddtPhiCorr;
     }
     else if
     (
@@ -453,7 +459,7 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
      && phiAbs.dimensions() == rho.dimensions()*dimVelocity*dimArea
     )
     {
-        return tmp<fluxFieldType>
+        tmp<fluxFieldType> ddtPhiCorr
         (
             new fluxFieldType
             (
@@ -476,6 +482,10 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
                 )
             )
         );
+
+        ddtPhiCorr().boundaryField() = pTraits<typename flux<Type>::type>::zero;
+
+        return ddtPhiCorr;
     }
     else if
     (
@@ -483,7 +493,7 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
      && phiAbs.dimensions() == rho.dimensions()*dimVelocity*dimArea
     )
     {
-        return tmp<fluxFieldType>
+        tmp<fluxFieldType> ddtPhiCorr
         (
             new fluxFieldType
             (
@@ -497,6 +507,10 @@ EulerDdtScheme<Type>::fvcDdtPhiCorr
                 )
             )
         );
+
+        ddtPhiCorr().boundaryField() = pTraits<typename flux<Type>::type>::zero;
+
+        return ddtPhiCorr;
     }
     else
     {
