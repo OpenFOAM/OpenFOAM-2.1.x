@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -70,8 +70,8 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::WenYu::K
     const volScalarField& Ur
 ) const
 {
-    volScalarField beta(max(phase2_, scalar(1.0e-6)));
-    volScalarField bp(pow(beta, -2.65));
+    volScalarField alpha2(max(phase2_, scalar(1.0e-6)));
+    volScalarField bp(pow(alpha2, -2.65));
 
     volScalarField Re(max(Ur*phase1_.d()/phase2_.nu(), scalar(1.0e-3)));
     volScalarField Cds

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -69,23 +69,23 @@ Foam::kineticTheoryModels::radialModels::LunSavage::~LunSavage()
 Foam::tmp<Foam::volScalarField>
 Foam::kineticTheoryModels::radialModels::LunSavage::g0
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const dimensionedScalar& alphaMax
 ) const
 {
 
-    return pow(1.0 - alpha/alphaMax, -2.5*alphaMax);
+    return pow(1.0 - alpha1/alphaMax, -2.5*alphaMax);
 }
 
 
 Foam::tmp<Foam::volScalarField>
 Foam::kineticTheoryModels::radialModels::LunSavage::g0prime
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const dimensionedScalar& alphaMax
 ) const
 {
-    return 2.5*alphaMax*alpha*pow(1.0 - alpha, -1.0 - 2.5*alphaMax);
+    return 2.5*alphaMax*alpha1*pow(1.0 - alpha1, -1.0 - 2.5*alphaMax);
 }
 
 

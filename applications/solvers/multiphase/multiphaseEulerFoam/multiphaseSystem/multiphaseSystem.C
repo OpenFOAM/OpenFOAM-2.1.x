@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,6 +25,7 @@ License
 
 #include "multiphaseSystem.H"
 #include "alphaContactAngleFvPatchScalarField.H"
+#include "fixedValueFvsPatchFields.H"
 #include "Time.H"
 #include "subCycle.H"
 #include "MULES.H"
@@ -610,6 +611,21 @@ Foam::tmp<Foam::volVectorField> Foam::multiphaseSystem::Svm
         }
     }
 
+    // Remove lift at fixed-flux boundaries
+    forAll(phase.phi().boundaryField(), patchi)
+    {
+        if
+        (
+            isA<fixedValueFvsPatchScalarField>
+            (
+                phase.phi().boundaryField()[patchi]
+            )
+        )
+        {
+            tSvm().boundaryField()[patchi] = vector::zero;
+        }
+    }
+
     return tSvm;
 }
 
@@ -623,9 +639,7 @@ Foam::multiphaseSystem::dragCoeffs() const
     {
         const dragModel& dm = *iter();
 
-        dragCoeffsPtr().insert
-        (
-            iter.key(),
+        volScalarField* Kptr =
             (
                 max
                 (
@@ -642,8 +656,24 @@ Foam::multiphaseSystem::dragCoeffs() const
                         dm.residualSlip()
                     )
                 )
-            ).ptr()
-        );
+            ).ptr();
+
+        // Remove drag at fixed-flux boundaries
+        forAll(dm.phase1().phi().boundaryField(), patchi)
+        {
+            if
+            (
+                isA<fixedValueFvsPatchScalarField>
+                (
+                    dm.phase1().phi().boundaryField()[patchi]
+                )
+            )
+            {
+                Kptr->boundaryField()[patchi] = 0.0;
+            }
+        }
+
+        dragCoeffsPtr().insert(iter.key(), Kptr);
     }
 
     return dragCoeffsPtr;

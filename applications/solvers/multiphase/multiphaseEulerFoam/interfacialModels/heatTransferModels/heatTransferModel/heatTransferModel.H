@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -55,7 +55,7 @@ protected:
     // Protected data
 
         const dictionary& interfaceDict_;
-        const volScalarField& alpha_;
+        const volScalarField& alpha1_;
         const phaseModel& phase1_;
         const phaseModel& phase2_;
 
@@ -75,11 +75,11 @@ public:
             dictionary,
             (
                 const dictionary& interfaceDict,
-                const volScalarField& alpha,
+                const volScalarField& alpha1,
                 const phaseModel& phase1,
                 const phaseModel& phase2
             ),
-            (interfaceDict, alpha, phase1, phase2)
+            (interfaceDict, alpha1, phase1, phase2)
         );
 
 
@@ -88,7 +88,7 @@ public:
         heatTransferModel
         (
             const dictionary& interfaceDict,
-            const volScalarField& alpha,
+            const volScalarField& alpha1,
             const phaseModel& phase1,
             const phaseModel& phase2
         );
@@ -103,7 +103,7 @@ public:
         static autoPtr<heatTransferModel> New
         (
             const dictionary& interfaceDict,
-            const volScalarField& alpha,
+            const volScalarField& alpha1,
             const phaseModel& phase1,
             const phaseModel& phase2
         );
@@ -112,12 +112,12 @@ public:
     // Member Functions
 
         //- the heat-transfer function K used in the enthalpy eq.
-        //    ddt(alpha*rhoa*ha) + ... = ... alpha*beta*K*(Ta - Tb)
-        //    ddt(beta*rhob*hb) + ...  = ... alpha*beta*K*(Tb - Ta)
+        //    ddt(alpha1*rho1*ha) + ... = ... alpha1*alpha2*K*(Ta - Tb)
+        //    ddt(alpha2*rho2*hb) + ...  = ... alpha1*alpha2*K*(Tb - Ta)
         // ********************************** NB! *****************************
-        // for numerical reasons alpha and beta has been
+        // for numerical reasons alpha1 and alpha2 has been
         // extracted from the heat-transfer function K,
-        // so you MUST divide K by alpha*beta when implementing the
+        // so you MUST divide K by alpha1*alpha2 when implementing the
         // heat-transfer function
         // ********************************** NB! *****************************
         virtual tmp<volScalarField> K(const volScalarField& Ur) const = 0;

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -70,9 +70,9 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::GidaspowErgunWenYu::K
     const volScalarField& Ur
 ) const
 {
-    volScalarField beta(max(phase2_, scalar(1.0e-6)));
+    volScalarField alpha2(max(phase2_, scalar(1.0e-6)));
     volScalarField d = phase1_.d();
-    volScalarField bp(pow(beta, -2.65));
+    volScalarField bp(pow(alpha2, -2.65));
     volScalarField Re(max(Ur*d/phase2_.nu(), scalar(1.0e-3)));
 
     volScalarField Cds
@@ -84,12 +84,12 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::GidaspowErgunWenYu::K
     // Wen and Yu (1966)
     return
     (
-        pos(beta - 0.8)
+        pos(alpha2 - 0.8)
        *(0.75*Cds*phase2_.rho()*Ur*bp/d)
-      + neg(beta - 0.8)
+      + neg(alpha2 - 0.8)
        *(
-           150.0*phase1_*phase2_.nu()*phase2_.rho()/(sqr(beta*d))
-         + 1.75*phase2_.rho()*Ur/(beta*d)
+           150.0*phase1_*phase2_.nu()*phase2_.rho()/(sqr(alpha2*d))
+         + 1.75*phase2_.rho()*Ur/(alpha2*d)
         )
     );
 }
