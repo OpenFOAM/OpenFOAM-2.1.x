@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -40,13 +40,11 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                          Class subCycle Declaration
+                          Class subCycleField Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class GeometricField>
-class subCycle
-:
-    public subCycleTime
+class subCycleField
 {
     // Private data
 
@@ -57,6 +55,41 @@ class subCycle
         GeometricField  gf0_;
 
 
+public:
+
+    // Constructors
+
+        //- Construct field and number of sub-cycles
+        subCycleField(GeometricField& gf)
+        :
+            gf_(gf),
+            gf0_(gf.oldTime())
+        {}
+
+
+    //- Destructor
+    ~subCycleField()
+    {
+        // Correct the time index of the field to correspond to the global time
+        gf_.timeIndex() = gf_.time().timeIndex();
+
+        // Reset the old-time field value
+        gf_.oldTime() = gf0_;
+        gf_.oldTime().timeIndex() = gf0_.timeIndex();
+    }
+};
+
+
+/*---------------------------------------------------------------------------*\
+                          Class subCycle Declaration
+\*---------------------------------------------------------------------------*/
+
+template<class GeometricField>
+class subCycle
+:
+    public subCycleField<GeometricField>,
+    public subCycleTime
+{
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
@@ -73,9 +106,9 @@ public:
         //- Construct field and number of sub-cycles
         subCycle(GeometricField& gf, const label nSubCycles)
         :
-            subCycleTime(const_cast<Time&>(gf.time()), nSubCycles),
-            gf_(gf),
-            gf0_(gf.oldTime())
+
+            subCycleField<GeometricField>(gf),
+            subCycleTime(const_cast<Time&>(gf.time()), nSubCycles)
         {}
 
 
@@ -84,13 +117,6 @@ public:
     {
         // End the subCycleTime, which restores the time state
         endSubCycle();
-
-        // Correct the time index of the field to correspond to the global time
-        gf_.timeIndex() = gf_.time().timeIndex();
-
-        // Reset the old-time field value
-        gf_.oldTime() = gf0_;
-        gf_.oldTime().timeIndex() = gf_.time().timeIndex();
     }
 };
 
