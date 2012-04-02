@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -126,8 +126,32 @@ dimensioned<Type>::dimensioned
 :
     name_(name),
     dimensions_(dimSet),
-    value_(pTraits<Type>(is))
-{}
+    value_(pTraits<Type>::zero)
+{
+    Info<< "dimensioned<Type>::dimensioned" << endl;
+
+    token nextToken(is);
+    is.putBack(nextToken);
+
+    if (nextToken == token::BEGIN_SQR)
+    {
+        dimensionSet dims(is);
+
+        if (dims != dimensions_)
+        {
+            FatalErrorIn
+            (
+                "dimensioned<Type>::dimensioned"
+                "(const word&, const dimensionSet&, Istream&)"
+            ) << "The dimensions " << dims
+              << " provided do not match the required dimensions "
+              << dimensions_
+              << abort(FatalError);
+        }
+    }
+
+    is >> value_;
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
