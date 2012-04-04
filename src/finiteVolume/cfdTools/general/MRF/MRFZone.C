@@ -496,4 +496,24 @@ void Foam::MRFZone::correctBoundaryVelocity(volVectorField& U) const
 }
 
 
+Foam::Ostream& Foam::operator<<(Ostream& os, const MRFZone& MRF)
+{
+    os  << indent << nl;
+    os.write(MRF.name_) << nl;
+    os  << token::BEGIN_BLOCK << incrIndent << nl;
+    os.writeKeyword("origin") << MRF.origin_ << token::END_STATEMENT << nl;
+    os.writeKeyword("axis") << MRF.axis_ << token::END_STATEMENT << nl;
+    os.writeKeyword("omega") << MRF.omega_ << token::END_STATEMENT << nl;
+
+    if (MRF.excludedPatchNames_.size())
+    {
+        os.writeKeyword("nonRotatingPatches") << MRF.excludedPatchNames_
+            << token::END_STATEMENT << nl;
+    }
+
+    os  << decrIndent << token::END_BLOCK << nl;
+
+    return os;
+}
+
 // ************************************************************************* //

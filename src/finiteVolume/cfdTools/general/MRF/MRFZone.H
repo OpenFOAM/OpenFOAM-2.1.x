@@ -207,11 +207,7 @@ public:
 
     // Ostream Operator
 
-        friend Ostream& operator<<(Ostream& os, const MRFZone&)
-        {
-            notImplemented("Ostream& operator<<(Ostream& os, const MRFZone&)");
-            return os;
-        }
+        friend Ostream& operator<<(Ostream& os, const MRFZone& MRF);
 };
 
 

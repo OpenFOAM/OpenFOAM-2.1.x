@@ -49,8 +49,28 @@ Foam::MRFZones::MRFZones(const fvMesh& mesh)
             IOobject::NO_WRITE
         ),
         MRFZone::iNew(mesh)
+    ),
+    mesh_(mesh)
+{
+    if
+    (
+        Pstream::parRun()
+     &&
+     (
+        regIOobject::fileModificationChecking == timeStampMaster
+     || regIOobject::fileModificationChecking == inotifyMaster
+     )
     )
-{}
+    {
+        WarningIn("MRFZones(const fvMesh&)")
+            << "The MRFZones are not run time modifiable\n"
+            << "    using 'timeStampMaster' or 'inotifyMaster'\n"
+            << "    for the entry fileModificationChecking\n"
+            << "    in the etc/controlDict.\n"
+            << "    Use 'timeStamp' instead."
+            << endl;
+    }
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -160,5 +180,11 @@ void Foam::MRFZones::correctBoundaryVelocity(volVectorField& U) const
     }
 }
 
+
+bool Foam::MRFZones::readData(Istream& is)
+{
+    PtrList<MRFZone>::read(is, MRFZone::iNew(mesh_));
+    return is.good();
+}
 
 // ************************************************************************* //

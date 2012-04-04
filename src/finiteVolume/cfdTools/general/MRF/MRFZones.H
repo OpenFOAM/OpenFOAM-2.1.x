@@ -52,6 +52,11 @@ class MRFZones
 :
     public IOPtrList<MRFZone>
 {
+    // Private data
+
+        //- Reference to mesh
+        const fvMesh& mesh_;
+
 
     // Private Member Functions
 
@@ -109,6 +114,11 @@ public:
 
         //- Correct the boundary velocity for the roation of the MRF region
         void correctBoundaryVelocity(volVectorField& U) const;
+
+    // I-O
+
+        //- Read from Istream
+        virtual bool readData(Istream&);
 };
 
 
