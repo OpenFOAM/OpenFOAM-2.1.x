@@ -128,8 +128,6 @@ dimensioned<Type>::dimensioned
     dimensions_(dimSet),
     value_(pTraits<Type>::zero)
 {
-    Info<< "dimensioned<Type>::dimensioned" << endl;
-
     token nextToken(is);
     is.putBack(nextToken);
 
