@@ -41,6 +41,9 @@ alias _foamAddMan 'setenv MANPATH \!*\:${MANPATH}'
 # Set environment variables according to system type
 setenv WM_ARCH `uname -s`
 
+# Default
+setenv WM_COMPILER_LIB_ARCH
+
 switch ($WM_ARCH)
 case Linux:
     setenv WM_ARCH linux
@@ -269,12 +272,7 @@ case ThirdParty:
         _foamAddPath    $gccDir/bin
 
         # add compiler libraries to run-time environment
-        # 64-bit needs lib64, but 32-bit needs lib (not lib32)
-        if ($WM_ARCH_OPTION == 64 && $?WM_COMPILER_LIB_ARCH) then
-            _foamAddLib     $gccDir/lib$WM_COMPILER_LIB_ARCH
-        else
-            _foamAddLib     $gccDir/lib
-        endif
+        _foamAddLib     $gccDir/lib$WM_COMPILER_LIB_ARCH
 
         # add gmp/mpfr libraries to run-time environment
         _foamAddLib     $gmpDir/lib

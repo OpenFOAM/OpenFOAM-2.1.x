@@ -285,14 +285,7 @@ OpenFOAM | ThirdParty)
         _foamAddPath    $gccDir/bin
 
         # add compiler libraries to run-time environment
-        # 64-bit needs lib64, but 32-bit needs lib (not lib32)
-        if [ "$WM_ARCH_OPTION" = 64 ]
-        then
-            _foamAddLib     $gccDir/lib$WM_COMPILER_LIB_ARCH
-        else
-            _foamAddLib     $gccDir/lib
-        fi
-
+        _foamAddLib     $gccDir/lib$WM_COMPILER_LIB_ARCH
 
         # add gmp/mpfr libraries to run-time environment
         _foamAddLib     $gmpDir/lib
