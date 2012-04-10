@@ -442,7 +442,11 @@ public:
             }
 
             //- Move points, returns volumes swept by faces in motion
-            virtual tmp<scalarField> movePoints(const pointField&);
+            virtual tmp<scalarField> movePoints
+            (
+                const pointField&,
+                const bool deleteDemandDrivenData = false
+            );
 
             //- Reset motion
             void resetMotion() const;
