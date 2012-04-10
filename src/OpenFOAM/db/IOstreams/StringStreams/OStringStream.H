@@ -116,7 +116,7 @@ public:
 
         // Edit
 
-            //- Clear the OStringStream
+            //- Rewind the OStringStream
             void rewind()
             {
 #               if __GNUC__ < 4 && __GNUC_MINOR__ < 4
