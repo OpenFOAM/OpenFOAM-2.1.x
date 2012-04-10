@@ -385,28 +385,6 @@ unset boost_version cgal_version
 unset MPI_ARCH_PATH MPI_HOME FOAM_MPI_LIBBIN
 
 case "$WM_MPLIB" in
-OPENMPI)
-    export FOAM_MPI=openmpi-1.5.3
-    # optional configuration tweaks:
-    _foamSource `$WM_PROJECT_DIR/bin/foamEtcFile config/openmpi.sh`
-
-    export MPI_ARCH_PATH=$WM_THIRD_PARTY_DIR/platforms/$WM_ARCH$WM_COMPILER/$FOAM_MPI
-
-    # Tell OpenMPI where to find its install directory
-    export OPAL_PREFIX=$MPI_ARCH_PATH
-
-    _foamAddPath    $MPI_ARCH_PATH/bin
-
-    # 64-bit needs on OpenSuSE 12.1 needs lib64, but 32-bit needs lib (not lib32)
-    if [ "$WM_ARCH_OPTION" = 64 ]
-    then
-        _foamAddLib     $MPI_ARCH_PATH/lib$WM_COMPILER_LIB_ARCH
-    fi
-
-    _foamAddLib     $MPI_ARCH_PATH/lib
-    _foamAddMan     $MPI_ARCH_PATH/man
-    ;;
-
 SYSTEMOPENMPI)
     # Use the system installed openmpi, get library directory via mpicc
     export FOAM_MPI=openmpi-system
@@ -432,13 +410,36 @@ SYSTEMOPENMPI)
     unset libDir
     ;;
 
+OPENMPI)
+    export FOAM_MPI=openmpi-1.5.3
+    # optional configuration tweaks:
+    _foamSource `$WM_PROJECT_DIR/bin/foamEtcFile config/openmpi.sh`
+
+    export MPI_ARCH_PATH=$WM_THIRD_PARTY_DIR/platforms/$WM_ARCH$WM_COMPILER/$FOAM_MPI
+
+    # Tell OpenMPI where to find its install directory
+    export OPAL_PREFIX=$MPI_ARCH_PATH
+
+    _foamAddPath    $MPI_ARCH_PATH/bin
+
+    # 64-bit on OpenSuSE 12.1 uses lib64 others use lib
+    _foamAddLib     $MPI_ARCH_PATH/lib$WM_COMPILER_LIB_ARCH
+    _foamAddLib     $MPI_ARCH_PATH/lib
+
+    _foamAddMan     $MPI_ARCH_PATH/man
+    ;;
+
 MPICH)
     export FOAM_MPI=mpich2-1.1.1p1
     export MPI_HOME=$WM_THIRD_PARTY_DIR/$FOAM_MPI
     export MPI_ARCH_PATH=$WM_THIRD_PARTY_DIR/platforms/$WM_ARCH$WM_COMPILER/$FOAM_MPI
 
     _foamAddPath    $MPI_ARCH_PATH/bin
+
+    # 64-bit on OpenSuSE 12.1 uses lib64 others use lib
+    _foamAddLib     $MPI_ARCH_PATH/lib$WM_COMPILER_LIB_ARCH
     _foamAddLib     $MPI_ARCH_PATH/lib
+
     _foamAddMan     $MPI_ARCH_PATH/share/man
     ;;
 
@@ -449,7 +450,11 @@ MPICH-GM)
     export GM_LIB_PATH=/opt/gm/lib64
 
     _foamAddPath    $MPI_ARCH_PATH/bin
+
+    # 64-bit on OpenSuSE 12.1 uses lib64 others use lib
+    _foamAddLib     $MPI_ARCH_PATH/lib$WM_COMPILER_LIB_ARCH
     _foamAddLib     $MPI_ARCH_PATH/lib
+
     _foamAddLib     $GM_LIB_PATH
     ;;
 
