@@ -403,6 +403,13 @@ OPENMPI)
     export OPAL_PREFIX=$MPI_ARCH_PATH
 
     _foamAddPath    $MPI_ARCH_PATH/bin
+
+    # 64-bit needs on OpenSuSE 12.1 needs lib64, but 32-bit needs lib (not lib32)
+    if [ "$WM_ARCH_OPTION" = 64 ]
+    then
+        _foamAddLib     $MPI_ARCH_PATH/lib$WM_COMPILER_LIB_ARCH
+    fi
+
     _foamAddLib     $MPI_ARCH_PATH/lib
     _foamAddMan     $MPI_ARCH_PATH/man
     ;;
