@@ -155,6 +155,7 @@ triSurface/triangleFuncs/triangleFuncs.C
 triSurface/surfaceFeatures/surfaceFeatures.C
 triSurface/triSurfaceTools/triSurfaceTools.C
 triSurface/triSurfaceTools/geompack/geompack.C
+triSurface/triSurfaceTools/pointToPointPlanarInterpolation.C
 
 twoDPointCorrector/twoDPointCorrector.C
 
