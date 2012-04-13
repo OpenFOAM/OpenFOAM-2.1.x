@@ -316,7 +316,8 @@ void LaunderSharmaKE::correct()
       + fvm::div(phi_, epsilon_)
       - fvm::laplacian(DepsilonEff(), epsilon_)
      ==
-        C1_*G*epsilon_/k_ + fvm::SuSp((C3_ - 2.0/3.0*C1_)*rho_*divU, epsilon_)
+        C1_*G*epsilon_/k_
+      - fvm::SuSp((2.0/3.0)*C1_ + C3_ )*rho_*divU, epsilon_)
       - fvm::Sp(C2_*f2()*rho_*epsilon_/k_, epsilon_)
     //+ 0.75*1.5*flameKproduction*epsilon_/k_
       + E
