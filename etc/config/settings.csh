@@ -2,7 +2,7 @@
 # =========                 |
 # \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
 #  \\    /   O peration     |
-#   \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+#   \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
 #    \\/     M anipulation  |
 #------------------------------------------------------------------------------
 # License
@@ -41,7 +41,7 @@ alias _foamAddMan 'setenv MANPATH \!*\:${MANPATH}'
 # Set environment variables according to system type
 setenv WM_ARCH `uname -s`
 
-# Default
+# Default WM_COMPILER_LIB_ARCH for 32bit
 setenv WM_COMPILER_LIB_ARCH
 
 switch ($WM_ARCH)

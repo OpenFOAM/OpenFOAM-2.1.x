@@ -131,6 +131,16 @@ dimensioned<Type>::dimensioned
     token nextToken(is);
     is.putBack(nextToken);
 
+    // Check if the original format is used in which the name is provided
+    // and reset the name to that read
+    if (nextToken.isWord())
+    {
+        is >> name_;
+        is >> nextToken;
+        is.putBack(nextToken);
+    }
+
+    // If the dimensions are provided compare with the argument
     if (nextToken == token::BEGIN_SQR)
     {
         dimensionSet dims(is);
@@ -150,6 +160,16 @@ dimensioned<Type>::dimensioned
 
     is >> value_;
 }
+
+
+template <class Type>
+dimensioned<Type>::dimensioned
+()
+:
+    name_("undefined"),
+    dimensions_(dimless),
+    value_(pTraits<Type>::zero)
+{}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -381,8 +401,26 @@ dimensioned<Type> min
 template <class Type>
 Istream& operator>>(Istream& is, dimensioned<Type>& dt)
 {
-    // do a stream read op for a Type and a dimensions()et
-    is >> dt.name_ >> dt.dimensions_ >> dt.value_;
+    token nextToken(is);
+    is.putBack(nextToken);
+
+    // Check if the original format is used in which the name is provided
+    // and reset the name to that read
+    if (nextToken.isWord())
+    {
+        is >> dt.name_;
+        is >> nextToken;
+        is.putBack(nextToken);
+    }
+
+    // If the dimensions are provided reset the dimensions to those read
+    if (nextToken == token::BEGIN_SQR)
+    {
+        is >> dt.dimensions_;
+    }
+
+    // Read the value
+    is >> dt.value_;
 
     // Check state of Istream
     is.check("Istream& operator>>(Istream&, dimensioned<Type>&)");
