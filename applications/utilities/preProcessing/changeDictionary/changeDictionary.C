@@ -70,6 +70,7 @@ Usage
 #include "IOPtrList.H"
 #include "volFields.H"
 #include "stringListOps.H"
+#include "timeSelector.H"
 
 using namespace Foam;
 
@@ -252,12 +253,10 @@ int main(int argc, char *argv[])
         "file",
         "specify an alternative to system/changeDictionaryDict"
     );
-    argList::addOption
-    (
-        "instance",
-        "name",
-        "specify alternate time instance - default is latest time"
-    );
+
+    // Add explicit time option
+    timeSelector::addOptions();
+
     argList::addBoolOption
     (
         "literalRE",
@@ -272,6 +271,17 @@ int main(int argc, char *argv[])
 
     #include "setRootCase.H"
     #include "createTime.H"
+
+    // Optionally override controlDict time with -time options
+    instantList times = timeSelector::selectIfPresent(runTime, args);
+    if (times.size() < 1)
+    {
+        FatalErrorIn(args.executable())
+            << "No times selected." << exit(FatalError);
+    }
+    runTime.setTime(times[0], 0);
+
+
     #include "createNamedMesh.H"
 
     const word dictName("changeDictionaryDict");
@@ -317,11 +327,6 @@ int main(int argc, char *argv[])
         regionPrefix = regionName;
     }
 
-    word instance = runTime.timeName();
-    if (args.options().found("instance"))
-    {
-        instance = args.options()["instance"];
-    }
 
     // Make sure we do not use the master-only reading since we read
     // fields (different per processor) as dictionaries.
@@ -460,7 +465,7 @@ int main(int argc, char *argv[])
                 IOobject
                 (
                     fieldName,
-                    instance,
+                    runTime.timeName(),
                     mesh,
                     IOobject::MUST_READ_IF_MODIFIED,
                     IOobject::NO_WRITE,
