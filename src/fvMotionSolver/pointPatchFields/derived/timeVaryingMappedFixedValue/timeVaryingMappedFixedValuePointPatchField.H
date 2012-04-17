@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,51 +22,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::timeVaryingMappedFixedValueFvPatchField
+    Foam::timeVaryingMappedFixedValuePointPatchField
 
 Description
+    A time-varying form of a mapped fixed value boundary condition.
+
+See Also
     Foam::timeVaryingMappedFixedValueFvPatchField
 
-    Interpolates from a set of supplied points in space and time. Supplied
-    data in constant/boundaryData/<patchname>:
-        - points : pointField with locations
-        - ddd    : supplied values at time ddd
-    Points need to be more or less on a plane since get triangulated in 2D.
-
-    At startup this bc does the triangulation and determines linear
-    interpolation (triangle it is in and weights to the 3 vertices)
-    for every face centre. Interpolates linearly inbetween times.
-
-    @verbatim
-        inlet
-        {
-            type            timeVaryingMappedFixedValue;
-
-            // Maintain average to that of the supplied values
-            setAverage      false;
-
-            // Optional: change perturbation (default 1E-5) to avoid any ties
-            // in triangulating regular geometries.
-            //perturb       0.0;
-
-            // Optional: use name instead of patchname for location of data
-            //fieldTableName samples;
-        }
-    @endverbatim
-
-    Switch on debug flag to have it dump the triangulation (in transformed
-    space) and transform face centres.
-
 SourceFiles
-    timeVaryingMappedFixedValueFvPatchField.C
+    timeVaryingMappedFixedValuePointPatchField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef timeVaryingMappedFixedValueFvPatchField_H
-#define timeVaryingMappedFixedValueFvPatchField_H
+#ifndef timeVaryingMappedFixedValuePointPatchField_H
+#define timeVaryingMappedFixedValuePointPatchField_H
 
-#include "fixedValueFvPatchFields.H"
-#include "FixedList.H"
+#include "fixedValuePointPatchField.H"
 #include "instantList.H"
 #include "pointToPointPlanarInterpolation.H"
 
@@ -76,13 +48,13 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-              Class timeVaryingMappedFixedValueFvPatch Declaration
+        Class timeVaryingMappedFixedValuePointPatchField Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class Type>
-class timeVaryingMappedFixedValueFvPatchField
+class timeVaryingMappedFixedValuePointPatchField
 :
-    public fixedValueFvPatchField<Type>
+    public fixedValuePointPatchField<Type>
 {
     // Private data
 
@@ -119,6 +91,7 @@ class timeVaryingMappedFixedValueFvPatchField
         //- If setAverage: end average value
         Type endAverage_;
 
+
 public:
 
     //- Runtime type information
@@ -128,91 +101,65 @@ public:
     // Constructors
 
         //- Construct from patch and internal field
-        timeVaryingMappedFixedValueFvPatchField
+        timeVaryingMappedFixedValuePointPatchField
         (
-            const fvPatch&,
-            const DimensionedField<Type, volMesh>&
+            const pointPatch&,
+            const DimensionedField<Type, pointMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        timeVaryingMappedFixedValueFvPatchField
+        timeVaryingMappedFixedValuePointPatchField
         (
-            const fvPatch&,
-            const DimensionedField<Type, volMesh>&,
+            const pointPatch&,
+            const DimensionedField<Type, pointMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given timeVaryingMappedFixedValueFvPatchField
-        //  onto a new patch
-        timeVaryingMappedFixedValueFvPatchField
+        //- Construct by mapping given patch field onto a new patch
+        timeVaryingMappedFixedValuePointPatchField
         (
-            const timeVaryingMappedFixedValueFvPatchField<Type>&,
-            const fvPatch&,
-            const DimensionedField<Type, volMesh>&,
-            const fvPatchFieldMapper&
+            const timeVaryingMappedFixedValuePointPatchField<Type>&,
+            const pointPatch&,
+            const DimensionedField<Type, pointMesh>&,
+            const pointPatchFieldMapper&
         );
 
         //- Construct as copy
-        timeVaryingMappedFixedValueFvPatchField
+        timeVaryingMappedFixedValuePointPatchField
         (
-            const timeVaryingMappedFixedValueFvPatchField<Type>&
+            const timeVaryingMappedFixedValuePointPatchField<Type>&
         );
 
         //- Construct and return a clone
-        virtual tmp<fvPatchField<Type> > clone() const
+        virtual autoPtr<pointPatchField<Type> > clone() const
         {
-            return tmp<fvPatchField<Type> >
+            return autoPtr<pointPatchField<Type> >
             (
-                new timeVaryingMappedFixedValueFvPatchField<Type>(*this)
+                new timeVaryingMappedFixedValuePointPatchField<Type>(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        timeVaryingMappedFixedValueFvPatchField
+        timeVaryingMappedFixedValuePointPatchField
         (
-            const timeVaryingMappedFixedValueFvPatchField<Type>&,
-            const DimensionedField<Type, volMesh>&
+            const timeVaryingMappedFixedValuePointPatchField<Type>&,
+            const DimensionedField<Type, pointMesh>&
         );
 
         //- Construct and return a clone setting internal field reference
-        virtual tmp<fvPatchField<Type> > clone
+        virtual autoPtr<pointPatchField<Type> > clone
         (
-            const DimensionedField<Type, volMesh>& iF
+            const DimensionedField<Type, pointMesh>& iF
         ) const
         {
-            return tmp<fvPatchField<Type> >
+            return autoPtr<pointPatchField<Type> >
             (
-                new timeVaryingMappedFixedValueFvPatchField<Type>(*this, iF)
+                new timeVaryingMappedFixedValuePointPatchField<Type>(*this, iF)
             );
         }
 
 
     // Member functions
-
-        // Access
-
-            //- Return startSampledValues
-            const Field<Type> startSampledValues()
-            {
-                 return startSampledValues_;
-            }
-
-
-        // Mapping functions
-
-            //- Map (and resize as needed) from self given a mapping object
-            virtual void autoMap
-            (
-                const fvPatchFieldMapper&
-            );
-
-            //- Reverse map the given fvPatchField onto this fvPatchField
-            virtual void rmap
-            (
-                const fvPatchField<Type>&,
-                const labelList&
-            );
-
 
         // Utility functions
 
@@ -238,7 +185,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "timeVaryingMappedFixedValueFvPatchField.C"
+#   include "timeVaryingMappedFixedValuePointPatchField.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

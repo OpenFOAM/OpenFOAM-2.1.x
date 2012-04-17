@@ -1130,8 +1130,8 @@ int dtris2 ( int point_num, double point_xy[], int *tri_num,
       tri_vert[3*(i-1)+0] = m1;
       tri_vert[3*(i-1)+1] = m2;
       tri_vert[3*(i-1)+2] = m;
-      tri_nabe[3*(i-1)+0] = -3 * i;
-      tri_nabe[3*(i-1)+1] = i;
+      tri_nabe[3*(i-2)+0] = -3 * i;
+      tri_nabe[3*(i-2)+1] = i;
       tri_nabe[3*(i-1)+2] = i - 1;
 
     }
