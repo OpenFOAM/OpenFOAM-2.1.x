@@ -209,7 +209,7 @@ template<class Type>
 void timeVaryingMappedFixedValueFvPatchField<Type>::checkTable()
 {
     // Initialise
-    if (startSampleTime_ == -1 && endSampleTime_ == -1)
+    if (mapperPtr_.empty())
     {
         pointIOField samplePoints
         (
