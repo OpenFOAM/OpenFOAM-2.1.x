@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
             fvm::ddt(U)
           + fvm::div(phi, U)
           - fvm::laplacian(fluid.nu(), U)
+          - (fvc::grad(U) & fvc::grad(fluid.nu()))
         );
 
         solve(UEqn == -fvc::grad(p));
