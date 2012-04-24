@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -377,18 +377,24 @@ Foam::fvFieldReconstructor::reconstructFvSurfaceField
         // take care of the face direction offset trick.
         //
         {
-            labelList curAddr(faceProcAddressing_[procI]);
+            const labelList& faceMap = faceProcAddressing_[procI];
 
-            forAll(curAddr, addrI)
+            // Addressing into original field
+            labelList curAddr(faceMap.size());
+            // Correctly oriented copy of internal field
+            Field<Type> procInternalField(procField.internalField());
+
+            forAll(faceMap, addrI)
             {
-                curAddr[addrI] -= 1;
+                curAddr[addrI] = mag(faceMap[addrI])-1;
+                if (faceMap[addrI] < 0)
+                {
+                    procInternalField[addrI] = -procInternalField[addrI];
+                }
             }
 
-            internalField.rmap
-            (
-                procField.internalField(),
-                curAddr
-            );
+            // Map
+            internalField.rmap(procInternalField, curAddr);
         }
 
         // Set the boundary patch values in the reconstructed field
