@@ -125,8 +125,8 @@ dictionaryReplacement
             {
                 type            greyDiffusiveRadiationViewFactor;
                 emissivityMode  lookup;
-                Qro             uniform 0;
                 emissivity      uniform 1.0;
+                Qro             uniform 0;
                 value           uniform 0;
             }
 
@@ -174,7 +174,6 @@ dictionaryReplacement
                 type            greyDiffusiveRadiation;
                 T               T;
                 emissivityMode  lookup;
-                Qro             uniform 0;
                 emissivity      uniform 1.0;
                 value           uniform 0;
             }
@@ -184,7 +183,6 @@ dictionaryReplacement
                 type            greyDiffusiveRadiation;
                 T               T;
                 emissivityMode  solidThermo;
-                Qro             uniform 0;
                 value           uniform 0;
             }
         }
