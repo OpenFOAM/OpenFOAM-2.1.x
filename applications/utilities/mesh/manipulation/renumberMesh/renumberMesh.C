@@ -653,6 +653,22 @@ int main(int argc, char *argv[])
         (
             UIndirectList<label>(faceProcAddressing, map().faceMap())
         );
+
+        // Detect any flips.
+        const labelHashSet& fff = map().flipFaceFlux();
+        forAllConstIter(labelHashSet, fff, iter)
+        {
+            label faceI = iter.key();
+            label masterFaceI = faceProcAddressing[faceI];
+
+            faceProcAddressing[faceI] = -masterFaceI;
+
+            if (masterFaceI == 0)
+            {
+                FatalErrorIn(args.executable()) << "problem faceI:" << faceI
+                    << " masterFaceI:" << masterFaceI << exit(FatalError);
+            }
+        }
     }
     if (pointProcAddressing.headerOk())
     {
