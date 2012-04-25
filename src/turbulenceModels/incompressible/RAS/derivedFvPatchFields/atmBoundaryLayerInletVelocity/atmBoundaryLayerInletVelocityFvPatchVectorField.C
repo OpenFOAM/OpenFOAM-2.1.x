@@ -174,7 +174,7 @@ void atmBoundaryLayerInletVelocityFvPatchVectorField::updateCoeffs()
 void atmBoundaryLayerInletVelocityFvPatchVectorField::write(Ostream& os) const
 {
     fvPatchVectorField::write(os);
-    zGround_.writeEntry("z0", os) ;
+    z0_.writeEntry("z0", os) ;
     os.writeKeyword("n")
         << n_ << token::END_STATEMENT << nl;
     os.writeKeyword("z")
