@@ -15,8 +15,6 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-Pr              0.72;
-
 thermoType      ePsiThermo<pureMixture<sutherlandTransport<specieThermo<janafThermo<perfectGas>>>>>;
 
 mixture
@@ -38,6 +36,7 @@ mixture
     {
         As              1.458e-06;
         Ts              110;
+        Pr              0.72;
     }
 }
 
