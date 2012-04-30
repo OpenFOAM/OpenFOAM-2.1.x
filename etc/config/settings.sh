@@ -229,6 +229,13 @@ OpenFOAM | ThirdParty)
         mpc_version=mpc-0.9
         gmpPACKAGE=gmp-5.0.2
         ;;
+    Gcc47 | Gcc47++0x)
+        gcc_version=gcc-4.7.0
+        gmp_version=gmp-5.0.2
+        mpfr_version=mpfr-3.0.1
+        mpc_version=mpc-0.9
+        gmpPACKAGE=gmp-5.0.2
+        ;;
     Gcc45 | Gcc45++0x)
         gcc_version=gcc-4.5.2
         gmp_version=gmp-5.0.1

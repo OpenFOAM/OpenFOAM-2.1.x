@@ -32,6 +32,7 @@ License
 #include "regIOobject.H"     // for fileModificationSkew symbol
 
 #ifdef FOAM_USE_INOTIFY
+#   include <unistd.h>
 #   include <sys/inotify.h>
 #   include <sys/ioctl.h>
 #   include <errno.h>
