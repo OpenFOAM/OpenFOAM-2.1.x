@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -313,6 +313,7 @@ void Foam::ensightPartCells::writeConnectivity
     if (key == "nfaced")
     {
         const faceList& meshFaces = mesh_.faces();
+        const labelUList& owner = mesh_.faceOwner();
 
         // write the number of faces per element
         forAll(idList, i)
@@ -345,16 +346,33 @@ void Foam::ensightPartCells::writeConnectivity
             const label id = idList[i] + offset_;
             const labelUList& cFace = mesh_.cells()[id];
 
-            forAll(cFace, faceI)
+            forAll(cFace, cFaceI)
             {
-                const face& cf = meshFaces[cFace[faceI]];
+                const label faceId = cFace[cFaceI];
+                const face& cf = meshFaces[faceId];
 
-                forAll(cf, ptI)
+                // convert global -> local index
+                // (note: Ensight indices start with 1)
+
+                // ensight >= 9 needs consistently oriented nfaced cells
+                if (id == owner[faceId])
                 {
-                    // convert global -> local index
-                    // (note: Ensight indices start with 1)
-                    os.write(pointMap[cf[ptI]] + 1);
+                    forAll(cf, ptI)
+                    {
+                        os.write(pointMap[cf[ptI]] + 1);
+                    }
                 }
+                else
+                {
+                    // as per face::reverseFace(), but without copying
+
+                    os.write(pointMap[cf[0]] + 1);
+                    for (label ptI = cf.size()-1; ptI > 0; --ptI)
+                    {
+                        os.write(pointMap[cf[ptI]] + 1);
+                    }
+                }
+
                 os.newline();
             }
         }

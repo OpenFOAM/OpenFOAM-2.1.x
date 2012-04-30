@@ -102,8 +102,10 @@ greyDiffusiveRadiationMixedFvPatchScalarField
         const scalarField& Tp =
             patch().lookupPatchField<volScalarField, scalar>(TName_);
 
+        //NOTE: Assumes emissivity = 1 as the solidThermo might
+        // not be constructed yet
         refValue() =
-            4.0*physicoChemical::sigma.value()*pow4(Tp)*emissivity()/pi;
+            4.0*physicoChemical::sigma.value()*pow4(Tp)/pi;
         refGrad() = 0.0;
         valueFraction() = 1.0;
 

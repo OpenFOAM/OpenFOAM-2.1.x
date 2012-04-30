@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -656,6 +656,7 @@ bool Foam::MeshedSurface<Face>::stitchFaces
                 << " faces" << endl;
         }
         faceLst.setSize(newFaceI);
+        faceMap.setSize(newFaceI);
         remapFaces(faceMap);
     }
     faceMap.clear();
