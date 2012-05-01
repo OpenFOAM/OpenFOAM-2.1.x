@@ -154,16 +154,14 @@ void atmBoundaryLayerInletEpsilonFvPatchScalarField::write(Ostream& os) const
 
     os.writeKeyword("z")
         << z_ << token::END_STATEMENT << nl;
-    os.writeKeyword("z0")
-        << z0_ << token::END_STATEMENT << nl;
+    z0_.writeEntry("z0", os) ;
     os.writeKeyword("kappa")
         << kappa_ << token::END_STATEMENT << nl;
     os.writeKeyword("Uref")
         << Uref_ << token::END_STATEMENT << nl;
     os.writeKeyword("Href")
         << Href_ << token::END_STATEMENT << nl;
-    os.writeKeyword("zGround")
-        << zGround_ << token::END_STATEMENT << nl;
+    zGround_.writeEntry("zGround", os);
     writeEntry("value", os);
 }
 
