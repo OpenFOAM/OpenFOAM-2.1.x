@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -36,7 +36,7 @@ template<class CloudType>
 Foam::SurfaceFilmModel<CloudType>::SurfaceFilmModel(CloudType& owner)
 :
     SubModelBase<CloudType>(owner),
-    g_(dimensionedVector("zero", dimAcceleration, vector::zero)),
+    g_(owner.g()),
     ejectedParcelType_(0),
     massParcelPatch_(0),
     diameterParcelPatch_(0),
