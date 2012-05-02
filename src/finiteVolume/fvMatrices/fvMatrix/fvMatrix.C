@@ -576,12 +576,18 @@ void Foam::fvMatrix<Type>::relax(const scalar alpha)
                 // Also add the source contribution from the relaxation
                 forAll(pa, face)
                 {
-                    Type iCoeff0 = iCoeffs[face];
-                    iCoeffs[face] = cmptMag(iCoeffs[face]);
-                    sumOff[pa[face]] -= cmptMin(iCoeffs[face]);
-                    iCoeffs[face] /= alpha;
-                    S[pa[face]] +=
-                        cmptMultiply(iCoeffs[face] - iCoeff0, psi_[pa[face]]);
+                    // Type iCoeff0 = iCoeffs[face];
+                    // iCoeffs[face] = cmptMag(iCoeffs[face]);
+                    // sumOff[pa[face]] -= cmptMin(iCoeffs[face]);
+                    // iCoeffs[face] /= alpha;
+                    D[pa[face]] +=
+                        cmptMag(cmptMin(iCoeffs[face]))
+                      - cmptMin(iCoeffs[face]);
+                    sumOff[pa[face]] +=
+                        cmptMag(cmptMin(iCoeffs[face]))
+                      - cmptMin(iCoeffs[face]);
+                    // S[pa[face]] +=
+                    // cmptMultiply(iCoeffs[face] - iCoeff0, psi_[pa[face]]);
                 }
             }
         }
