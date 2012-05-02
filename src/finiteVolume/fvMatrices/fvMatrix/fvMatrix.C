@@ -835,24 +835,22 @@ Foam::tmp<Foam::volScalarField> Foam::fvMatrix<Type>::H1() const
     );
     volScalarField& H1_ = tH1();
 
-    // Loop over field components
-    /*
-    for (direction cmpt=0; cmpt<Type::nComponents; cmpt++)
-    {
-        scalarField psiCmpt(psi_.internalField().component(cmpt));
-
-        scalarField boundaryDiagCmpt(psi_.size(), 0.0);
-        addBoundaryDiag(boundaryDiagCmpt, cmpt);
-        boundaryDiagCmpt.negate();
-        addCmptAvBoundaryDiag(boundaryDiagCmpt);
-
-        H1_.internalField().replace(cmpt, boundaryDiagCmpt);
-    }
-
-    H1_.internalField() += lduMatrix::H1();
-    */
-
     H1_.internalField() = lduMatrix::H1();
+
+    forAll(psi_.boundaryField(), patchI)
+    {
+        const fvPatchField<Type>& ptf = psi_.boundaryField()[patchI];
+
+        if (ptf.coupled() && ptf.size())
+        {
+            addToInternalField
+            (
+                lduAddr().patchAddr(patchI),
+                boundaryCoeffs_[patchI].component(0),
+                H1_
+            );
+        }
+    }
 
     H1_.internalField() /= psi_.mesh().V();
     H1_.correctBoundaryConditions();
