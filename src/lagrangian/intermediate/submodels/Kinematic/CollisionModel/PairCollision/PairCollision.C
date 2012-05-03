@@ -556,10 +556,11 @@ template<class CloudType>
 Foam::PairCollision<CloudType>::PairCollision
 (
     const dictionary& dict,
-    CloudType& owner
+    CloudType& owner,
+    const word& type
 )
 :
-    CollisionModel<CloudType>(dict, owner, typeName),
+    CollisionModel<CloudType>(dict, owner, type),
     pairModel_
     (
         PairModel<CloudType>::New
