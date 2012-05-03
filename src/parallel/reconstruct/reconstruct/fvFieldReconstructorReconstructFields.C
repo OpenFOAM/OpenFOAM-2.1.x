@@ -379,12 +379,12 @@ Foam::fvFieldReconstructor::reconstructFvSurfaceField
         {
             const labelList& faceMap = faceProcAddressing_[procI];
 
-            // Addressing into original field
-            labelList curAddr(faceMap.size());
             // Correctly oriented copy of internal field
             Field<Type> procInternalField(procField.internalField());
+            // Addressing into original field
+            labelList curAddr(procInternalField.size());
 
-            forAll(faceMap, addrI)
+            forAll(procInternalField, addrI)
             {
                 curAddr[addrI] = mag(faceMap[addrI])-1;
                 if (faceMap[addrI] < 0)
