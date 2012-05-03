@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -411,6 +411,7 @@ void kOmegaSST::correct()
     (
         fvm::ddt(rho_, omega_)
       + fvm::div(phi_, omega_)
+      - fvm::Sp(fvc::ddt(rho_) + fvc::div(phi_), omega_)
       - fvm::laplacian(DomegaEff(F1), omega_)
      ==
         rhoGammaF1*GbyMu
@@ -435,6 +436,7 @@ void kOmegaSST::correct()
     (
         fvm::ddt(rho_, k_)
       + fvm::div(phi_, k_)
+      - fvm::Sp(fvc::ddt(rho_) + fvc::div(phi_), k_)
       - fvm::laplacian(DkEff(F1), k_)
      ==
         min(G, (c1_*betaStar_)*rho_*k_*omega_)
