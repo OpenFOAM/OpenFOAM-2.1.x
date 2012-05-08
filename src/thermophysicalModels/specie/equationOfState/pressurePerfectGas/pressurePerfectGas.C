@@ -23,85 +23,49 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "makeBasicRhoThermo.H"
-
-#include "perfectGas.H"
 #include "pressurePerfectGas.H"
+#include "IOstreams.H"
 
-#include "hConstThermo.H"
-#include "janafThermo.H"
-#include "specieThermo.H"
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-#include "constTransport.H"
-#include "sutherlandTransport.H"
-
-#include "hsRhoThermo.H"
-#include "pureMixture.H"
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-namespace Foam
+Foam::pressurePerfectGas::pressurePerfectGas(Istream& is)
+:
+    specie(is),
+    pRef_(readScalar(is))
 {
-
-/* * * * * * * * * * * * * * * private static data * * * * * * * * * * * * * */
-
-makeBasicRhoThermo
-(
-    hsRhoThermo,
-    pureMixture,
-    constTransport,
-    hConstThermo,
-    perfectGas
-);
-
-makeBasicRhoThermo
-(
-    hsRhoThermo,
-    pureMixture,
-    sutherlandTransport,
-    hConstThermo,
-    perfectGas
-);
-
-makeBasicRhoThermo
-(
-    hsRhoThermo,
-    pureMixture,
-    sutherlandTransport,
-    janafThermo,
-    perfectGas
-);
-
-makeBasicRhoThermo
-(
-    hsRhoThermo,
-    pureMixture,
-    constTransport,
-    hConstThermo,
-    pressurePerfectGas
-);
-
-makeBasicRhoThermo
-(
-    hsRhoThermo,
-    pureMixture,
-    sutherlandTransport,
-    hConstThermo,
-    pressurePerfectGas
-);
-
-makeBasicRhoThermo
-(
-    hsRhoThermo,
-    pureMixture,
-    sutherlandTransport,
-    janafThermo,
-    pressurePerfectGas
-);
+    is.check("pressurePerfectGas::pressurePerfectGas(Istream& is)");
+}
 
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Foam::pressurePerfectGas::pressurePerfectGas(const dictionary& dict)
+:
+    specie(dict),
+    pRef_(readScalar(dict.subDict("equationOfState").lookup("pRef")))
+{}
 
-} // End namespace Foam
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::pressurePerfectGas::write(Ostream& os) const
+{
+    specie::write(os);
+    dictionary dict("equationOfState");
+    dict.add("pRef", pRef_);
+
+    os  << indent << dict.dictName() << dict;
+}
+
+
+// * * * * * * * * * * * * * * * Ostream Operator  * * * * * * * * * * * * * //
+
+Foam::Ostream& Foam::operator<<(Ostream& os, const pressurePerfectGas& pg)
+{
+    os  << static_cast<const specie&>(pg)
+        << token::SPACE << pg.pRef_;
+
+    os.check("Ostream& operator<<(Ostream& os, const pressurePerfectGas& st)");
+    return os;
+}
+
 
 // ************************************************************************* //

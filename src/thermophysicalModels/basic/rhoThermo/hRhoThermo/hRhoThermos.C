@@ -26,6 +26,7 @@ License
 #include "makeBasicRhoThermo.H"
 
 #include "perfectGas.H"
+#include "pressurePerfectGas.H"
 #include "incompressible.H"
 
 #include "hConstThermo.H"
@@ -97,6 +98,33 @@ makeBasicRhoPolyThermo
     hRhoThermo,
     pureMixture,
     8
+);
+
+makeBasicRhoThermo
+(
+    hRhoThermo,
+    pureMixture,
+    constTransport,
+    hConstThermo,
+    pressurePerfectGas
+);
+
+makeBasicRhoThermo
+(
+    hRhoThermo,
+    pureMixture,
+    sutherlandTransport,
+    hConstThermo,
+    pressurePerfectGas
+);
+
+makeBasicRhoThermo
+(
+    hRhoThermo,
+    pureMixture,
+    sutherlandTransport,
+    janafThermo,
+    pressurePerfectGas
 );
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
