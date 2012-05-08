@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -292,6 +292,7 @@ void kEpsilon::correct()
     (
         fvm::ddt(rho_, epsilon_)
       + fvm::div(phi_, epsilon_)
+      - fvm::Sp(fvc::ddt(rho_) + fvc::div(phi_), epsilon_)
       - fvm::laplacian(DepsilonEff(), epsilon_)
      ==
         C1_*G*epsilon_/k_
@@ -313,6 +314,7 @@ void kEpsilon::correct()
     (
         fvm::ddt(rho_, k_)
       + fvm::div(phi_, k_)
+      - fvm::Sp(fvc::ddt(rho_) + fvc::div(phi_), k_)
       - fvm::laplacian(DkEff(), k_)
      ==
         G
