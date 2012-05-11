@@ -41,11 +41,11 @@ void Foam::mappedPatchBase::distribute(List<Type>& lst) const
 }
 
 
-template<class Type, class BinaryOp>
+template<class Type, class CombineOp>
 void Foam::mappedPatchBase::distribute
 (
     List<Type>& lst,
-    const BinaryOp& bop
+    const CombineOp& cop
 ) const
 {
     switch (mode_)
@@ -55,7 +55,7 @@ void Foam::mappedPatchBase::distribute
             lst = AMI().interpolateToSource
                 (
                     Field<Type>(lst.xfer()),
-                    bop
+                    cop
                 );
             break;
         }
@@ -69,7 +69,7 @@ void Foam::mappedPatchBase::distribute
                 map().subMap(),
                 map().constructMap(),
                 lst,
-                bop,
+                cop,
                 pTraits<Type>::zero
             );
         }
@@ -96,11 +96,11 @@ void Foam::mappedPatchBase::reverseDistribute(List<Type>& lst) const
 }
 
 
-template<class Type, class BinaryOp>
+template<class Type, class CombineOp>
 void Foam::mappedPatchBase::reverseDistribute
 (
     List<Type>& lst,
-    const BinaryOp& bop
+    const CombineOp& cop
 ) const
 {
     switch (mode_)
@@ -110,7 +110,7 @@ void Foam::mappedPatchBase::reverseDistribute
             lst = AMI().interpolateToTarget
                 (
                     Field<Type>(lst.xfer()),
-                    bop
+                    cop
                 );
             break;
         }
@@ -125,7 +125,7 @@ void Foam::mappedPatchBase::reverseDistribute
                 map().constructMap(),
                 map().subMap(),
                 lst,
-                bop,
+                cop,
                 pTraits<Type>::zero
             );
             break;
