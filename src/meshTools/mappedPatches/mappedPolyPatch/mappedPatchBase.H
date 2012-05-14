@@ -353,16 +353,16 @@ public:
             void distribute(List<Type>& lst) const;
 
             //- Wrapper around map/interpolate data distribution with operation
-            template<class Type, class BinaryOp>
-            void distribute(List<Type>& lst, const BinaryOp& bop) const;
+            template<class Type, class CombineOp>
+            void distribute(List<Type>& lst, const CombineOp& cop) const;
 
             //- Wrapper around map/interpolate data distribution
             template<class Type>
             void reverseDistribute(List<Type>& lst) const;
 
             //- Wrapper around map/interpolate data distribution with operation
-            template<class Type, class BinaryOp>
-            void reverseDistribute(List<Type>& lst, const BinaryOp& bop) const;
+            template<class Type, class CombineOp>
+            void reverseDistribute(List<Type>& lst, const CombineOp& cop) const;
 
 
         // I/O

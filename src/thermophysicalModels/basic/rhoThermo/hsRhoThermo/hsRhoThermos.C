@@ -26,6 +26,7 @@ License
 #include "makeBasicRhoThermo.H"
 
 #include "perfectGas.H"
+#include "pressurePerfectGas.H"
 
 #include "hConstThermo.H"
 #include "janafThermo.H"
@@ -69,6 +70,33 @@ makeBasicRhoThermo
     sutherlandTransport,
     janafThermo,
     perfectGas
+);
+
+makeBasicRhoThermo
+(
+    hsRhoThermo,
+    pureMixture,
+    constTransport,
+    hConstThermo,
+    pressurePerfectGas
+);
+
+makeBasicRhoThermo
+(
+    hsRhoThermo,
+    pureMixture,
+    sutherlandTransport,
+    hConstThermo,
+    pressurePerfectGas
+);
+
+makeBasicRhoThermo
+(
+    hsRhoThermo,
+    pureMixture,
+    sutherlandTransport,
+    janafThermo,
+    pressurePerfectGas
 );
 
 

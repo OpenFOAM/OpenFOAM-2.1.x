@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -33,16 +33,16 @@ License
 namespace Foam
 {
     //- Combine operator for interpolateToSource/Target
-    template<class Type, class BinaryOp>
+    template<class Type, class CombineOp>
     class combineBinaryOp
     {
-        const BinaryOp& bop_;
+        const CombineOp& cop_;
 
         public:
 
-            combineBinaryOp(const BinaryOp& bop)
+            combineBinaryOp(const CombineOp& cop)
             :
-                bop_(bop)
+                cop_(cop)
             {}
 
             void operator()
@@ -53,7 +53,7 @@ namespace Foam
                 const scalar weight
             ) const
             {
-                x = bop_(x, weight*y);
+                cop_(x, weight*y);
             }
     };
 }
@@ -1862,7 +1862,7 @@ template<class Type, class CombineOp>
 void Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToTarget
 (
     const UList<Type>& fld,
-    const CombineOp& bop,
+    const CombineOp& cop,
     List<Type>& result
 ) const
 {
@@ -1894,7 +1894,7 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToTarget
 
             forAll(faces, i)
             {
-                bop(result[faceI], faceI, work[faces[i]], weights[i]);
+                cop(result[faceI], faceI, work[faces[i]], weights[i]);
             }
         }
     }
@@ -1907,7 +1907,7 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToTarget
 
             forAll(faces, i)
             {
-                bop(result[faceI], faceI, fld[faces[i]], weights[i]);
+                cop(result[faceI], faceI, fld[faces[i]], weights[i]);
             }
         }
     }
@@ -1919,7 +1919,7 @@ template<class Type, class CombineOp>
 void Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToSource
 (
     const UList<Type>& fld,
-    const CombineOp& bop,
+    const CombineOp& cop,
     List<Type>& result
 ) const
 {
@@ -1951,7 +1951,7 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToSource
 
             forAll(faces, i)
             {
-                bop(result[faceI], faceI, work[faces[i]], weights[i]);
+                cop(result[faceI], faceI, work[faces[i]], weights[i]);
             }
         }
     }
@@ -1964,7 +1964,7 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToSource
 
             forAll(faces, i)
             {
-                bop(result[faceI], faceI, fld[faces[i]], weights[i]);
+                cop(result[faceI], faceI, fld[faces[i]], weights[i]);
             }
         }
     }
@@ -1972,12 +1972,12 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToSource
 
 
 template<class SourcePatch, class TargetPatch>
-template<class Type, class BinaryOp>
+template<class Type, class CombineOp>
 Foam::tmp<Foam::Field<Type> >
 Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToSource
 (
     const Field<Type>& fld,
-    const BinaryOp& bop
+    const CombineOp& cop
 ) const
 {
     tmp<Field<Type> > tresult
@@ -1989,32 +1989,32 @@ Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToSource
         )
     );
 
-    interpolateToSource(fld, combineBinaryOp<Type, BinaryOp>(bop), tresult());
+    interpolateToSource(fld, combineBinaryOp<Type, CombineOp>(cop), tresult());
 
     return tresult;
 }
 
 
 template<class SourcePatch, class TargetPatch>
-template<class Type, class BinaryOp>
+template<class Type, class CombineOp>
 Foam::tmp<Foam::Field<Type> >
 Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToSource
 (
     const tmp<Field<Type> >& tFld,
-    const BinaryOp& bop
+    const CombineOp& cop
 ) const
 {
-    return interpolateToSource(tFld(), bop);
+    return interpolateToSource(tFld(), cop);
 }
 
 
 template<class SourcePatch, class TargetPatch>
-template<class Type, class BinaryOp>
+template<class Type, class CombineOp>
 Foam::tmp<Foam::Field<Type> >
 Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToTarget
 (
     const Field<Type>& fld,
-    const BinaryOp& bop
+    const CombineOp& cop
 ) const
 {
     tmp<Field<Type> > tresult
@@ -2026,22 +2026,22 @@ Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToTarget
         )
     );
 
-    interpolateToTarget(fld, combineBinaryOp<Type, BinaryOp>(bop), tresult());
+    interpolateToTarget(fld, combineBinaryOp<Type, CombineOp>(cop), tresult());
 
     return tresult;
 }
 
 
 template<class SourcePatch, class TargetPatch>
-template<class Type, class BinaryOp>
+template<class Type, class CombineOp>
 Foam::tmp<Foam::Field<Type> >
 Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToTarget
 (
     const tmp<Field<Type> >& tFld,
-    const BinaryOp& bop
+    const CombineOp& cop
 ) const
 {
-    return interpolateToTarget(tFld(), bop);
+    return interpolateToTarget(tFld(), cop);
 }
 
 
@@ -2053,7 +2053,7 @@ Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToSource
     const Field<Type>& fld
 ) const
 {
-    return interpolateToSource(fld, sumOp<Type>());
+    return interpolateToSource(fld, plusEqOp<Type>());
 }
 
 
@@ -2065,7 +2065,7 @@ Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToSource
     const tmp<Field<Type> >& tFld
 ) const
 {
-    return interpolateToSource(tFld(), sumOp<Type>());
+    return interpolateToSource(tFld(), plusEqOp<Type>());
 }
 
 
@@ -2077,7 +2077,7 @@ Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToTarget
     const Field<Type>& fld
 ) const
 {
-    return interpolateToTarget(fld, sumOp<Type>());
+    return interpolateToTarget(fld, plusEqOp<Type>());
 }
 
 
@@ -2089,7 +2089,7 @@ Foam::AMIInterpolation<SourcePatch, TargetPatch>::interpolateToTarget
     const tmp<Field<Type> >& tFld
 ) const
 {
-    return interpolateToTarget(tFld(), sumOp<Type>());
+    return interpolateToTarget(tFld(), plusEqOp<Type>());
 }
 
 

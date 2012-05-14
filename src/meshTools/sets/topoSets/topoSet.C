@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -135,7 +135,7 @@ Foam::fileName Foam::topoSet::topoSet::localPath
     const word& name
 )
 {
-    return mesh.facesInstance()/polyMesh::meshSubDir/"sets"/name;
+    return mesh.facesInstance()/mesh.dbDir()/polyMesh::meshSubDir/"sets"/name;
 }
 
 

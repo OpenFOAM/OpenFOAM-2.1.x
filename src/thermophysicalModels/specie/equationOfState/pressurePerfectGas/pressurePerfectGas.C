@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,37 +23,49 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "wedgeFvPatchField.H"
-#include "volFields.H"
+#include "pressurePerfectGas.H"
+#include "IOstreams.H"
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-namespace Foam
+Foam::pressurePerfectGas::pressurePerfectGas(Istream& is)
+:
+    specie(is),
+    pRef_(readScalar(is))
 {
+    is.check("pressurePerfectGas::pressurePerfectGas(Istream& is)");
+}
+
+
+Foam::pressurePerfectGas::pressurePerfectGas(const dictionary& dict)
+:
+    specie(dict),
+    pRef_(readScalar(dict.subDict("equationOfState").lookup("pRef")))
+{}
+
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-template<>
-tmp<scalarField> wedgeFvPatchField<scalar>::snGrad() const
+void Foam::pressurePerfectGas::write(Ostream& os) const
 {
-    return tmp<scalarField >(new scalarField(size(), 0.0));
+    specie::write(os);
+    dictionary dict("equationOfState");
+    dict.add("pRef", pRef_);
+
+    os  << indent << dict.dictName() << dict;
 }
 
 
-template<>
-void wedgeFvPatchField<scalar>::evaluate(const Pstream::commsTypes)
-{
-    if (!updated())
-    {
-        updateCoeffs();
-    }
+// * * * * * * * * * * * * * * * Ostream Operator  * * * * * * * * * * * * * //
 
-    this->operator==(patchInternalField());
+Foam::Ostream& Foam::operator<<(Ostream& os, const pressurePerfectGas& pg)
+{
+    os  << static_cast<const specie&>(pg)
+        << token::SPACE << pg.pRef_;
+
+    os.check("Ostream& operator<<(Ostream& os, const pressurePerfectGas& st)");
+    return os;
 }
 
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace Foam
 
 // ************************************************************************* //
