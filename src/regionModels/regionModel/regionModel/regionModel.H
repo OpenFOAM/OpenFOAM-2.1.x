@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -236,21 +236,21 @@ public:
             ) const;
 
             //- Convert a local region field to the primary region with op
-            template<class Type, class BinaryOp>
+            template<class Type, class CombineOp>
             void toPrimary
             (
                 const label regionPatchI,
                 List<Type>& regionField,
-                const BinaryOp& bop
+                const CombineOp& cop
             ) const;
 
             //- Convert a primary region field to the local region with op
-            template<class Type, class BinaryOp>
+            template<class Type, class CombineOp>
             void toRegion
             (
                 const label regionPatchI,
                 List<Type>& primaryFieldField,
-                const BinaryOp& bop
+                const CombineOp& cop
             ) const;
 
 
