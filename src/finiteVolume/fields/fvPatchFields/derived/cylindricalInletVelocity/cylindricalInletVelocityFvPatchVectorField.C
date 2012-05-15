@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -132,7 +132,7 @@ void Foam::cylindricalInletVelocityFvPatchVectorField::updateCoeffs()
     vector hatAxis = axis_/mag(axis_);
 
     const vectorField r(patch().Cf() - centre_);
-    tmp<vectorField> d =  r - (hatAxis & r)*hatAxis;
+    const vectorField d = r - (hatAxis & r)*hatAxis;
 
     tmp<vectorField> tangVel =
         (rpm_*constant::mathematical::pi/30.0)*(hatAxis) ^ d;
