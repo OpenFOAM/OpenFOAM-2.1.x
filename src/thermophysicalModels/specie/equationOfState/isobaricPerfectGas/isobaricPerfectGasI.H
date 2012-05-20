@@ -23,11 +23,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "pressurePerfectGas.H"
+#include "isobaricPerfectGas.H"
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-inline Foam::pressurePerfectGas::pressurePerfectGas(const specie& sp)
+inline Foam::isobaricPerfectGas::isobaricPerfectGas(const specie& sp)
 :
     specie(sp)
 {}
@@ -35,56 +35,56 @@ inline Foam::pressurePerfectGas::pressurePerfectGas(const specie& sp)
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-inline Foam::pressurePerfectGas::pressurePerfectGas
+inline Foam::isobaricPerfectGas::isobaricPerfectGas
 (
     const word& name,
-    const pressurePerfectGas& pg
+    const isobaricPerfectGas& pg
 )
 :
     specie(name, pg)
 {}
 
 
-inline Foam::autoPtr<Foam::pressurePerfectGas> Foam::pressurePerfectGas::
+inline Foam::autoPtr<Foam::isobaricPerfectGas> Foam::isobaricPerfectGas::
 clone() const
 {
-    return autoPtr<pressurePerfectGas>(new pressurePerfectGas(*this));
+    return autoPtr<isobaricPerfectGas>(new isobaricPerfectGas(*this));
 }
 
 
-inline Foam::autoPtr<Foam::pressurePerfectGas> Foam::pressurePerfectGas::New
+inline Foam::autoPtr<Foam::isobaricPerfectGas> Foam::isobaricPerfectGas::New
 (
     Istream& is
 )
 {
-    return autoPtr<pressurePerfectGas>(new pressurePerfectGas(is));
+    return autoPtr<isobaricPerfectGas>(new isobaricPerfectGas(is));
 }
 
 
-inline Foam::autoPtr<Foam::pressurePerfectGas> Foam::pressurePerfectGas::New
+inline Foam::autoPtr<Foam::isobaricPerfectGas> Foam::isobaricPerfectGas::New
 (
     const dictionary& dict
 )
 {
-    return autoPtr<pressurePerfectGas>(new pressurePerfectGas(dict));
+    return autoPtr<isobaricPerfectGas>(new isobaricPerfectGas(dict));
 }
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-inline Foam::scalar Foam::pressurePerfectGas::rho(scalar p, scalar T) const
+inline Foam::scalar Foam::isobaricPerfectGas::rho(scalar p, scalar T) const
 {
     return pRef_/(R()*T);
 }
 
 
-inline Foam::scalar Foam::pressurePerfectGas::psi(scalar, scalar T) const
+inline Foam::scalar Foam::isobaricPerfectGas::psi(scalar, scalar T) const
 {
     return 0.0;
 }
 
 
-inline Foam::scalar Foam::pressurePerfectGas::Z(scalar, scalar) const
+inline Foam::scalar Foam::isobaricPerfectGas::Z(scalar, scalar) const
 {
     return 0.0;
 }
@@ -92,19 +92,19 @@ inline Foam::scalar Foam::pressurePerfectGas::Z(scalar, scalar) const
 
 // * * * * * * * * * * * * * * * Member Operators  * * * * * * * * * * * * * //
 
-inline void Foam::pressurePerfectGas::operator+=(const pressurePerfectGas& pg)
+inline void Foam::isobaricPerfectGas::operator+=(const isobaricPerfectGas& pg)
 {
     specie::operator+=(pg);
 }
 
 
-inline void Foam::pressurePerfectGas::operator-=(const pressurePerfectGas& pg)
+inline void Foam::isobaricPerfectGas::operator-=(const isobaricPerfectGas& pg)
 {
     specie::operator-=(pg);
 }
 
 
-inline void Foam::pressurePerfectGas::operator*=(const scalar s)
+inline void Foam::isobaricPerfectGas::operator*=(const scalar s)
 {
     specie::operator*=(s);
 }
@@ -112,13 +112,13 @@ inline void Foam::pressurePerfectGas::operator*=(const scalar s)
 
 // * * * * * * * * * * * * * * * Friend Operators  * * * * * * * * * * * * * //
 
-inline Foam::pressurePerfectGas Foam::operator+
+inline Foam::isobaricPerfectGas Foam::operator+
 (
-    const pressurePerfectGas& pg1,
-    const pressurePerfectGas& pg2
+    const isobaricPerfectGas& pg1,
+    const isobaricPerfectGas& pg2
 )
 {
-    return pressurePerfectGas
+    return isobaricPerfectGas
     (
         static_cast<const specie&>(pg1)
       + static_cast<const specie&>(pg2)
@@ -126,13 +126,13 @@ inline Foam::pressurePerfectGas Foam::operator+
 }
 
 
-inline Foam::pressurePerfectGas Foam::operator-
+inline Foam::isobaricPerfectGas Foam::operator-
 (
-    const pressurePerfectGas& pg1,
-    const pressurePerfectGas& pg2
+    const isobaricPerfectGas& pg1,
+    const isobaricPerfectGas& pg2
 )
 {
-    return pressurePerfectGas
+    return isobaricPerfectGas
     (
         static_cast<const specie&>(pg1)
       - static_cast<const specie&>(pg2)
@@ -140,20 +140,20 @@ inline Foam::pressurePerfectGas Foam::operator-
 }
 
 
-inline Foam::pressurePerfectGas Foam::operator*
+inline Foam::isobaricPerfectGas Foam::operator*
 (
     const scalar s,
-    const pressurePerfectGas& pg
+    const isobaricPerfectGas& pg
 )
 {
-    return pressurePerfectGas(s*static_cast<const specie&>(pg));
+    return isobaricPerfectGas(s*static_cast<const specie&>(pg));
 }
 
 
-inline Foam::pressurePerfectGas Foam::operator==
+inline Foam::isobaricPerfectGas Foam::operator==
 (
-    const pressurePerfectGas& pg1,
-    const pressurePerfectGas& pg2
+    const isobaricPerfectGas& pg1,
+    const isobaricPerfectGas& pg2
 )
 {
     return pg2 - pg1;
