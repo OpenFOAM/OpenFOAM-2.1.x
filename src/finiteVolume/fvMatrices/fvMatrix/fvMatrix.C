@@ -570,24 +570,20 @@ void Foam::fvMatrix<Type>::relax(const scalar alpha)
             }
             else
             {
-                // For non-coupled boundaries subtract the diagonal
-                // contribution off-diagonal sum which avoids having to remove
-                // it from the diagonal later.
-                // Also add the source contribution from the relaxation
+                // For non-coupled boundaries
+                // add the difference between maximised boundary diagonal
+                // contribution and the boundary diagonal contribution
+                // to both the diagonal and the sum of the off-diagonal fields
+                // to ensure the relaxation operates on the appropriately
+                // normalised diagonal
                 forAll(pa, face)
                 {
-                    // Type iCoeff0 = iCoeffs[face];
-                    // iCoeffs[face] = cmptMag(iCoeffs[face]);
-                    // sumOff[pa[face]] -= cmptMin(iCoeffs[face]);
-                    // iCoeffs[face] /= alpha;
                     D[pa[face]] +=
                         cmptMag(cmptMin(iCoeffs[face]))
                       - cmptMin(iCoeffs[face]);
                     sumOff[pa[face]] +=
                         cmptMag(cmptMin(iCoeffs[face]))
                       - cmptMin(iCoeffs[face]);
-                    // S[pa[face]] +=
-                    // cmptMultiply(iCoeffs[face] - iCoeff0, psi_[pa[face]]);
                 }
             }
         }
