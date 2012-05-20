@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -81,10 +81,14 @@ public:
                 gradcf = gradfV & (d & gradcN);
             }
 
-            // Stabilise for division
-            gradcf = stabilise(gradcf, VSMALL);
-
-            return 1 - 0.5*gradf/gradcf;
+            if (mag(gradf) >= 1000*mag(gradcf))
+            {
+                return 1 - 0.5*1000*sign(gradcf)*sign(gradf);
+            }
+            else
+            {
+                return 1 - 0.5*gradf/gradcf;
+            }
         }
 
 
@@ -112,10 +116,14 @@ public:
                 gradcf = gradfV & (d & gradcN);
             }
 
-            // Stabilise for division
-            gradf = stabilise(gradf, VSMALL);
-
-            return 2*(gradcf/gradf) - 1;
+            if (mag(gradcf) >= 1000*mag(gradf))
+            {
+                return 2*1000*sign(gradcf)*sign(gradf) - 1;
+            }
+            else
+            {
+                return 2*(gradcf/gradf) - 1;
+            }
         }
 };
 
