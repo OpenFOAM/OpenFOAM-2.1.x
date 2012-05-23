@@ -323,8 +323,10 @@ autoPtr<fvMesh> createMesh
     if (!haveMesh)
     {
         // We created a dummy mesh file above. Delete it.
-        //Pout<< "Removing dummy mesh " << io.objectPath() << endl;
-        rmDir(io.objectPath());
+        const fileName meshFiles = runTime.path()/io.instance()/mesh.meshDir();
+        //Pout<< "Removing dummy mesh at " << meshFiles << endl;
+        mesh.removeFiles();
+        rmDir(meshFiles);
     }
 
     // Force recreation of globalMeshData.
