@@ -662,9 +662,9 @@ void Foam::PairCollision<CloudType>::collide()
 {
     preInteraction();
 
-    parcelInteraction();
-
     wallInteraction();
+
+    parcelInteraction();
 
     postInteraction();
 }
