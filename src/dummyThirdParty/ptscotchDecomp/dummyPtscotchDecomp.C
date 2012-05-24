@@ -58,7 +58,7 @@ void Foam::ptscotchDecomp::check(const int retVal, const char* str)
 {}
 
 
-Foam::label Foam::ptscotchDecomp::decomposeZeroDomains
+Foam::label Foam::ptscotchDecomp::decompose
 (
     const fileName& meshPath,
     const List<int>& initxadj,
@@ -72,6 +72,7 @@ Foam::label Foam::ptscotchDecomp::decomposeZeroDomains
     (
         "label ptscotchDecomp::decompose"
         "("
+            "onst fileName&,"
             "const List<int>&, "
             "const List<int>&, "
             "const scalarField&, "
@@ -84,8 +85,10 @@ Foam::label Foam::ptscotchDecomp::decomposeZeroDomains
 Foam::label Foam::ptscotchDecomp::decompose
 (
     const fileName& meshPath,
-    const List<int>& adjncy,
-    const List<int>& xadj,
+    const int adjncySize,
+    const int adjncy[],
+    const int xadjSize,
+    const int xadj[],
     const scalarField& cWeights,
     List<int>& finalDecomp
 ) const
@@ -94,9 +97,12 @@ Foam::label Foam::ptscotchDecomp::decompose
     (
         "label ptscotchDecomp::decompose"
         "("
-            "const List<int>&, "
-            "const List<int>&, "
-            "const scalarField&, "
+            "const fileName&,"
+            "const int,"
+            "const int,"
+            "const int,"
+            "const int,"
+            "const scalarField&,"
             "List<int>&"
         ")"
     )   << notImplementedMessage << exit(FatalError);
