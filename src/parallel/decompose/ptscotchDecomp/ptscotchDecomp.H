@@ -60,22 +60,24 @@ class ptscotchDecomp
         //- Check and print error message
         static void check(const int, const char*);
 
-        //- Decompose with optionally zero sized domains
-        label decomposeZeroDomains
-        (
-            const fileName& meshPath,
-            const List<int>& initadjncy,
-            const List<int>& initxadj,
-            const scalarField& initcWeights,
-            List<int>& finalDecomp
-        ) const;
-
-        //- Decompose
+        //- Decompose. Handles size 0 arrays
         label decompose
         (
             const fileName& meshPath,
             const List<int>& adjncy,
             const List<int>& xadj,
+            const scalarField& cWeights,
+            List<int>& finalDecomp
+        ) const;
+
+        //- Low level decompose
+        label decompose
+        (
+            const fileName& meshPath,
+            const int adjncySize,
+            const int adjncy[],
+            const int xadjSize,
+            const int xadj[],
             const scalarField& cWeights,
             List<int>& finalDecomp
         ) const;

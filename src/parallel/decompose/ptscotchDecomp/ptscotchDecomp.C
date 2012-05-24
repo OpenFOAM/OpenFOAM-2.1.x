@@ -103,9 +103,9 @@ License
 
 
 
-    Note: writes out .dgr files for debugging. Run with e.g.
+    Note: writeGraph=true : writes out .dgr files for debugging. Run with e.g.
 
-        mpirun -np 4 dgpart 2 'processor%r.grf'
+        mpirun -np 4 dgpart 2 'region0_%r.dgr'
 
     - %r gets replaced by current processor rank
     - decompose into 2 domains
@@ -167,192 +167,192 @@ void Foam::ptscotchDecomp::check(const int retVal, const char* str)
 }
 
 
-//- Does prevention of 0 cell domains and calls ptscotch.
-Foam::label Foam::ptscotchDecomp::decomposeZeroDomains
-(
-    const fileName& meshPath,
-    const List<int>& initadjncy,
-    const List<int>& initxadj,
-    const scalarField& initcWeights,
-
-    List<int>& finalDecomp
-) const
-{
-    globalIndex globalCells(initxadj.size()-1);
-
-    bool hasZeroDomain = false;
-    for (label procI = 0; procI < Pstream::nProcs(); procI++)
-    {
-        if (globalCells.localSize(procI) == 0)
-        {
-            hasZeroDomain = true;
-            break;
-        }
-    }
-
-    if (!hasZeroDomain)
-    {
-        return decompose
-        (
-            meshPath,
-            initadjncy,
-            initxadj,
-            initcWeights,
-            finalDecomp
-        );
-    }
-
-
-    if (debug)
-    {
-        Info<< "ptscotchDecomp : have graphs with locally 0 cells."
-            << " trickling down." << endl;
-    }
-
-    // Make sure every domain has at least one cell
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // (scotch does not like zero sized domains)
-    // Trickle cells from processors that have them up to those that
-    // don't.
-
-
-    // Number of cells to send to the next processor
-    // (is same as number of cells next processor has to receive)
-    List<int> nSendCells(Pstream::nProcs(), 0);
-
-    for (label procI = nSendCells.size()-1; procI >=1; procI--)
-    {
-        label nLocalCells = globalCells.localSize(procI);
-        if (nLocalCells-nSendCells[procI] < 1)
-        {
-            nSendCells[procI-1] = nSendCells[procI]-nLocalCells+1;
-        }
-    }
-
-    // First receive (so increasing the sizes of all arrays)
-
-    Field<int> xadj(initxadj);
-    Field<int> adjncy(initadjncy);
-    scalarField cWeights(initcWeights);
-
-    if (Pstream::myProcNo() >= 1 && nSendCells[Pstream::myProcNo()-1] > 0)
-    {
-        // Receive cells from previous processor
-        IPstream fromPrevProc(Pstream::blocking, Pstream::myProcNo()-1);
-
-        Field<int> prevXadj(fromPrevProc);
-        Field<int> prevAdjncy(fromPrevProc);
-        scalarField prevCellWeights(fromPrevProc);
-
-        if (prevXadj.size() != nSendCells[Pstream::myProcNo()-1])
-        {
-            FatalErrorIn("ptscotchDecomp::decompose(..)")
-                << "Expected from processor " << Pstream::myProcNo()-1
-                << " connectivity for " << nSendCells[Pstream::myProcNo()-1]
-                << " nCells but only received " << prevXadj.size()
-                << abort(FatalError);
-        }
-
-        // Insert adjncy
-        prepend(prevAdjncy, adjncy);
-        // Adapt offsets and prepend xadj
-        xadj += prevAdjncy.size();
-        prepend(prevXadj, xadj);
-        // Weights
-        prepend(prevCellWeights, cWeights);
-    }
-
-
-    // Send to my next processor
-
-    if (nSendCells[Pstream::myProcNo()] > 0)
-    {
-        // Send cells to next processor
-        OPstream toNextProc(Pstream::blocking, Pstream::myProcNo()+1);
-
-        int nCells = nSendCells[Pstream::myProcNo()];
-        int startCell = xadj.size()-1 - nCells;
-        int startFace = xadj[startCell];
-        int nFaces = adjncy.size()-startFace;
-
-        // Send for all cell data: last nCells elements
-        // Send for all face data: last nFaces elements
-        toNextProc
-            << Field<int>::subField(xadj, nCells, startCell)-startFace
-            << Field<int>::subField(adjncy, nFaces, startFace)
-            <<
-            (
-                cWeights.size()
-              ? static_cast<const scalarField&>
-                (
-                    scalarField::subField(cWeights, nCells, startCell)
-                )
-              : scalarField(0)
-            );
-
-        // Remove data that has been sent
-        if (cWeights.size())
-        {
-            cWeights.setSize(cWeights.size()-nCells);
-        }
-        adjncy.setSize(adjncy.size()-nFaces);
-        xadj.setSize(xadj.size() - nCells);
-    }
-
-
-    // Do decomposition as normal. Sets finalDecomp.
-    label result = decompose(meshPath, adjncy, xadj, cWeights, finalDecomp);
-
-
-    if (debug)
-    {
-        Info<< "ptscotchDecomp : have graphs with locally 0 cells."
-            << " trickling up." << endl;
-    }
-
-
-    // If we sent cells across make sure we undo it
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    // Receive back from next processor if I sent something
-    if (nSendCells[Pstream::myProcNo()] > 0)
-    {
-        IPstream fromNextProc(Pstream::blocking, Pstream::myProcNo()+1);
-
-        List<int> nextFinalDecomp(fromNextProc);
-
-        if (nextFinalDecomp.size() != nSendCells[Pstream::myProcNo()])
-        {
-            FatalErrorIn("parMetisDecomp::decompose(..)")
-                << "Expected from processor " << Pstream::myProcNo()+1
-                << " decomposition for " << nSendCells[Pstream::myProcNo()]
-                << " nCells but only received " << nextFinalDecomp.size()
-                << abort(FatalError);
-        }
-
-        append(nextFinalDecomp, finalDecomp);
-    }
-
-    // Send back to previous processor.
-    if (Pstream::myProcNo() >= 1 && nSendCells[Pstream::myProcNo()-1] > 0)
-    {
-        OPstream toPrevProc(Pstream::blocking, Pstream::myProcNo()-1);
-
-        int nToPrevious = nSendCells[Pstream::myProcNo()-1];
-
-        toPrevProc <<
-            SubList<int>
-            (
-                finalDecomp,
-                nToPrevious,
-                finalDecomp.size()-nToPrevious
-            );
-
-        // Remove locally what has been sent
-        finalDecomp.setSize(finalDecomp.size()-nToPrevious);
-    }
-    return result;
-}
+////- Does prevention of 0 cell domains and calls ptscotch.
+//Foam::label Foam::ptscotchDecomp::decomposeZeroDomains
+//(
+//    const fileName& meshPath,
+//    const List<int>& initadjncy,
+//    const List<int>& initxadj,
+//    const scalarField& initcWeights,
+//
+//    List<int>& finalDecomp
+//) const
+//{
+//    globalIndex globalCells(initxadj.size()-1);
+//
+//    bool hasZeroDomain = false;
+//    for (label procI = 0; procI < Pstream::nProcs(); procI++)
+//    {
+//        if (globalCells.localSize(procI) == 0)
+//        {
+//            hasZeroDomain = true;
+//            break;
+//        }
+//    }
+//
+//    if (!hasZeroDomain)
+//    {
+//        return decompose
+//        (
+//            meshPath,
+//            initadjncy,
+//            initxadj,
+//            initcWeights,
+//            finalDecomp
+//        );
+//    }
+//
+//
+//    if (debug)
+//    {
+//        Info<< "ptscotchDecomp : have graphs with locally 0 cells."
+//            << " trickling down." << endl;
+//    }
+//
+//    // Make sure every domain has at least one cell
+//    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//    // (scotch does not like zero sized domains)
+//    // Trickle cells from processors that have them up to those that
+//    // don't.
+//
+//
+//    // Number of cells to send to the next processor
+//    // (is same as number of cells next processor has to receive)
+//    List<int> nSendCells(Pstream::nProcs(), 0);
+//
+//    for (label procI = nSendCells.size()-1; procI >=1; procI--)
+//    {
+//        label nLocalCells = globalCells.localSize(procI);
+//        if (nLocalCells-nSendCells[procI] < 1)
+//        {
+//            nSendCells[procI-1] = nSendCells[procI]-nLocalCells+1;
+//        }
+//    }
+//
+//    // First receive (so increasing the sizes of all arrays)
+//
+//    Field<int> xadj(initxadj);
+//    Field<int> adjncy(initadjncy);
+//    scalarField cWeights(initcWeights);
+//
+//    if (Pstream::myProcNo() >= 1 && nSendCells[Pstream::myProcNo()-1] > 0)
+//    {
+//        // Receive cells from previous processor
+//        IPstream fromPrevProc(Pstream::blocking, Pstream::myProcNo()-1);
+//
+//        Field<int> prevXadj(fromPrevProc);
+//        Field<int> prevAdjncy(fromPrevProc);
+//        scalarField prevCellWeights(fromPrevProc);
+//
+//        if (prevXadj.size() != nSendCells[Pstream::myProcNo()-1])
+//        {
+//            FatalErrorIn("ptscotchDecomp::decompose(..)")
+//                << "Expected from processor " << Pstream::myProcNo()-1
+//                << " connectivity for " << nSendCells[Pstream::myProcNo()-1]
+//                << " nCells but only received " << prevXadj.size()
+//                << abort(FatalError);
+//        }
+//
+//        // Insert adjncy
+//        prepend(prevAdjncy, adjncy);
+//        // Adapt offsets and prepend xadj
+//        xadj += prevAdjncy.size();
+//        prepend(prevXadj, xadj);
+//        // Weights
+//        prepend(prevCellWeights, cWeights);
+//    }
+//
+//
+//    // Send to my next processor
+//
+//    if (nSendCells[Pstream::myProcNo()] > 0)
+//    {
+//        // Send cells to next processor
+//        OPstream toNextProc(Pstream::blocking, Pstream::myProcNo()+1);
+//
+//        int nCells = nSendCells[Pstream::myProcNo()];
+//        int startCell = xadj.size()-1 - nCells;
+//        int startFace = xadj[startCell];
+//        int nFaces = adjncy.size()-startFace;
+//
+//        // Send for all cell data: last nCells elements
+//        // Send for all face data: last nFaces elements
+//        toNextProc
+//            << Field<int>::subField(xadj, nCells, startCell)-startFace
+//            << Field<int>::subField(adjncy, nFaces, startFace)
+//            <<
+//            (
+//                cWeights.size()
+//              ? static_cast<const scalarField&>
+//                (
+//                    scalarField::subField(cWeights, nCells, startCell)
+//                )
+//              : scalarField(0)
+//            );
+//
+//        // Remove data that has been sent
+//        if (cWeights.size())
+//        {
+//            cWeights.setSize(cWeights.size()-nCells);
+//        }
+//        adjncy.setSize(adjncy.size()-nFaces);
+//        xadj.setSize(xadj.size() - nCells);
+//    }
+//
+//
+//    // Do decomposition as normal. Sets finalDecomp.
+//    label result = decompose(meshPath, adjncy, xadj, cWeights, finalDecomp);
+//
+//
+//    if (debug)
+//    {
+//        Info<< "ptscotchDecomp : have graphs with locally 0 cells."
+//            << " trickling up." << endl;
+//    }
+//
+//
+//    // If we sent cells across make sure we undo it
+//    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+//    // Receive back from next processor if I sent something
+//    if (nSendCells[Pstream::myProcNo()] > 0)
+//    {
+//        IPstream fromNextProc(Pstream::blocking, Pstream::myProcNo()+1);
+//
+//        List<int> nextFinalDecomp(fromNextProc);
+//
+//        if (nextFinalDecomp.size() != nSendCells[Pstream::myProcNo()])
+//        {
+//            FatalErrorIn("parMetisDecomp::decompose(..)")
+//                << "Expected from processor " << Pstream::myProcNo()+1
+//                << " decomposition for " << nSendCells[Pstream::myProcNo()]
+//                << " nCells but only received " << nextFinalDecomp.size()
+//                << abort(FatalError);
+//        }
+//
+//        append(nextFinalDecomp, finalDecomp);
+//    }
+//
+//    // Send back to previous processor.
+//    if (Pstream::myProcNo() >= 1 && nSendCells[Pstream::myProcNo()-1] > 0)
+//    {
+//        OPstream toPrevProc(Pstream::blocking, Pstream::myProcNo()-1);
+//
+//        int nToPrevious = nSendCells[Pstream::myProcNo()-1];
+//
+//        toPrevProc <<
+//            SubList<int>
+//            (
+//                finalDecomp,
+//                nToPrevious,
+//                finalDecomp.size()-nToPrevious
+//            );
+//
+//        // Remove locally what has been sent
+//        finalDecomp.setSize(finalDecomp.size()-nToPrevious);
+//    }
+//    return result;
+//}
 
 
 // Call scotch with options from dictionary.
@@ -362,13 +362,42 @@ Foam::label Foam::ptscotchDecomp::decompose
     const List<int>& adjncy,
     const List<int>& xadj,
     const scalarField& cWeights,
+    List<int>& finalDecomp
+) const
+{
+    List<int> dummyAdjncy(1);
+    List<int> dummyXadj(1);
+    dummyXadj[0] = 0;
+
+    return decompose
+    (
+        meshPath,
+        adjncy.size(),
+        (adjncy.size() ? adjncy.begin() : dummyAdjncy.begin()),
+        xadj.size(),
+        (xadj.size() ? xadj.begin() : dummyXadj.begin()),
+        cWeights,
+        finalDecomp
+    );
+}
+
+
+// Call scotch with options from dictionary.
+Foam::label Foam::ptscotchDecomp::decompose
+(
+    const fileName& meshPath,
+    const int adjncySize,
+    const int adjncy[],
+    const int xadjSize,
+    const int xadj[],
+    const scalarField& cWeights,
 
     List<int>& finalDecomp
 ) const
 {
     if (debug)
     {
-        Pout<< "ptscotchDecomp : entering with xadj:" << xadj.size() << endl;
+        Pout<< "ptscotchDecomp : entering with xadj:" << xadjSize << endl;
     }
 
     // Dump graph
@@ -387,7 +416,7 @@ Foam::label Foam::ptscotchDecomp::decompose
             Pout<< "Dumping Scotch graph file to " << str.name() << endl
                 << "Use this in combination with dgpart." << endl;
 
-            globalIndex globalCells(xadj.size()-1);
+            globalIndex globalCells(xadjSize-1);
 
             // Distributed graph file (.grf)
             label version = 2;
@@ -400,17 +429,17 @@ Foam::label Foam::ptscotchDecomp::decompose
             // Total number of vertices (vertglbnbr)
             str << globalCells.size();
             // Total number of connections (edgeglbnbr)
-            str << ' ' << returnReduce(xadj[xadj.size()-1], sumOp<label>())
+            str << ' ' << returnReduce(xadj[xadjSize-1], sumOp<label>())
                 << nl;
             // Local number of vertices (vertlocnbr)
-            str << xadj.size()-1;
+            str << xadjSize-1;
             // Local number of connections (edgelocnbr)
-            str << ' ' << xadj[xadj.size()-1] << nl;
+            str << ' ' << xadj[xadjSize-1] << nl;
             // Numbering starts from 0
             label baseval = 0;
             // 100*hasVertlabels+10*hasEdgeWeights+1*hasVertWeighs
             str << baseval << ' ' << "000" << nl;
-            for (label cellI = 0; cellI < xadj.size()-1; cellI++)
+            for (label cellI = 0; cellI < xadjSize-1; cellI++)
             {
                 label start = xadj[cellI];
                 label end = xadj[cellI+1];
@@ -462,8 +491,9 @@ Foam::label Foam::ptscotchDecomp::decompose
     // Check for externally provided cellweights and if so initialise weights
 
     scalar minWeights = gMin(cWeights);
+    scalar maxWeights = gMax(cWeights);
 
-    if (!cWeights.empty())
+    if (maxWeights > minWeights)
     {
         if (minWeights <= 0)
         {
@@ -474,13 +504,13 @@ Foam::label Foam::ptscotchDecomp::decompose
                 << endl;
         }
 
-        if (cWeights.size() != xadj.size()-1)
+        if (cWeights.size() != xadjSize-1)
         {
             FatalErrorIn
             (
                 "ptscotchDecomp::decompose(..)"
             )   << "Number of cell weights " << cWeights.size()
-                << " does not equal number of cells " << xadj.size()-1
+                << " does not equal number of cells " << xadjSize-1
                 << exit(FatalError);
         }
     }
@@ -508,7 +538,7 @@ Foam::label Foam::ptscotchDecomp::decompose
 
     Pstream::scatter(rangeScale);
 
-    if (!cWeights.empty())
+    if (maxWeights > minWeights)
     {
         // Convert to integers.
         velotab.setSize(cWeights.size());
@@ -532,11 +562,11 @@ Foam::label Foam::ptscotchDecomp::decompose
     if (debug)
     {
         Pout<< "SCOTCH_dgraphBuild with:" << nl
-            << "xadj.size()-1   : " << xadj.size()-1 << nl
-            << "xadj            : " << long(xadj.begin()) << nl
+            << "xadjSize-1      : " << xadjSize-1 << nl
+            << "xadj            : " << long(xadj) << nl
             << "velotab         : " << long(velotab.begin()) << nl
-            << "adjncy.size()   : " << adjncy.size() << nl
-            << "adjncy          : " << long(adjncy.begin()) << nl
+            << "adjncySize      : " << adjncySize << nl
+            << "adjncy          : " << long(adjncy) << nl
             << endl;
     }
 
@@ -546,19 +576,19 @@ Foam::label Foam::ptscotchDecomp::decompose
         (
             &grafdat,               // grafdat
             0,                      // baseval, c-style numbering
-            xadj.size()-1,          // vertlocnbr, nCells
-            xadj.size()-1,          // vertlocmax
-            const_cast<SCOTCH_Num*>(xadj.begin()),
+            xadjSize-1,             // vertlocnbr, nCells
+            xadjSize-1,             // vertlocmax
+            const_cast<SCOTCH_Num*>(xadj),
                                     // vertloctab, start index per cell into
                                     // adjncy
-            const_cast<SCOTCH_Num*>(&xadj[1]),// vendloctab, end index  ,,
+            const_cast<SCOTCH_Num*>(xadj+1),// vendloctab, end index  ,,
 
             const_cast<SCOTCH_Num*>(velotab.begin()),// veloloctab, vtx weights
             NULL,                   // vlblloctab
 
-            adjncy.size(),          // edgelocnbr, number of arcs
-            adjncy.size(),          // edgelocsiz
-            const_cast<SCOTCH_Num*>(adjncy.begin()),         // edgeloctab
+            adjncySize,             // edgelocnbr, number of arcs
+            adjncySize,             // edgelocsiz
+            const_cast<SCOTCH_Num*>(adjncy),         // edgeloctab
             NULL,                   // edgegsttab
             NULL                    // edlotab, edge weights
         ),
@@ -620,12 +650,6 @@ Foam::label Foam::ptscotchDecomp::decompose
     }
 
 
-    //SCOTCH_Mapping mapdat;
-    //SCOTCH_dgraphMapInit(&grafdat, &mapdat, &archdat, NULL);
-    //SCOTCH_dgraphMapCompute(&grafdat, &mapdat, &stradat); /*Perform mapping*/
-    //SCOTCHdgraphMapExit(&grafdat, &mapdat);
-
-
     // Hack:switch off fpu error trapping
 #   ifdef LINUX_GNUC
     int oldExcepts = fedisableexcept
@@ -636,12 +660,15 @@ Foam::label Foam::ptscotchDecomp::decompose
     );
 #   endif
 
+
+    // Note: always provide allocated storage even if local size 0
+    finalDecomp.setSize(max(1, xadjSize-1));
+    finalDecomp = 0;
+
     if (debug)
     {
         Pout<< "SCOTCH_dgraphMap" << endl;
     }
-    finalDecomp.setSize(xadj.size()-1);
-    finalDecomp = 0;
     check
     (
         SCOTCH_dgraphMap
@@ -660,7 +687,7 @@ Foam::label Foam::ptscotchDecomp::decompose
 
 
 
-    //finalDecomp.setSize(xadj.size()-1);
+    //finalDecomp.setSize(xadjSize-1);
     //check
     //(
     //    SCOTCH_dgraphPart
@@ -719,12 +746,6 @@ Foam::labelList Foam::ptscotchDecomp::decompose
             << exit(FatalError);
     }
 
-//    // For running sequential ...
-//    if (Pstream::nProcs() <= 1)
-//    {
-//        return scotchDecomp(decompositionDict_, mesh_)
-//            .decompose(points, pointWeights);
-//    }
 
     // Make Metis CSR (Compressed Storage Format) storage
     //   adjncy      : contains neighbours (= edges in graph)
@@ -736,7 +757,7 @@ Foam::labelList Foam::ptscotchDecomp::decompose
 
     // Decompose using default weights
     List<int> finalDecomp;
-    decomposeZeroDomains
+    decompose
     (
         mesh.time().path()/mesh.name(),
         cellCells.m(),
@@ -746,7 +767,7 @@ Foam::labelList Foam::ptscotchDecomp::decompose
     );
 
     // Copy back to labelList
-    labelList decomp(finalDecomp.size());
+    labelList decomp(points.size());
     forAll(decomp, i)
     {
         decomp[i] = finalDecomp[i];
@@ -773,12 +794,6 @@ Foam::labelList Foam::ptscotchDecomp::decompose
             << exit(FatalError);
     }
 
-//    // For running sequential ...
-//    if (Pstream::nProcs() <= 1)
-//    {
-//        return scotchDecomp(decompositionDict_, mesh)
-//            .decompose(agglom, agglomPoints, pointWeights);
-//    }
 
     // Make Metis CSR (Compressed Storage Format) storage
     //   adjncy      : contains neighbours (= edges in graph)
@@ -788,7 +803,7 @@ Foam::labelList Foam::ptscotchDecomp::decompose
 
     // Decompose using weights
     List<int> finalDecomp;
-    decomposeZeroDomains
+    decompose
     (
         mesh.time().path()/mesh.name(),
         cellCells.m(),
@@ -826,13 +841,6 @@ Foam::labelList Foam::ptscotchDecomp::decompose
             << ")." << exit(FatalError);
     }
 
-//    // For running sequential ...
-//    if (Pstream::nProcs() <= 1)
-//    {
-//        return scotchDecomp(decompositionDict_, mesh)
-//            .decompose(globalCellCells, cellCentres, cWeights);
-//    }
-
 
     // Make Metis CSR (Compressed Storage Format) storage
     //   adjncy      : contains neighbours (= edges in graph)
@@ -842,7 +850,7 @@ Foam::labelList Foam::ptscotchDecomp::decompose
 
     // Decompose using weights
     List<int> finalDecomp;
-    decomposeZeroDomains
+    decompose
     (
         "ptscotch",
         cellCells.m(),
@@ -852,7 +860,7 @@ Foam::labelList Foam::ptscotchDecomp::decompose
     );
 
     // Copy back to labelList
-    labelList decomp(finalDecomp.size());
+    labelList decomp(cellCentres.size());
     forAll(decomp, i)
     {
         decomp[i] = finalDecomp[i];
