@@ -411,10 +411,10 @@ void Foam::ThermoSurfaceFilm<CloudType>::splashInteraction
     const scalar EKIn = 0.5*m*magSqr(Urel);
 
     // incident surface energy [J]
-    const scalar ESigmaIn = sigma*p.areaS(d);
+    const scalar ESigmaIn = np*sigma*p.areaS(d);
 
     // dissipative energy
-    const scalar Ed = max(0.8*EKIn, Wec/12*pi*sigma*sqr(d));
+    const scalar Ed = max(0.8*EKIn, np*Wec/12*pi*sigma*sqr(d));
 
     // total energy [J]
     const scalar EKs = EKIn + ESigmaIn - ESigmaSec - Ed;
