@@ -22,19 +22,20 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::pressurePerfectGas
+    Foam::isobaricPerfectGas
 
 Description
-    Perfect gas equation of state usign a reference pressure
+    Perfect gas equation of state using a reference pressure
+    rather than the local pressure.
 
 SourceFiles
-    pressurePerfectGasI.H
-    pressurePerfectGas.C
+    isobaricPerfectGasI.H
+    isobaricPerfectGas.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef pressurePerfectGas_H
-#define pressurePerfectGas_H
+#ifndef isobaricPerfectGas_H
+#define isobaricPerfectGas_H
 
 #include "specie.H"
 #include "autoPtr.H"
@@ -45,10 +46,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class pressurePerfectGas Declaration
+                    Class isobaricPerfectGas Declaration
 \*---------------------------------------------------------------------------*/
 
-class pressurePerfectGas
+class isobaricPerfectGas
 :
     public specie
 {
@@ -63,25 +64,25 @@ public:
     // Constructors
 
         //- Construct from components
-        inline pressurePerfectGas(const specie& sp);
+        inline isobaricPerfectGas(const specie& sp);
 
         //- Construct from Istream
-        pressurePerfectGas(Istream&);
+        isobaricPerfectGas(Istream&);
 
         //- Construct from dictionary
-        pressurePerfectGas(const dictionary& dict);
+        isobaricPerfectGas(const dictionary& dict);
 
         //- Construct as named copy
-        inline pressurePerfectGas(const word& name, const pressurePerfectGas&);
+        inline isobaricPerfectGas(const word& name, const isobaricPerfectGas&);
 
         //- Construct and return a clone
-        inline autoPtr<pressurePerfectGas> clone() const;
+        inline autoPtr<isobaricPerfectGas> clone() const;
 
         // Selector from Istream
-        inline static autoPtr<pressurePerfectGas> New(Istream& is);
+        inline static autoPtr<isobaricPerfectGas> New(Istream& is);
 
         // Selector from dictionary
-        inline static autoPtr<pressurePerfectGas> New(const dictionary& dict);
+        inline static autoPtr<isobaricPerfectGas> New(const dictionary& dict);
 
 
     // Member functions
@@ -106,42 +107,42 @@ public:
 
     // Member operators
 
-        inline void operator+=(const pressurePerfectGas&);
-        inline void operator-=(const pressurePerfectGas&);
+        inline void operator+=(const isobaricPerfectGas&);
+        inline void operator-=(const isobaricPerfectGas&);
 
         inline void operator*=(const scalar);
 
 
     // Friend operators
 
-        inline friend pressurePerfectGas operator+
+        inline friend isobaricPerfectGas operator+
         (
-            const pressurePerfectGas&,
-            const pressurePerfectGas&
+            const isobaricPerfectGas&,
+            const isobaricPerfectGas&
         );
 
-        inline friend pressurePerfectGas operator-
+        inline friend isobaricPerfectGas operator-
         (
-            const pressurePerfectGas&,
-            const pressurePerfectGas&
+            const isobaricPerfectGas&,
+            const isobaricPerfectGas&
         );
 
-        inline friend pressurePerfectGas operator*
+        inline friend isobaricPerfectGas operator*
         (
             const scalar s,
-            const pressurePerfectGas&
+            const isobaricPerfectGas&
         );
 
-        inline friend pressurePerfectGas operator==
+        inline friend isobaricPerfectGas operator==
         (
-            const pressurePerfectGas&,
-            const pressurePerfectGas&
+            const isobaricPerfectGas&,
+            const isobaricPerfectGas&
         );
 
 
     // Ostream Operator
 
-        friend Ostream& operator<<(Ostream&, const pressurePerfectGas&);
+        friend Ostream& operator<<(Ostream&, const isobaricPerfectGas&);
 };
 
 
@@ -151,7 +152,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "pressurePerfectGasI.H"
+#include "isobaricPerfectGasI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

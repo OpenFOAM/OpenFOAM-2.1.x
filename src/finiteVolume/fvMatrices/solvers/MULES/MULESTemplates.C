@@ -103,6 +103,29 @@ void Foam::MULES::explicitSolve
 }
 
 
+namespace Foam
+{
+namespace MULES
+{
+    template<class RhoType>
+    inline tmp<surfaceScalarField> interpolate(const RhoType& rho)
+    {
+        notImplemented
+        (
+            "tmp<surfaceScalarField> interpolate(const RhoType& rho)"
+        );
+        return tmp<surfaceScalarField>(NULL);
+    }
+
+    template<>
+    inline tmp<surfaceScalarField> interpolate(const volScalarField& rho)
+    {
+        return fvc::interpolate(rho);
+    }
+}
+}
+
+
 template<class RhoType, class SpType, class SuType>
 void Foam::MULES::implicitSolve
 (
@@ -143,10 +166,6 @@ void Foam::MULES::implicitSolve
     scalarField allCoLambda(mesh.nFaces());
 
     {
-        tmp<surfaceScalarField> Cof =
-            mesh.time().deltaT()*mesh.surfaceInterpolation::deltaCoeffs()
-           *mag(phi)/mesh.magSf();
-
         slicedSurfaceScalarField CoLambda
         (
             IOobject
@@ -164,7 +183,22 @@ void Foam::MULES::implicitSolve
             false   // Use slices for the couples
         );
 
-        CoLambda == 1.0/max(CoCoeff*Cof, scalar(1));
+        if (phi.dimensions() == dimDensity*dimVelocity*dimArea)
+        {
+            tmp<surfaceScalarField> Cof =
+                mesh.time().deltaT()*mesh.surfaceInterpolation::deltaCoeffs()
+               *mag(phi/interpolate(rho))/mesh.magSf();
+
+            CoLambda == 1.0/max(CoCoeff*Cof, scalar(1));
+        }
+        else
+        {
+            tmp<surfaceScalarField> Cof =
+                mesh.time().deltaT()*mesh.surfaceInterpolation::deltaCoeffs()
+               *mag(phi)/mesh.magSf();
+
+            CoLambda == 1.0/max(CoCoeff*Cof, scalar(1));
+        }
     }
 
     scalarField allLambda(allCoLambda);

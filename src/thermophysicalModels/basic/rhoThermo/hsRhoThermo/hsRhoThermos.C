@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -26,7 +26,7 @@ License
 #include "makeBasicRhoThermo.H"
 
 #include "perfectGas.H"
-#include "pressurePerfectGas.H"
+#include "isobaricPerfectGas.H"
 
 #include "hConstThermo.H"
 #include "janafThermo.H"
@@ -78,7 +78,7 @@ makeBasicRhoThermo
     pureMixture,
     constTransport,
     hConstThermo,
-    pressurePerfectGas
+    isobaricPerfectGas
 );
 
 makeBasicRhoThermo
@@ -87,7 +87,7 @@ makeBasicRhoThermo
     pureMixture,
     sutherlandTransport,
     hConstThermo,
-    pressurePerfectGas
+    isobaricPerfectGas
 );
 
 makeBasicRhoThermo
@@ -96,7 +96,7 @@ makeBasicRhoThermo
     pureMixture,
     sutherlandTransport,
     janafThermo,
-    pressurePerfectGas
+    isobaricPerfectGas
 );
 
 

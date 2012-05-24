@@ -23,21 +23,21 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "pressurePerfectGas.H"
+#include "isobaricPerfectGas.H"
 #include "IOstreams.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::pressurePerfectGas::pressurePerfectGas(Istream& is)
+Foam::isobaricPerfectGas::isobaricPerfectGas(Istream& is)
 :
     specie(is),
     pRef_(readScalar(is))
 {
-    is.check("pressurePerfectGas::pressurePerfectGas(Istream& is)");
+    is.check("isobaricPerfectGas::isobaricPerfectGas(Istream& is)");
 }
 
 
-Foam::pressurePerfectGas::pressurePerfectGas(const dictionary& dict)
+Foam::isobaricPerfectGas::isobaricPerfectGas(const dictionary& dict)
 :
     specie(dict),
     pRef_(readScalar(dict.subDict("equationOfState").lookup("pRef")))
@@ -46,7 +46,7 @@ Foam::pressurePerfectGas::pressurePerfectGas(const dictionary& dict)
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::pressurePerfectGas::write(Ostream& os) const
+void Foam::isobaricPerfectGas::write(Ostream& os) const
 {
     specie::write(os);
     dictionary dict("equationOfState");
@@ -58,12 +58,12 @@ void Foam::pressurePerfectGas::write(Ostream& os) const
 
 // * * * * * * * * * * * * * * * Ostream Operator  * * * * * * * * * * * * * //
 
-Foam::Ostream& Foam::operator<<(Ostream& os, const pressurePerfectGas& pg)
+Foam::Ostream& Foam::operator<<(Ostream& os, const isobaricPerfectGas& pg)
 {
     os  << static_cast<const specie&>(pg)
         << token::SPACE << pg.pRef_;
 
-    os.check("Ostream& operator<<(Ostream& os, const pressurePerfectGas& st)");
+    os.check("Ostream& operator<<(Ostream& os, const isobaricPerfectGas& st)");
     return os;
 }
 
