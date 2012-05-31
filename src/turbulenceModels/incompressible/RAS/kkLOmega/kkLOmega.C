@@ -156,15 +156,24 @@ tmp<volScalarField> kkLOmega::gammaBP(const volScalarField& omega) const
 {
     return
     (
-        max
+        min
         (
-            kt_/nu()
-          / (
-                omega
-              + dimensionedScalar("ROTVSMALL", omega.dimensions(), ROOTVSMALL)
-            )
-          - CbpCrit_,
-            scalar(0)
+            max
+            (
+                kt_/nu()
+             / (
+                    omega
+                  + dimensionedScalar
+                    (
+                        "ROTVSMALL",
+                        omega.dimensions(),
+                        ROOTVSMALL
+                    )
+                )
+              - CbpCrit_,
+                scalar(0)
+            ),
+            scalar(50.0)
         )
     );
 }
