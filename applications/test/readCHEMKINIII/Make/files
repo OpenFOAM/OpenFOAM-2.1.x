@@ -1,3 +1,0 @@
-Test-readCHEMKINIII.C
-
-EXE = $(FOAM_USER_APPBIN)/Test-readCHEMKINIII
