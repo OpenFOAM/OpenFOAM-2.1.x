@@ -338,7 +338,7 @@ bool Foam::primitiveMesh::checkFaceAreas
     {
         if (debug || report)
         {
-            Info<< "    Minumum face area = " << minArea
+            Info<< "    Minimum face area = " << minArea
                 << ". Maximum face area = " << maxArea
                 << ".  Face area magnitudes OK." << endl;
         }
