@@ -40,8 +40,8 @@ bool Foam::ExplicitSource<Type>::read(const dictionary& dict)
 {
     if (basicSource::read(dict))
     {
-        setFieldData(coeffs_.subDict("injectionRate"));
         volumeMode_ = wordToVolumeModeType(coeffs_.lookup("volumeMode"));
+        setFieldData(coeffs_.subDict("injectionRate"));
 
         return true;
     }
