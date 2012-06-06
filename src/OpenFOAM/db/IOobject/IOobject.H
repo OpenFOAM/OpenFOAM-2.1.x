@@ -374,6 +374,9 @@ public:
             //- Write header
             bool writeHeader(Ostream&) const;
 
+            //- Write header. Allow override of type
+            bool writeHeader(Ostream&, const word& objectType) const;
+
 
         // Error Handling
 

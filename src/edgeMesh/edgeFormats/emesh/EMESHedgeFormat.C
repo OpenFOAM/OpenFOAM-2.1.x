@@ -27,6 +27,8 @@ License
 #include "IOobject.H"
 #include "IFstream.H"
 #include "clock.H"
+#include "Time.H"
+#include "featureEdgeMesh.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -48,18 +50,53 @@ bool Foam::fileFormats::EMESHedgeFormat::read
 {
     clear();
 
-    IFstream is(filename);
-    if (!is.good())
+    fileName dir = filename.path();
+    fileName caseName = dir.name();
+    fileName rootPath = dir.path();
+
+    // Construct dummy time to use as an objectRegistry
+    Time dummyTime
+    (
+        ".",        //rootPath,
+        ".",        //caseName,
+        "system",   //systemName,
+        "constant", //constantName,
+        false       //enableFunctionObjects
+    );
+
+    // Construct IOobject to re-use the headerOk & readHeader
+    // (so we can read ascii and binary)
+    IOobject io
+    (
+        filename,
+        dummyTime,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE,
+        false
+    );
+
+    if (!io.headerOk())
     {
-        FatalErrorIn
-        (
-            "fileFormats::EMESHedgeFormat::read(const fileName&)"
-        )
+        FatalErrorIn("fileFormats::EMESHedgeFormat::read(const fileName&)")
             << "Cannot read file " << filename
             << exit(FatalError);
     }
 
-    return read(is, this->storedPoints(), this->storedEdges());
+
+    autoPtr<IFstream> isPtr(new IFstream(io.filePath()));
+    bool ok = false;
+    if (isPtr().good())
+    {
+        Istream& is = isPtr();
+        ok = io.readHeader(is);
+
+        if (ok)
+        {
+            ok = read(is, this->storedPoints(), this->storedEdges());
+        }
+    }
+
+    return ok;
 }
 
 
@@ -79,32 +116,6 @@ bool Foam::fileFormats::EMESHedgeFormat::read
         )
             << "read error "
             << exit(FatalError);
-    }
-
-    token firstToken(is);
-
-    // swallow IOobject header
-    if (!is.good())
-    {
-        FatalIOErrorIn
-        (
-            "fileFormats::EMESHedgeFormat::read"
-            "(Istream&, pointField&, edgeList&)",
-            is
-        )
-            << "First token could not be read" << nl
-            << exit(FatalIOError);
-
-        return false;
-    }
-    else if (firstToken.isWord() && firstToken.wordToken() == "FoamFile")
-    {
-        // read and discard
-        dictionary headerDict(is);
-    }
-    else
-    {
-        is.putBack(firstToken);
     }
 
     // read points:
@@ -157,30 +168,54 @@ void Foam::fileFormats::EMESHedgeFormat::write
     const edgeMesh& mesh
 )
 {
-    OFstream os(filename);
-    if (!os.good())
+    // Construct dummy time to use as an objectRegistry
+    Time dummyTime
+    (
+        ".",        //rootPath,
+        ".",        //caseName,
+        "system",   //systemName,
+        "constant", //constantName,
+        false       //enableFunctionObjects
+    );
+
+    // Construct IOobject to re-use the writeHeader
+    IOobject io
+    (
+        filename,
+        dummyTime,
+        IOobject::NO_READ,
+        IOobject::NO_WRITE,
+        false
+    );
+    io.note() = "written " + clock::dateTime();
+
+    // Note: always write ascii
+    autoPtr<OFstream> osPtr(new OFstream(filename));
+
+    if (!osPtr().good())
     {
-        FatalErrorIn
+        FatalIOErrorIn
         (
             "fileFormats::EMESHedgeFormat::write"
-            "(const fileName&, const edgeMesh&)"
-        )
-            << "Cannot open file for writing " << filename
-            << exit(FatalError);
+            "(const fileName&, const edgeMesh&)",
+            osPtr()
+        )   << "Cannot open file for writing " << filename
+            << exit(FatalIOError);
     }
 
+    OFstream& os = osPtr();
+    bool ok = io.writeHeader(os, featureEdgeMesh::typeName);
 
-    // just emit some information until we get a nicer IOobject
-    IOobject::writeBanner(os)
-        << "FoamFile\n{\n"
-        << "    version     " << os.version() << ";\n"
-        << "    format      " << os.format() << ";\n"
-        << "    class       " << "featureEdgeMesh" << ";\n"
-        << "    note        " << "written " + clock::dateTime() << ";\n"
-        << "    object      " << filename.name() << ";\n"
-        << "}" << nl;
-
-    IOobject::writeDivider(os);
+    if (!ok)
+    {
+        FatalIOErrorIn
+        (
+            "fileFormats::EMESHedgeFormat::write"
+            "(const fileName&, const edgeMesh&)",
+            os
+        )   << "Cannot write header"
+            << exit(FatalIOError);
+    }
 
     write(os, mesh.points(), mesh.edges());
 
