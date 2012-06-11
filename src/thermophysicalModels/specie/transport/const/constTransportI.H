@@ -52,6 +52,45 @@ inline Foam::constTransport<Thermo>::constTransport
 {}
 
 
+template<class Thermo>
+inline Foam::autoPtr<Foam::constTransport<Thermo> >
+Foam::constTransport<Thermo>::clone() const
+{
+    return autoPtr<constTransport<Thermo> >
+    (
+        new constTransport<Thermo>(*this)
+    );
+}
+
+
+template<class Thermo>
+inline Foam::autoPtr<Foam::constTransport<Thermo> >
+Foam::constTransport<Thermo>::New
+(
+    Istream& is
+)
+{
+    return autoPtr<constTransport<Thermo> >
+    (
+        new constTransport<Thermo>(is)
+    );
+}
+
+
+template<class Thermo>
+inline Foam::autoPtr<Foam::constTransport<Thermo> >
+Foam::constTransport<Thermo>::New
+(
+    const dictionary& dict
+)
+{
+    return autoPtr<constTransport<Thermo> >
+    (
+        new constTransport<Thermo>(dict)
+    );
+}
+
+
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class Thermo>
