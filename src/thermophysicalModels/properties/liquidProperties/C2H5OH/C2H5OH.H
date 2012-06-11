@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -73,7 +73,7 @@ class C2H5OH
         NSRDSfunc2 mug_;
         NSRDSfunc0 K_;
         NSRDSfunc2 Kg_;
-        NSRDSfunc6 sigma_;
+        NSRDSfunc0 sigma_;
         APIdiffCoefFunc D_;
 
 
@@ -103,7 +103,7 @@ public:
             const NSRDSfunc2& vapourDynamicViscosity,
             const NSRDSfunc0& thermalConductivity,
             const NSRDSfunc2& vapourThermalConductivity,
-            const NSRDSfunc6& surfaceTension,
+            const NSRDSfunc0& surfaceTension,
             const APIdiffCoefFunc& vapourDiffussivity
         );
 
