@@ -8,7 +8,6 @@ $(specie)/specie.C
 $(equationOfState)/perfectGas/perfectGas.C
 $(equationOfState)/incompressible/incompressible.C
 $(equationOfState)/isobaricPerfectGas/isobaricPerfectGas.C
-$(reactions)/makeChemkinReactions.C
 $(reactions)/makeReactionThermoReactions.C
 $(reactions)/makeLangmuirHinshelwoodReactions.C
 

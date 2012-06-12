@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -43,50 +43,51 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-namespace Foam
-{
-
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
-
-defineTemplateTypeNameAndDebug(icoPoly8Reaction, 0);
-defineTemplateRunTimeSelectionTable(icoPoly8Reaction, Istream);
-defineTemplateRunTimeSelectionTable(icoPoly8Reaction, dictionary);
-
-
-// * * * * * * * * * * * * * Make CHEMKIN reactions  * * * * * * * * * * * * //
-
-makeIRNReactions(icoPoly8ThermoPhysics, ArrheniusReactionRate)
-makeIRNReactions(icoPoly8ThermoPhysics, infiniteReactionRate)
-makeIRNReactions(icoPoly8ThermoPhysics, LandauTellerReactionRate)
-makeIRNReactions(icoPoly8ThermoPhysics, thirdBodyArrheniusReactionRate)
-
-makeIRReactions(icoPoly8ThermoPhysics, JanevReactionRate)
-makeIRReactions(icoPoly8ThermoPhysics, powerSeriesReactionRate)
-
-makePressureDependentReactions
-(
-    icoPoly8ThermoPhysics,
-    ArrheniusReactionRate,
-    LindemannFallOffFunction
-)
-
-makePressureDependentReactions
-(
-    icoPoly8ThermoPhysics,
-    ArrheniusReactionRate,
-    TroeFallOffFunction
-)
-
-makePressureDependentReactions
-(
-    icoPoly8ThermoPhysics,
-    ArrheniusReactionRate,
-    SRIFallOffFunction
-)
+#define makeReactions(Thermo, Reaction)                                        \
+                                                                               \
+    defineTemplateTypeNameAndDebug(Reaction, 0);                               \
+    defineTemplateRunTimeSelectionTable(Reaction, Istream);                    \
+    defineTemplateRunTimeSelectionTable(Reaction, dictionary);                 \
+                                                                               \
+    makeIRNReactions(Thermo, ArrheniusReactionRate)                            \
+    makeIRNReactions(Thermo, infiniteReactionRate)                             \
+    makeIRNReactions(Thermo, LandauTellerReactionRate)                         \
+    makeIRNReactions(Thermo, thirdBodyArrheniusReactionRate)                   \
+                                                                               \
+    makeIRReactions(Thermo, JanevReactionRate)                                 \
+    makeIRReactions(Thermo, powerSeriesReactionRate)                           \
+                                                                               \
+    makePressureDependentReactions                                             \
+    (                                                                          \
+       Thermo,                                                                 \
+       ArrheniusReactionRate,                                                  \
+       LindemannFallOffFunction                                                \
+    )                                                                          \
+                                                                               \
+    makePressureDependentReactions                                             \
+    (                                                                          \
+       Thermo,                                                                 \
+       ArrheniusReactionRate,                                                  \
+       TroeFallOffFunction                                                     \
+    )                                                                          \
+                                                                               \
+    makePressureDependentReactions                                             \
+    (                                                                          \
+       Thermo,                                                                 \
+       ArrheniusReactionRate,                                                  \
+       SRIFallOffFunction                                                      \
+    )
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace Foam
+namespace Foam
+{
+    makeReactions(constGasThermoPhysics, constGasReaction)
+    makeReactions(gasThermoPhysics, gasReaction)
+    makeReactions(constIsobaricGasThermoPhysics, constIsobaricGasReaction)
+    makeReactions(isobaricGasThermoPhysics, isobaricGasReaction)
+    makeReactions(icoPoly8ThermoPhysics, icoPoly8Reaction)
+}
 
 // ************************************************************************* //
