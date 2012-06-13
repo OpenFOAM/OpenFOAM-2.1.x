@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -272,7 +272,11 @@ Foam::label Foam::meshRefinement::markFeatureRefinement
     // Find all start cells of features. Is done by tracking from keepPoint.
     Cloud<trackedParticle> cloud(mesh_, IDLList<trackedParticle>());
 
-    // Create particles on whichever processor holds the keepPoint.
+
+    // Features are identical on all processors. Number them so we know
+    // what to seed. Do this on only the processor that
+    // holds the keepPoint.
+
     label cellI = -1;
     label tetFaceI = -1;
     label tetPtI = -1;
@@ -281,12 +285,24 @@ Foam::label Foam::meshRefinement::markFeatureRefinement
 
     if (cellI != -1)
     {
+        // I am the processor that holds the keepPoint
+
         forAll(features_, featI)
         {
             const featureEdgeMesh& featureMesh = features_[featI];
             const label featureLevel = features_.levels()[featI];
-
             const labelListList& pointEdges = featureMesh.pointEdges();
+
+            // Find regions on edgeMesh
+            labelList edgeRegion;
+            label nRegions = featureMesh.regions(edgeRegion);
+
+
+            PackedBoolList regionVisited(nRegions);
+
+
+            // 1. Seed all 'knots' in edgeMesh
+
 
             forAll(pointEdges, pointI)
             {
@@ -297,6 +313,50 @@ Foam::label Foam::meshRefinement::markFeatureRefinement
                         Pout<< "Adding particle from point:" << pointI
                             << " coord:" << featureMesh.points()[pointI]
                             << " pEdges:" << pointEdges[pointI]
+                            << endl;
+                    }
+
+                    // Non-manifold point. Create particle.
+                    cloud.addParticle
+                    (
+                        new trackedParticle
+                        (
+                            mesh_,
+                            keepPoint,
+                            cellI,
+                            tetFaceI,
+                            tetPtI,
+                            featureMesh.points()[pointI],   // endpos
+                            featureLevel,                   // level
+                            featI,                          // featureMesh
+                            pointI                          // end point
+                        )
+                    );
+
+                    // Mark
+                    if (pointEdges[pointI].size() > 0)
+                    {
+                        label e0 = pointEdges[pointI][0];
+                        label regionI = edgeRegion[e0];
+                        regionVisited[regionI] = 1u;
+                    }
+                }
+            }
+
+
+            // 2. Any regions that have not been visited at all? These can
+            //    only be circular regions!
+            forAll(featureMesh.edges(), edgeI)
+            {
+                if (regionVisited.set(edgeRegion[edgeI], 1u))
+                {
+                    const edge& e = featureMesh.edges()[edgeI];
+                    label pointI = e.start();
+                    if (debug)
+                    {
+                        Pout<< "Adding particle from point:" << pointI
+                            << " coord:" << featureMesh.points()[pointI]
+                            << " on circular region:" << edgeRegion[edgeI]
                             << endl;
                     }
 
@@ -329,6 +389,8 @@ Foam::label Foam::meshRefinement::markFeatureRefinement
     trackedParticle::trackingData td(cloud, maxFeatureLevel);
 
     // Track all particles to their end position (= starting feature point)
+    // Note that the particle might have started on a different processor
+    // so this will transfer across nicely until we can start tracking proper.
     cloud.move(td, GREAT);
 
     // Reset level

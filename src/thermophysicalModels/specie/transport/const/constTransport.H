@@ -125,6 +125,15 @@ public:
         //- Construct from dictionary
         constTransport(const dictionary& dict);
 
+        //- Construct and return a clone
+        inline autoPtr<constTransport> clone() const;
+
+        // Selector from Istream
+        inline static autoPtr<constTransport> New(Istream& is);
+
+        // Selector from dictionary
+        inline static autoPtr<constTransport> New(const dictionary& dict);
+
 
     // Member functions
 
