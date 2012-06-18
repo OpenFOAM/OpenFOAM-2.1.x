@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -41,9 +41,9 @@ int main(int argc, char *argv[])
 {
     timeSelector::addOptions();
     #include "setRootCase.H"
-#   include "createTime.H"
+    #include "createTime.H"
     instantList timeDirs = timeSelector::select0(runTime, args);
-#   include "createMesh.H"
+    #include "createMesh.H"
 
     forAll(timeDirs, timeI)
     {
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
             mesh
         );
 
-#       include "createPhi.H"
+        #include "createPhi.H"
 
         singlePhaseTransportModel laminarTransport(U, phi);
 
@@ -124,8 +124,8 @@ int main(int argc, char *argv[])
 
                 Info<< "Patch " << patchi
                     << " named " << currPatch.name()
-                    << " y+ : min: " << min(Yp) << " max: " << max(Yp)
-                    << " average: " << average(Yp) << nl << endl;
+                    << " y+ : min: " << gMin(Yp) << " max: " << gMax(Yp)
+                    << " average: " << gAverage(Yp) << nl << endl;
             }
         }
 

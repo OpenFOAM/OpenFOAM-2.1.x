@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -86,8 +86,8 @@ void calcIncompressibleYPlus
 
             Info<< "Patch " << patchi
                 << " named " << nutPw.patch().name()
-                << " y+ : min: " << min(Yp) << " max: " << max(Yp)
-                << " average: " << average(Yp) << nl << endl;
+                << " y+ : min: " << gMin(Yp) << " max: " << gMax(Yp)
+                << " average: " << gAverage(Yp) << nl << endl;
         }
     }
 
@@ -166,8 +166,8 @@ void calcCompressibleYPlus
 
             Info<< "Patch " << patchi
                 << " named " << mutPw.patch().name()
-                << " y+ : min: " << min(Yp) << " max: " << max(Yp)
-                << " average: " << average(Yp) << nl << endl;
+                << " y+ : min: " << gMin(Yp) << " max: " << gMax(Yp)
+                << " average: " << gAverage(Yp) << nl << endl;
         }
     }
 
