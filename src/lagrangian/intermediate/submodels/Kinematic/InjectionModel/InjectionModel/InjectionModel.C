@@ -26,6 +26,7 @@ License
 #include "InjectionModel.H"
 #include "mathematicalConstants.H"
 #include "meshTools.H"
+#include "volFields.H"
 
 using namespace Foam::constant::mathematical;
 
