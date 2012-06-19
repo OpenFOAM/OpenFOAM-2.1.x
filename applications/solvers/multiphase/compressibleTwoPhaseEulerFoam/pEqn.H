@@ -30,7 +30,7 @@
     volVectorField U10 = U1;
     volVectorField U20 = U2;
 
-    volScalarField rAU1(1.0/U1Eqn.A());
+    rAU1 = 1.0/U1Eqn.A();
     volScalarField rAU2(1.0/U2Eqn.A());
 
     surfaceScalarField rAlphaAU1f = fvc::interpolate(alpha1*rAU1);
@@ -57,6 +57,18 @@
           + fvc::interpolate((1.0/rho2)*rAU2*dragCoeff)*phi10
           + rAlphaAU2f*(g & mesh.Sf())
         );
+    }
+
+    if (g0.value() > 0.0)
+    {
+        phi1 -= ppMagf*fvc::snGrad(alpha1)*mesh.magSf();
+    }
+
+    if (kineticTheory.on())
+    {
+        phi1 -=
+            fvc::interpolate((1.0/rho1)*rAU1)
+           *fvc::snGrad(kineticTheory.pa())*mesh.magSf();
     }
 
     phi = alpha1f*phi1 + alpha2f*phi2;
