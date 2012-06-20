@@ -68,11 +68,12 @@ surfaceScalarField alphaPhi2("alphaPhi2", phi2);
 
         if (g0.value() > 0.0)
         {
-            ppMagf = rU1Af*fvc::interpolate
-            (
-                (1.0/(rho1*(alpha1 + scalar(0.0001))))
-               *g0*min(exp(preAlphaExp*(alpha1 - alphaMax)), expMax)
-            );
+            ppMagf =
+                fvc::interpolate((1.0/rho1)*rAU1)
+               *fvc::interpolate
+                (
+                    g0*min(exp(preAlphaExp*(alpha1 - alphaMax)), expMax)
+                );
 
             alpha1Eqn -= fvm::laplacian
             (
