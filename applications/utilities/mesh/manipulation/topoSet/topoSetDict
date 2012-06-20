@@ -236,6 +236,14 @@ FoamFile
 //        cos     0.01;       // Tolerance (max cos of angle)
 //    }
 //
+//    // Walk on faces in faceSet, starting from face nearest given position
+//    source  regionToFace;
+//    sourceInfo
+//    {
+//        set         f0;
+//        nearPoint   (0.1 0.1 0.005);
+//    }
+//
 //
 //
 // pointSet
