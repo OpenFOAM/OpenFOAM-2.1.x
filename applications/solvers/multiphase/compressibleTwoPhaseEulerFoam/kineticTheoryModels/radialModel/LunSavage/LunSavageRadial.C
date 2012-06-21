@@ -85,7 +85,7 @@ Foam::kineticTheoryModels::radialModels::LunSavage::g0prime
     const dimensionedScalar& alphaMax
 ) const
 {
-    return 2.5*alphaMax*alpha*pow(1.0 - alpha, -1.0 - 2.5*alphaMax);
+    return 2.5*pow(1.0 - alpha/alphaMax, -1.0 - 2.5*alphaMax);
 }
 
 

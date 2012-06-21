@@ -16,7 +16,6 @@ conductivityModel/HrenyaSinclair/HrenyaSinclairConductivity.C
 radialModel/radialModel/radialModel.C
 radialModel/radialModel/newRadialModel.C
 radialModel/CarnahanStarling/CarnahanStarlingRadial.C
-radialModel/Gidaspow/GidaspowRadial.C
 radialModel/LunSavage/LunSavageRadial.C
 radialModel/SinclairJackson/SinclairJacksonRadial.C
 
