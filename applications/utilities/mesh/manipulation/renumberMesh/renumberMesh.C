@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anispulation  |
 -------------------------------------------------------------------------------
 License
@@ -634,7 +634,11 @@ int main(int argc, char *argv[])
     mesh.updateMesh(map);
 
     // Update proc maps
-    if (cellProcAddressing.headerOk())
+    if
+    (
+        cellProcAddressing.headerOk()
+     && cellProcAddressing.size() == mesh.nCells()
+    )
     {
         Info<< "Renumbering processor cell decomposition map "
             << cellProcAddressing.name() << endl;
@@ -644,7 +648,11 @@ int main(int argc, char *argv[])
             UIndirectList<label>(cellProcAddressing, map().cellMap())
         );
     }
-    if (faceProcAddressing.headerOk())
+    if
+    (
+        faceProcAddressing.headerOk()
+     && faceProcAddressing.size() == mesh.nFaces()
+    )
     {
         Info<< "Renumbering processor face decomposition map "
             << faceProcAddressing.name() << endl;
@@ -670,7 +678,11 @@ int main(int argc, char *argv[])
             }
         }
     }
-    if (pointProcAddressing.headerOk())
+    if
+    (
+        pointProcAddressing.headerOk()
+     && pointProcAddressing.size() == mesh.nPoints()
+    )
     {
         Info<< "Renumbering processor point decomposition map "
             << pointProcAddressing.name() << endl;
@@ -759,22 +771,38 @@ int main(int argc, char *argv[])
     Info<< "Writing mesh to " << mesh.facesInstance() << endl;
 
     mesh.write();
-    if (cellProcAddressing.headerOk())
+    if
+    (
+        cellProcAddressing.headerOk()
+     && cellProcAddressing.size() == mesh.nCells()
+    )
     {
         cellProcAddressing.instance() = mesh.facesInstance();
         cellProcAddressing.write();
     }
-    if (faceProcAddressing.headerOk())
+    if
+    (
+        faceProcAddressing.headerOk()
+     && faceProcAddressing.size() == mesh.nFaces()
+    )
     {
         faceProcAddressing.instance() = mesh.facesInstance();
         faceProcAddressing.write();
     }
-    if (pointProcAddressing.headerOk())
+    if
+    (
+        pointProcAddressing.headerOk()
+     && pointProcAddressing.size() == mesh.nPoints()
+    )
     {
         pointProcAddressing.instance() = mesh.facesInstance();
         pointProcAddressing.write();
     }
-    if (boundaryProcAddressing.headerOk())
+    if
+    (
+        boundaryProcAddressing.headerOk()
+     && boundaryProcAddressing.size() == mesh.boundaryMesh().size()
+    )
     {
         boundaryProcAddressing.instance() = mesh.facesInstance();
         boundaryProcAddressing.write();
