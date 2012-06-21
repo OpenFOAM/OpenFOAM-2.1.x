@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::SinclairJacksonRadial
+    Foam::SinclairJackson
 
 Description
 
@@ -31,8 +31,8 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef SinclairJacksonRadial_H
-#define SinclairJacksonRadial_H
+#ifndef SinclairJackson_H
+#define SinclairJackson_H
 
 #include "radialModel.H"
 
@@ -40,12 +40,16 @@ SourceFiles
 
 namespace Foam
 {
+namespace kineticTheoryModels
+{
+namespace radialModels
+{
 
 /*---------------------------------------------------------------------------*\
-                           Class SinclairJacksonradial Declaration
+                           Class SinclairJackson Declaration
 \*---------------------------------------------------------------------------*/
 
-class SinclairJacksonRadial
+class SinclairJackson
 :
     public radialModel
 {
@@ -59,11 +63,11 @@ public:
     // Constructors
 
         //- Construct from components
-        SinclairJacksonRadial(const dictionary& dict);
+        SinclairJackson(const dictionary& dict);
 
 
     //- Destructor
-    virtual ~SinclairJacksonRadial();
+    virtual ~SinclairJackson();
 
 
     // Member Functions
@@ -84,6 +88,8 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+} // End namespace radialModels
+} // End namespace kineticTheoryModels
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -2,7 +2,6 @@ EXE_INC = \
     -IphaseModel/lnInclude \
     -ImultiphaseSystem/lnInclude \
     -ImultiphaseFixedFluxPressure \
-    /*-IkineticTheoryModels/lnInclude*/ \
     -IinterfacialModels/lnInclude \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/incompressible/lnInclude \
@@ -20,6 +19,5 @@ EXE_LIBS = \
     -linterfaceProperties \
     -lincompressibleTransportModels \
     -lcompressibleMultiphaseEulerianInterfacialModels \
-    /*-lcompressibleKineticTheoryModel*/ \
     -lincompressibleLESModels \
     -lfiniteVolume

@@ -29,15 +29,18 @@ License
 
 namespace Foam
 {
+namespace kineticTheoryModels
+{
     defineTypeNameAndDebug(radialModel, 0);
 
     defineRunTimeSelectionTable(radialModel, dictionary);
+}
 }
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::radialModel::radialModel
+Foam::kineticTheoryModels::radialModel::radialModel
 (
     const dictionary& dict
 )
@@ -48,7 +51,7 @@ Foam::radialModel::radialModel
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::radialModel::~radialModel()
+Foam::kineticTheoryModels::radialModel::~radialModel()
 {}
 
 

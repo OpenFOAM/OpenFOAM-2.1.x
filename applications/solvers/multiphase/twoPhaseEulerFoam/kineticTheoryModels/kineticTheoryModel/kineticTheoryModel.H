@@ -81,7 +81,7 @@ class kineticTheoryModel
 
         autoPtr<conductivityModel> conductivityModel_;
 
-        autoPtr<radialModel> radialModel_;
+        autoPtr<kineticTheoryModels::radialModel> radialModel_;
 
         autoPtr<granularPressureModel> granularPressureModel_;
 

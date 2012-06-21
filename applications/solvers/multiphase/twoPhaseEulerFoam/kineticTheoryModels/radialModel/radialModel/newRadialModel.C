@@ -27,7 +27,8 @@ License
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::radialModel> Foam::radialModel::New
+Foam::autoPtr<Foam::kineticTheoryModels::radialModel>
+Foam::kineticTheoryModels::radialModel::New
 (
     const dictionary& dict
 )

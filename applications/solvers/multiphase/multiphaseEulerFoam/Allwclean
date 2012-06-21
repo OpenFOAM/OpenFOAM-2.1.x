@@ -5,7 +5,6 @@ set -x
 wclean libso phaseModel
 wclean libso multiphaseSystem
 wclean libso interfacialModels
-wclean libso kineticTheoryModels
 wclean
 
 # ----------------------------------------------------------------- end-of-file
