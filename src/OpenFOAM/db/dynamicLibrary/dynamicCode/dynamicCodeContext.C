@@ -112,13 +112,9 @@ Foam::dynamicCodeContext::dynamicCodeContext(const dictionary& dict)
         addLineDirective(include_, includePtr->startLineNumber(), dict.name());
     }
 
-    // Do not add line directive to options_ (Make/options) since at it is a
-    // single line at this point. Can be fixed.
+    // Do not add line directive to options_ (Make/options) and libs since
+    // they are preprocessed as a single line at this point. Can be fixed.
 
-    if (libsPtr)
-    {
-        addLineDirective(libs_, libsPtr->startLineNumber(), dict.name());
-    }
     if (localPtr)
     {
         addLineDirective(localCode_, localPtr->startLineNumber(), dict.name());
