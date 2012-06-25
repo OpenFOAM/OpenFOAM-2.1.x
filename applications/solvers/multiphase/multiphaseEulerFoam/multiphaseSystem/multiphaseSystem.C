@@ -58,8 +58,6 @@ void Foam::multiphaseSystem::calcAlphas()
 
 void Foam::multiphaseSystem::solveAlphas()
 {
-    surfaceScalarField phic(mag(phi_/mesh_.magSf()));
-
     PtrList<surfaceScalarField> phiAlphaCorrs(phases_.size());
     int phasei = 0;
 
@@ -94,12 +92,22 @@ void Foam::multiphaseSystem::solveAlphas()
 
             if (&phase2 == &phase1) continue;
 
-            surfaceScalarField phir
+            surfaceScalarField phir(phase1.phi() - phase2.phi());
+
+            scalarCoeffSymmTable::const_iterator cAlpha
             (
-                (phase1.phi() - phase2.phi())
-              + min(cAlpha(phase1, phase2)*phic, max(phic))
-               *nHatf(phase1, phase2)
+                cAlphas_.find(interfacePair(phase1, phase2))
             );
+
+            if (cAlpha != cAlphas_.end())
+            {
+                surfaceScalarField phic
+                (
+                    (mag(phi_) + mag(phase1.phi() - phase2.phi()))/mesh_.magSf()
+                );
+
+                phir += min(cAlpha()*phic, max(phic))*nHatf(phase1, phase2);
+            }
 
             word phirScheme
             (
@@ -183,93 +191,6 @@ void Foam::multiphaseSystem::solveAlphas()
         << endl;
 
     calcAlphas();
-}
-
-
-Foam::dimensionedScalar Foam::multiphaseSystem::sigma
-(
-    const phaseModel& phase1,
-    const phaseModel& phase2
-) const
-{
-    scalarCoeffTable::const_iterator sigma
-    (
-        sigmas_.find(interfacePair(phase1, phase2))
-    );
-
-    if (sigma == sigmas_.end())
-    {
-        FatalErrorIn
-        (
-            "multiphaseSystem::sigma(const phaseModel& phase1,"
-            "const phaseModel& phase2) const"
-        )   << "Cannot find interface " << interfacePair(phase1, phase2)
-            << " in list of sigma values"
-            << exit(FatalError);
-    }
-
-    return dimensionedScalar("sigma", dimSigma_, sigma());
-}
-
-
-Foam::scalar Foam::multiphaseSystem::cAlpha
-(
-    const phaseModel& phase1,
-    const phaseModel& phase2
-) const
-{
-    scalarCoeffTable::const_iterator cAlpha
-    (
-        cAlphas_.find(interfacePair(phase1, phase2))
-    );
-
-    if (cAlpha == cAlphas_.end())
-    {
-        FatalErrorIn
-        (
-            "multiphaseSystem::cAlpha"
-            "(const phaseModel& phase1, const phaseModel& phase2) const"
-        )   << "Cannot find interface " << interfacePair(phase1, phase2)
-            << " in list of cAlpha values"
-            << exit(FatalError);
-    }
-
-    return cAlpha();
-}
-
-
-Foam::dimensionedScalar Foam::multiphaseSystem::Cvm
-(
-    const phaseModel& phase1,
-    const phaseModel& phase2
-) const
-{
-    scalarCoeffTable::const_iterator Cvm
-    (
-        Cvms_.find(interfacePair(phase1, phase2))
-    );
-
-    if (Cvm != Cvms_.end())
-    {
-        return Cvm()*phase2.rho();
-    }
-
-    Cvm = Cvms_.find(interfacePair(phase2, phase1));
-
-    if (Cvm != Cvms_.end())
-    {
-        return Cvm()*phase1.rho();
-    }
-
-    FatalErrorIn
-    (
-        "multiphaseSystem::sigma"
-        "(const phaseModel& phase1, const phaseModel& phase2) const"
-    )   << "Cannot find interface " << interfacePair(phase1, phase2)
-        << " in list of sigma values"
-        << exit(FatalError);
-
-    return Cvm()*phase2.rho();
 }
 
 
@@ -568,7 +489,24 @@ Foam::tmp<Foam::volScalarField> Foam::multiphaseSystem::Cvm
 
         if (&phase2 != &phase)
         {
-            tCvm() += Cvm(phase, phase2)*phase2;
+            scalarCoeffTable::const_iterator Cvm
+            (
+                Cvms_.find(interfacePair(phase, phase2))
+            );
+
+            if (Cvm != Cvms_.end())
+            {
+                tCvm() += Cvm()*phase2.rho()*phase2;
+            }
+            else
+            {
+                Cvm = Cvms_.find(interfacePair(phase2, phase));
+
+                if (Cvm != Cvms_.end())
+                {
+                    tCvm() += Cvm()*phase.rho()*phase2;
+                }
+            }
         }
     }
 
@@ -607,11 +545,28 @@ Foam::tmp<Foam::volVectorField> Foam::multiphaseSystem::Svm
 
         if (&phase2 != &phase)
         {
-            tSvm() += Cvm(phase, phase2)*phase2*phase2.DDtU();
+            scalarCoeffTable::const_iterator Cvm
+            (
+                Cvms_.find(interfacePair(phase, phase2))
+            );
+
+            if (Cvm != Cvms_.end())
+            {
+                tSvm() += Cvm()*phase2.rho()*phase2*phase2.DDtU();
+            }
+            else
+            {
+                Cvm = Cvms_.find(interfacePair(phase2, phase));
+
+                if (Cvm != Cvms_.end())
+                {
+                    tSvm() += Cvm()*phase.rho()*phase2*phase2.DDtU();
+                }
+            }
         }
     }
 
-    // Remove lift at fixed-flux boundaries
+    // Remove virtual mass at fixed-flux boundaries
     forAll(phase.phi().boundaryField(), patchi)
     {
         if
@@ -729,52 +684,56 @@ Foam::tmp<Foam::volScalarField> Foam::multiphaseSystem::dragCoeff
 }
 
 
-Foam::tmp<Foam::surfaceScalarField>
-Foam::multiphaseSystem::surfaceTensionForce() const
+Foam::tmp<Foam::surfaceScalarField> Foam::multiphaseSystem::surfaceTension
+(
+    const phaseModel& phase1
+) const
 {
-    tmp<surfaceScalarField> tstf
+    tmp<surfaceScalarField> tSurfaceTension
     (
         new surfaceScalarField
         (
             IOobject
             (
-                "surfaceTensionForce",
+                "surfaceTension",
                 mesh_.time().timeName(),
                 mesh_
             ),
             mesh_,
             dimensionedScalar
             (
-                "surfaceTensionForce",
+                "surfaceTension",
                 dimensionSet(1, -2, -2, 0, 0),
-                0.0
+                0
             )
         )
     );
 
-    surfaceScalarField& stf = tstf();
-
-    forAllConstIter(PtrDictionary<phaseModel>, phases_, iter1)
+    forAllConstIter(PtrDictionary<phaseModel>, phases_, iter)
     {
-        const phaseModel& phase1 = iter1();
+        const phaseModel& phase2 = iter();
 
-        PtrDictionary<phaseModel>::const_iterator iter2 = iter1;
-        ++iter2;
-
-        for (; iter2 != phases_.end(); ++iter2)
+        if (&phase2 != &phase1)
         {
-            const phaseModel& phase2 = iter2();
+            scalarCoeffSymmTable::const_iterator sigma
+            (
+                sigmas_.find(interfacePair(phase1, phase2))
+            );
 
-            stf += sigma(phase1, phase2)
-               *fvc::interpolate(K(phase1, phase2))*
-                (
-                    fvc::interpolate(phase2)*fvc::snGrad(phase1)
-                  - fvc::interpolate(phase1)*fvc::snGrad(phase2)
-                );
+            if (sigma != sigmas_.end())
+            {
+                tSurfaceTension() +=
+                    dimensionedScalar("sigma", dimSigma_, sigma())
+                   *fvc::interpolate(K(phase1, phase2))*
+                    (
+                        fvc::interpolate(phase2)*fvc::snGrad(phase1)
+                      - fvc::interpolate(phase1)*fvc::snGrad(phase2)
+                    );
+            }
         }
     }
 
-    return tstf;
+    return tSurfaceTension;
 }
 
 
