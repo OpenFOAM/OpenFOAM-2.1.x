@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -119,7 +119,8 @@ void nuSgsUSpaldingWallFunctionFvPatchScalarField::evaluate
     const fvPatchVectorField& U = lesModel.U().boundaryField()[patchi];
     const scalarField nuw = lesModel.nu()().boundaryField()[patchi];
 
-    const scalarField& ry = patch().deltaCoeffs();
+    const scalarField& ry =
+        lesModel.U().mesh().nonOrthDeltaCoeffs().boundaryField()[patchi];
 
     const scalarField magUp(mag(U.patchInternalField() - U));
 
