@@ -33,6 +33,7 @@ wallFunctions=derivedFvPatchFields/wallFunctions
 
 nuSgsWallFunctions=$(wallFunctions)/nuSgsWallFunctions
 $(nuSgsWallFunctions)/nuSgsUSpaldingWallFunction/nuSgsUSpaldingWallFunctionFvPatchScalarField.C
+$(nuSgsWallFunctions)/nuSgsURoughWallFunction/nuSgsURoughWallFunctionFvPatchScalarField.C
 
 
 LIB = $(FOAM_LIBBIN)/libincompressibleLESModels
