@@ -74,7 +74,11 @@
         (
             (fvc::interpolate(HbyAs[phasei]) & mesh.Sf())
           + fvc::ddtPhiCorr(rAUs[phasei], alpha, phase.U(), phase.phi())
-          + rAlphaAUfs[phasei]*(g & mesh.Sf())
+          + rAlphaAUfs[phasei]
+           *(
+               fluid.surfaceTension(phase)*mesh.magSf()/phase.rho()
+             + (g & mesh.Sf())
+            )
         );
 
         mrfZones.relativeFlux(phiHbyAs[phasei]);

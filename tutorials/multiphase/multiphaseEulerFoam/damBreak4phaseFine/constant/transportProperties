@@ -79,9 +79,6 @@ sigmas
     (air water)     0.07
     (air oil)       0.07
     (air mercury)   0.07
-    (water oil)     0
-    (water mercury) 0
-    (oil mercury)   0
 );
 
 interfaceCompression
@@ -89,19 +86,10 @@ interfaceCompression
     (air water)     1
     (air oil)       1
     (air mercury)   1
-    (water oil)     0
-    (water mercury) 0
-    (oil mercury)   0
 );
 
 virtualMass
 (
-    (air water)     0
-    (air oil)       0
-    (air mercury)   0
-    (water oil)     0.5
-    (water mercury) 0.5
-    (oil mercury)   0.5
 );
 
 drag

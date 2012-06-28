@@ -41,7 +41,7 @@ granularPressureModel Lun;
 
 frictionalStressModel JohnsonJackson;
 
-radialModel     Gidaspow;
+radialModel     SinclairJackson;
 
 HrenyaSinclairCoeffs
 {

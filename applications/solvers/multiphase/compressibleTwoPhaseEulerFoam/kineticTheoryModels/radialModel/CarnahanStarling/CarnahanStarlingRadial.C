@@ -89,10 +89,9 @@ Foam::kineticTheoryModels::radialModels::CarnahanStarling::g0prime
 ) const
 {
     return
-        - alpha/sqr(1.0 - alpha)
-        + (3.0*(1.0 - alpha) + 6.0*sqr(alpha))/(2.0*(1.0 - alpha))
-        + (2.0*alpha*(1.0 - alpha) + 3.0*pow(alpha, 3))
-         /(2.0*pow(1.0 - alpha, 4));
+        2.5/sqr(1.0 - alpha)
+      + 4.0*alpha/pow(1.0 - alpha, 3.0)
+      + 1.5*sqr(alpha)/pow(1.0 - alpha, 4.0);
 }
 
 

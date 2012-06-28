@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,19 +22,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::GidaspowRadial
+    Foam::regionToFace
 
 Description
+    A topoSetSource to select faces belonging to topological connected region
+    (that contains given point)
 
 SourceFiles
-    GidaspowRadial.C
+    regionToFace.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef GidaspowRadial_H
-#define GidaspowRadial_H
+#ifndef regionToFace_H
+#define regionToFace_H
 
-#include "radialModel.H"
+#include "topoSetSource.H"
+#include "PackedBoolList.H"
+#include "indirectPrimitivePatch.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -42,43 +46,85 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class Gidaspowradial Declaration
+                        Class regionToFace Declaration
 \*---------------------------------------------------------------------------*/
 
-class GidaspowRadial
+class regionToFace
 :
-    public radialModel
+    public topoSetSource
 {
+    // Private data
+
+        //- Add usage string
+        static addToUsageTable usage_;
+
+        //- Name of set to use
+        word setName_;
+
+        //- Coordinate that is nearest/on connected region
+        point nearPoint_;
+
+    // Private Member Functions
+
+        //- Walk edge-face-edge
+        void markZone
+        (
+            const indirectPrimitivePatch& patch,
+            const label procI,
+            const label faceI,
+            const label zoneI,
+            labelList& faceZone
+        ) const;
+
+        void combine(topoSet& set, const bool add) const;
 
 public:
 
     //- Runtime type information
-    TypeName("Gidaspow");
-
+    TypeName("regionToFace");
 
     // Constructors
 
         //- Construct from components
-        GidaspowRadial(const dictionary& dict);
+        regionToFace
+        (
+            const polyMesh& mesh,
+            const word& setName,
+            const point& nearPoint
+        );
+
+        //- Construct from dictionary
+        regionToFace
+        (
+            const polyMesh& mesh,
+            const dictionary& dict
+        );
+
+        //- Construct from Istream
+        regionToFace
+        (
+            const polyMesh& mesh,
+            Istream&
+        );
 
 
     //- Destructor
-    virtual ~GidaspowRadial();
+    virtual ~regionToFace();
 
 
     // Member Functions
 
-        tmp<volScalarField> g0
+        virtual sourceType setType() const
+        {
+            return FACESETSOURCE;
+        }
+
+        virtual void applyToSet
         (
-            const volScalarField& alpha,
-            const dimensionedScalar& alphaMax
+            const topoSetSource::setAction action,
+            topoSet&
         ) const;
 
-        tmp<volScalarField> g0prime
-        (
-            const volScalarField& alpha,
-            const dimensionedScalar& alphaMax
-        ) const;
 };
 
 

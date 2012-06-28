@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,36 +23,28 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "conductivityModel.H"
+#include "patchEdgeFaceRegion.H"
 
-// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * Friend Operators  * * * * * * * * * * * * * //
 
-namespace Foam
-{
-namespace kineticTheoryModels
-{
-    defineTypeNameAndDebug(conductivityModel, 0);
-
-    defineRunTimeSelectionTable(conductivityModel, dictionary);
-}
-}
-
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-Foam::kineticTheoryModels::conductivityModel::conductivityModel
+Foam::Ostream& Foam::operator<<
 (
-    const dictionary& dict
+    Foam::Ostream& os,
+    const Foam::patchEdgeFaceRegion& wDist
 )
-:
-    dict_(dict)
-{}
+{
+    return os << wDist.region_;
+}
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::kineticTheoryModels::conductivityModel::~conductivityModel()
-{}
+Foam::Istream& Foam::operator>>
+(
+    Foam::Istream& is,
+    Foam::patchEdgeFaceRegion& wDist
+)
+{
+    return is >> wDist.region_;
+}
 
 
 // ************************************************************************* //

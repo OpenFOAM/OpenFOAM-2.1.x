@@ -17,7 +17,7 @@ streamLines
     setFormat       vtk; //gnuplot; //xmgr; //raw; //jplot;
 
     // Velocity field to use for tracking.
-    U U;
+    UName           U;
 
     // Tracked forwards (+U) or backwards (-U)
     trackForward    true;

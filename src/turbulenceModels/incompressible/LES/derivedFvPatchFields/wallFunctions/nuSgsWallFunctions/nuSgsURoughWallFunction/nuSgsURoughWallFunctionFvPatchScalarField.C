@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,8 +23,8 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "nutURoughWallFunctionFvPatchScalarField.H"
-#include "RASModel.H"
+#include "nuSgsURoughWallFunctionFvPatchScalarField.H"
+#include "LESModel.H"
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
@@ -35,56 +35,42 @@ namespace Foam
 {
 namespace incompressible
 {
-namespace RASModels
+namespace LESModels
 {
 
 // * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
 
-tmp<scalarField> nutURoughWallFunctionFvPatchScalarField::calcNut() const
+scalar nuSgsURoughWallFunctionFvPatchScalarField::calcYPlusLam
+(
+    const scalar kappa,
+    const scalar E
+) const
 {
-    const label patchI = patch().index();
+    scalar ypl = 11.0;
 
-    const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
-    const scalarField& y = rasModel.y()[patchI];
-    const fvPatchVectorField& Uw = rasModel.U().boundaryField()[patchI];
-    const tmp<volScalarField> tnu = rasModel.nu();
-    const volScalarField& nu = tnu();
-    const scalarField& nuw = nu.boundaryField()[patchI];
-
-    // The flow velocity at the adjacent cell centre
-    const scalarField magUp(mag(Uw.patchInternalField() - Uw));
-
-    tmp<scalarField> tyPlus = calcYPlus(magUp);
-    scalarField& yPlus = tyPlus();
-
-    tmp<scalarField> tnutw(new scalarField(patch().size(), 0.0));
-    scalarField& nutw = tnutw();
-
-    forAll(yPlus, facei)
+    for (int i=0; i<10; i++)
     {
-        if (yPlus[facei] > yPlusLam_)
-        {
-            const scalar Re = magUp[facei]*y[facei]/nuw[facei] + ROOTVSMALL;
-            nutw[facei] = nuw[facei]*(sqr(yPlus[facei])/Re - 1);
-        }
+        ypl = log(E*ypl)/kappa;
     }
 
-    return tnutw;
+    return ypl;
 }
 
 
-tmp<scalarField> nutURoughWallFunctionFvPatchScalarField::calcYPlus
+tmp<scalarField> nuSgsURoughWallFunctionFvPatchScalarField::calcYPlus
 (
     const scalarField& magUp
 ) const
 {
-    const label patchI = patch().index();
+    const label patchi = patch().index();
 
-    const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
-    const scalarField& y = rasModel.y()[patchI];
-    const tmp<volScalarField> tnu = rasModel.nu();
+    const LESModel& lesModel = db().lookupObject<LESModel>("LESProperties");
+    const tmp<volScalarField> tnu = lesModel.nu();
     const volScalarField& nu = tnu();
-    const scalarField& nuw = nu.boundaryField()[patchI];
+    const scalarField& nuw = nu.boundaryField()[patchi];
+
+    const scalarField& ry =
+        lesModel.U().mesh().nonOrthDeltaCoeffs().boundaryField()[patchi];
 
     tmp<scalarField> tyPlus(new scalarField(patch().size(), 0.0));
     scalarField& yPlus = tyPlus();
@@ -104,7 +90,7 @@ tmp<scalarField> nutURoughWallFunctionFvPatchScalarField::calcYPlus
             forAll(yPlus, facei)
             {
                 const scalar magUpara = magUp[facei];
-                const scalar Re = magUpara*y[facei]/nuw[facei];
+                const scalar Re = magUpara/(ry[facei]*nuw[facei]);
                 const scalar kappaRe = kappa_*Re;
 
                 scalar yp = yPlusLam_;
@@ -112,7 +98,7 @@ tmp<scalarField> nutURoughWallFunctionFvPatchScalarField::calcYPlus
 
                 int iter = 0;
                 scalar yPlusLast = 0.0;
-                scalar dKsPlusdYPlus = roughnessHeight_/y[facei];
+                scalar dKsPlusdYPlus = roughnessHeight_*ry[facei];
 
                 // Additional tuning parameter - nominally = 1
                 dKsPlusdYPlus *= roughnessFactor_;
@@ -168,7 +154,7 @@ tmp<scalarField> nutURoughWallFunctionFvPatchScalarField::calcYPlus
         forAll(yPlus, facei)
         {
             const scalar magUpara = magUp[facei];
-            const scalar Re = magUpara*y[facei]/nuw[facei];
+            const scalar Re = magUpara/(ry[facei]*nuw[facei]);
             const scalar kappaRe = kappa_*Re;
 
             scalar yp = yPlusLam_;
@@ -194,67 +180,87 @@ tmp<scalarField> nutURoughWallFunctionFvPatchScalarField::calcYPlus
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-nutURoughWallFunctionFvPatchScalarField::nutURoughWallFunctionFvPatchScalarField
+nuSgsURoughWallFunctionFvPatchScalarField::
+nuSgsURoughWallFunctionFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    nutkWallFunctionFvPatchScalarField(p, iF),
+    fixedValueFvPatchScalarField(p, iF),
+    kappa_(0.41),
+    E_(9.8),
+    yPlusLam_(calcYPlusLam(kappa_, E_)),
     roughnessHeight_(pTraits<scalar>::zero),
     roughnessConstant_(pTraits<scalar>::zero),
     roughnessFactor_(pTraits<scalar>::zero)
 {}
 
 
-nutURoughWallFunctionFvPatchScalarField::nutURoughWallFunctionFvPatchScalarField
+nuSgsURoughWallFunctionFvPatchScalarField::
+nuSgsURoughWallFunctionFvPatchScalarField
 (
-    const nutURoughWallFunctionFvPatchScalarField& ptf,
+    const nuSgsURoughWallFunctionFvPatchScalarField& ptf,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    nutkWallFunctionFvPatchScalarField(ptf, p, iF, mapper),
+    fixedValueFvPatchScalarField(ptf, p, iF, mapper),
+    kappa_(ptf.kappa_),
+    E_(ptf.E_),
+    yPlusLam_(calcYPlusLam(kappa_, E_)),
     roughnessHeight_(ptf.roughnessHeight_),
     roughnessConstant_(ptf.roughnessConstant_),
     roughnessFactor_(ptf.roughnessFactor_)
 {}
 
 
-nutURoughWallFunctionFvPatchScalarField::nutURoughWallFunctionFvPatchScalarField
+nuSgsURoughWallFunctionFvPatchScalarField::
+nuSgsURoughWallFunctionFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const dictionary& dict
 )
 :
-    nutkWallFunctionFvPatchScalarField(p, iF, dict),
+    fixedValueFvPatchScalarField(p, iF, dict),
+    kappa_(dict.lookupOrDefault<scalar>("kappa", 0.41)),
+    E_(dict.lookupOrDefault<scalar>("E", 9.8)),
+    yPlusLam_(calcYPlusLam(kappa_, E_)),
     roughnessHeight_(readScalar(dict.lookup("roughnessHeight"))),
     roughnessConstant_(readScalar(dict.lookup("roughnessConstant"))),
     roughnessFactor_(readScalar(dict.lookup("roughnessFactor")))
 {}
 
 
-nutURoughWallFunctionFvPatchScalarField::nutURoughWallFunctionFvPatchScalarField
+nuSgsURoughWallFunctionFvPatchScalarField::
+nuSgsURoughWallFunctionFvPatchScalarField
 (
-    const nutURoughWallFunctionFvPatchScalarField& rwfpsf
+    const nuSgsURoughWallFunctionFvPatchScalarField& rwfpsf
 )
 :
-    nutkWallFunctionFvPatchScalarField(rwfpsf),
+    fixedValueFvPatchScalarField(rwfpsf),
+    kappa_(rwfpsf.kappa_),
+    E_(rwfpsf.E_),
+    yPlusLam_(rwfpsf.yPlusLam_),
     roughnessHeight_(rwfpsf.roughnessHeight_),
     roughnessConstant_(rwfpsf.roughnessConstant_),
     roughnessFactor_(rwfpsf.roughnessFactor_)
 {}
 
 
-nutURoughWallFunctionFvPatchScalarField::nutURoughWallFunctionFvPatchScalarField
+nuSgsURoughWallFunctionFvPatchScalarField::
+nuSgsURoughWallFunctionFvPatchScalarField
 (
-    const nutURoughWallFunctionFvPatchScalarField& rwfpsf,
+    const nuSgsURoughWallFunctionFvPatchScalarField& rwfpsf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    nutkWallFunctionFvPatchScalarField(rwfpsf, iF),
+    fixedValueFvPatchScalarField(rwfpsf, iF),
+    kappa_(rwfpsf.kappa_),
+    E_(rwfpsf.E_),
+    yPlusLam_(rwfpsf.yPlusLam_),
     roughnessHeight_(rwfpsf.roughnessHeight_),
     roughnessConstant_(rwfpsf.roughnessConstant_),
     roughnessFactor_(rwfpsf.roughnessFactor_)
@@ -263,22 +269,48 @@ nutURoughWallFunctionFvPatchScalarField::nutURoughWallFunctionFvPatchScalarField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-tmp<scalarField> nutURoughWallFunctionFvPatchScalarField::yPlus() const
+void nuSgsURoughWallFunctionFvPatchScalarField::evaluate
+(
+    const Pstream::commsTypes
+)
 {
-    const label patchI = patch().index();
+    const label patchi = patch().index();
 
-    const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
-    const fvPatchVectorField& Uw = rasModel.U().boundaryField()[patchI];
-    tmp<scalarField> magUp = mag(Uw.patchInternalField() - Uw);
+    const LESModel& lesModel = db().lookupObject<LESModel>("LESProperties");
+    const fvPatchVectorField& Uw = lesModel.U().boundaryField()[patchi];
+    const tmp<volScalarField> tnu = lesModel.nu();
+    const volScalarField& nu = tnu();
+    const scalarField& nuw = nu.boundaryField()[patchi];
 
-    return calcYPlus(magUp());
+    const scalarField& ry =
+        lesModel.U().mesh().nonOrthDeltaCoeffs().boundaryField()[patchi];
+
+    // The flow velocity at the adjacent cell centre
+    const scalarField magUp(mag(Uw.patchInternalField() - Uw));
+
+    tmp<scalarField> tyPlus = calcYPlus(magUp);
+    scalarField& yPlus = tyPlus();
+
+    scalarField& nuSgsw = *this;
+
+    forAll(yPlus, facei)
+    {
+        if (yPlus[facei] > yPlusLam_)
+        {
+            const scalar Re = magUp[facei]/(ry[facei]*nuw[facei]) + ROOTVSMALL;
+            nuSgsw[facei] = nuw[facei]*(sqr(yPlus[facei])/Re - 1);
+        }
+    }
+
+    fixedValueFvPatchScalarField::evaluate();
 }
 
 
-void nutURoughWallFunctionFvPatchScalarField::write(Ostream& os) const
+void nuSgsURoughWallFunctionFvPatchScalarField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
-    writeLocalEntries(os);
+    os.writeKeyword("kappa") << kappa_ << token::END_STATEMENT << nl;
+    os.writeKeyword("E") << E_ << token::END_STATEMENT << nl;
     os.writeKeyword("roughnessHeight")
         << roughnessHeight_ << token::END_STATEMENT << nl;
     os.writeKeyword("roughnessConstant")
@@ -294,12 +326,12 @@ void nutURoughWallFunctionFvPatchScalarField::write(Ostream& os) const
 makePatchTypeField
 (
     fvPatchScalarField,
-    nutURoughWallFunctionFvPatchScalarField
+    nuSgsURoughWallFunctionFvPatchScalarField
 );
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace RASModels
+} // End namespace LESModels
 } // End namespace incompressible
 } // End namespace Foam
 

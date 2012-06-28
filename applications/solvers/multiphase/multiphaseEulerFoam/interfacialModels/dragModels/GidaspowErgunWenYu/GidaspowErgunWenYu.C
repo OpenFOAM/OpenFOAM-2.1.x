@@ -71,7 +71,7 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::GidaspowErgunWenYu::K
 ) const
 {
     volScalarField alpha2(max(phase2_, scalar(1.0e-6)));
-    volScalarField d = phase1_.d();
+    volScalarField d(phase1_.d());
     volScalarField bp(pow(alpha2, -2.65));
     volScalarField Re(max(Ur*d/phase2_.nu(), scalar(1.0e-3)));
 

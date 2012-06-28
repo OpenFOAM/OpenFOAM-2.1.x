@@ -79,7 +79,7 @@ Foam::kineticTheoryModel::kineticTheoryModel
     ),
     radialModel_
     (
-        radialModel::New
+        kineticTheoryModels::radialModel::New
         (
             kineticTheoryProperties_
         )

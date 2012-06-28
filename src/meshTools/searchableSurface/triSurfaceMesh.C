@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -827,6 +827,8 @@ void Foam::triSurfaceMesh::getNormal
     vectorField& normal
 ) const
 {
+    const triSurface& s = static_cast<const triSurface&>(*this);
+
     normal.setSize(info.size());
 
     if (minQuality_ >= 0)
@@ -834,7 +836,6 @@ void Foam::triSurfaceMesh::getNormal
         // Make sure we don't use triangles with low quality since
         // normal is not reliable.
 
-        const triSurface& s = static_cast<const triSurface&>(*this);
         const labelListList& faceFaces = s.faceFaces();
 
         forAll(info, i)
@@ -842,11 +843,20 @@ void Foam::triSurfaceMesh::getNormal
             if (info[i].hit())
             {
                 label faceI = info[i].index();
+                normal[i] = s[faceI].normal(points());
 
                 scalar qual = s[faceI].tri(points()).quality();
 
                 if (qual < minQuality_)
                 {
+                    //{
+                    //    Pout<< "** for triangle:" << s[faceI].tri(points())
+                    //        << " quality:" << qual
+                    //        << " old normal:"
+                    //        << normal[i]/(mag(normal[i])+VSMALL)
+                    //        << endl;
+                    //}
+
                     // Search neighbouring triangles
                     const labelList& fFaces = faceFaces[faceI];
 
@@ -860,12 +870,16 @@ void Foam::triSurfaceMesh::getNormal
                             normal[i] = s[nbrI].normal(points());
                         }
                     }
+
+                    //{
+                    //    Pout<< "   replacement quality:" << qual
+                    //        << " replacement normal:"
+                    //        << normal[i]/(mag(normal[i])+VSMALL)
+                    //        << endl;
+                    //}
                 }
-                else
-                {
-                    normal[i] = s[faceI].normal(points());
-                }
-                normal[i] /= mag(normal[i]);
+
+                normal[i] /= mag(normal[i]) + VSMALL;
             }
             else
             {
@@ -885,7 +899,7 @@ void Foam::triSurfaceMesh::getNormal
                 //normal[i] = faceNormals()[faceI];
 
                 //- Uncached
-                normal[i] = triSurface::operator[](faceI).normal(points());
+                normal[i] = s[faceI].normal(points());
                 normal[i] /= mag(normal[i]) + VSMALL;
             }
             else
