@@ -245,7 +245,7 @@ void Foam::SprayParcel<ParcelType>::calcBreakup
     const scalar mass = p.mass();
     const forceSuSp Fcp = forces.calcCoupled(p, dt, mass, Re, muAv);
     const forceSuSp Fncp = forces.calcNonCoupled(p, dt, mass, Re, muAv);
-    scalar tMom = 1.0/(Fcp.Sp() + Fncp.Sp());
+    scalar tMom = mass/(Fcp.Sp() + Fncp.Sp());
 
     const vector g = td.cloud().g().value();
 
@@ -300,7 +300,7 @@ void Foam::SprayParcel<ParcelType>::calcBreakup
         child->tc() = -GREAT;
         child->ms() = 0.0;
         child->injector() = this->injector();
-        child->tMom() = 1.0/(Fcp.Sp() + Fncp.Sp());
+        child->tMom() = massChild/(Fcp.Sp() + Fncp.Sp());
         child->user() = 0.0;
         child->setCellValues(td, dt, cellI);
 

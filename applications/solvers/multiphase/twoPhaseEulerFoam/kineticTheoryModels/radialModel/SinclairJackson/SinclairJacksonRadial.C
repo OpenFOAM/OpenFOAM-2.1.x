@@ -85,7 +85,7 @@ Foam::kineticTheoryModels::radialModels::SinclairJackson::g0prime
 ) const
 {
     return
-       (1.0/3.0)*pow(max(alpha, 1.0e-6)/alphaMax, -2.0/3.0)
+       (1.0/3.0)*pow(max(alpha, scalar(1.0e-6))/alphaMax, -2.0/3.0)
       /(alphaMax*sqr(1.0 - pow(alpha/alphaMax, 1.0/3.0)));
 }
 
