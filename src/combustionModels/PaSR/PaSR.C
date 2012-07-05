@@ -94,35 +94,29 @@ void Foam::combustionModels::PaSR<CombThermoType>::correct()
 
         if (turbulentReaction_)
         {
+            tmp<volScalarField> trho(this->rho());
+            const volScalarField& rho = trho();
             tmp<volScalarField> tepsilon(this->turbulence().epsilon());
             const volScalarField& epsilon = tepsilon();
             tmp<volScalarField> tmuEff(this->turbulence().muEff());
             const volScalarField& muEff = tmuEff();
             tmp<volScalarField> ttc(tc());
             const volScalarField& tc = ttc();
+
+            const scalar dt = this->mesh().time().deltaTValue();
+
             forAll(epsilon, i)
             {
                 if (epsilon[i] > 0)
                 {
-                    const dimensionedScalar e0
-                    (
-                        "e0",
-                        sqr(dimLength)/pow3(dimTime), SMALL
-                    );
-
                     scalar tk =
                         Cmix_.value()
-                       *Foam::sqrt
-                       (
-                            muEff[i]/this->rho()()[i]/(epsilon[i] + e0.value())
-                       );
+                       *Foam::sqrt(muEff[i]/rho[i]/(epsilon[i] + SMALL));
 
                     // Chalmers PaSR model
                     if (!useReactionRate_)
                     {
-                        kappa_[i] =
-                            ( this->mesh().time().deltaTValue() + tc[i])
-                        /( this->mesh().time().deltaTValue() + tc[i] + tk);
+                        kappa_[i] = (dt + tc[i])/(dt + tc[i] + tk);
                     }
                     else
                     {
