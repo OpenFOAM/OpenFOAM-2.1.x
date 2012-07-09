@@ -13,4 +13,4 @@ ctoo        = $(WM_SCHEDULER) $(cc) $(cFLAGS) -c $$SOURCE -o $@
 LINK_LIBS   = $(cDBUG) -L$(IA32ROOT)/lib
 
 LINKLIBSO   = $(cc) $(cFLAGS) -shared
-LINKEXE     = $(cc) $(cFLAGS)
+LINKEXE     = $(cc) $(cFLAGS) -Xlinker --add-needed -Xlinker -z -Xlinker nodefs
