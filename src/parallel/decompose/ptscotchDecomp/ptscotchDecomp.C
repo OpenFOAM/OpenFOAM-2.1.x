@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -401,10 +401,10 @@ Foam::label Foam::ptscotchDecomp::decompose
     }
 
     // Dump graph
-    if (decompositionDict_.found("ptscotchCoeffs"))
+    if (decompositionDict_.found("scotchCoeffs"))
     {
         const dictionary& scotchCoeffs =
-            decompositionDict_.subDict("ptscotchCoeffs");
+            decompositionDict_.subDict("scotchCoeffs");
 
         if (scotchCoeffs.lookupOrDefault("writeGraph", false))
         {

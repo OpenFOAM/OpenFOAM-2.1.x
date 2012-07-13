@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -171,13 +171,15 @@ void Foam::meshToMesh::calcAddressing()
                     wallBb.max() + vector(typDim, typDim, typDim)
                 );
 
+                // Note: allow more levels than in meshSearch. Assume patch
+                // is not as big as all boundary faces
                 indexedOctree<treeDataFace> oc
                 (
                     treeDataFace(false, fromPatch),
                     shiftedBb,  // overall search domain
-                    8,          // maxLevel
+                    12,         // maxLevel
                     10,         // leafsize
-                    3.0         // duplicity
+                    6.0         // duplicity
                 );
 
                 const vectorField::subField centresToBoundary =
@@ -185,7 +187,7 @@ void Foam::meshToMesh::calcAddressing()
 
                 boundaryAddressing_[patchi].setSize(toPatch.size());
 
-                scalar distSqr = sqr(GREAT);
+                scalar distSqr = sqr(wallBb.mag());
 
                 forAll(toPatch, toi)
                 {
@@ -202,7 +204,7 @@ void Foam::meshToMesh::calcAddressing()
     if (debug)
     {
         Info<< "meshToMesh::calculateAddressing() : "
-            << "finished calculating mesh-to-mesh acell ddressing" << endl;
+            << "finished calculating mesh-to-mesh cell addressing" << endl;
     }
 }
 

@@ -131,6 +131,7 @@ int main(int argc, char *argv[])
 
 
     // Turbulence epsilon
+
     tmp<volScalarField> tepsilon = turbulence->epsilon();
     volScalarField& epsilon = tepsilon();
     scalar ce0 = ::pow(Cmu, 0.75)/kappa;
@@ -139,7 +140,6 @@ int main(int argc, char *argv[])
 
     Info<< "Writing epsilon\n" << endl;
     epsilon.write();
-
 
     // Turbulence omega
     IOobject omegaHeader
@@ -155,7 +155,11 @@ int main(int argc, char *argv[])
     if (omegaHeader.headerOk())
     {
         volScalarField omega(omegaHeader, mesh);
-        omega = epsilon/(Cmu*k);
+        omega =
+            epsilon
+           /(
+               Cmu*k+dimensionedScalar("VSMALL", k.dimensions(), VSMALL)
+            );
         omega.correctBoundaryConditions();
 
         Info<< "Writing omega\n" << endl;

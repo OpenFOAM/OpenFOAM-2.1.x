@@ -36,6 +36,7 @@ Description
       + fvc::div(phi)
       ==
         parcels.Srho(rho)
+      + sources(rho)
     );
 }
 

@@ -170,6 +170,15 @@ FoamFile
 //        insidePoint (1 2 3);    // point inside region to select
 //    }
 //
+//    // Cells underneath plane such that volume is reached. Can be used
+//    // in setFields.
+//    source targetVolumeToCell;
+//    sourceInfo
+//    {
+//        volume  2e-05;
+//        normal  (1 1 1);
+//    }
+//
 //
 //
 // faceSet
