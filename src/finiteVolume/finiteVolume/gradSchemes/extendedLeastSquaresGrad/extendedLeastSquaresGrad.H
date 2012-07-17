@@ -85,7 +85,7 @@ public:
             gradScheme<Type>(mesh),
             minDet_(readScalar(schemeData))
         {
-            if (minDet_ < 0 || minDet_ > 8)
+            if (minDet_ < 0)    //-for facearea weighted: || minDet_ > 8)
             {
                 FatalIOErrorIn
                 (
@@ -93,7 +93,7 @@ public:
                     "(const fvMesh&, Istream& schemeData)",
                     schemeData
                 )   << "Minimum determinant = " << minDet_
-                    << " should be >= 0 and <= 8"
+                    << " should be >= 0"    // and <= 8"
                     << exit(FatalIOError);
             }
         }

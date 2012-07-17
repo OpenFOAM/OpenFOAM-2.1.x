@@ -1,7 +1,7 @@
 rho = thermo.rho();
 
 volScalarField rAU(1.0/UEqn.A());
-U = rAU*UEqn.H();
+U = rAU*(UEqn == sources(rho, U))().H();
 
 if (pimple.transonic())
 {
@@ -24,6 +24,7 @@ if (pimple.transonic())
           - fvm::laplacian(rho*rAU, p)
          ==
             parcels.Srho()
+          + sources(psi, p, rho.name())
         );
 
         pEqn.solve(mesh.solver(p.select(pimple.finalInnerIter())));
@@ -52,6 +53,7 @@ else
           - fvm::laplacian(rho*rAU, p)
          ==
             parcels.Srho()
+          + sources(psi, p, rho.name())
         );
 
         pEqn.solve(mesh.solver(p.select(pimple.finalInnerIter())));

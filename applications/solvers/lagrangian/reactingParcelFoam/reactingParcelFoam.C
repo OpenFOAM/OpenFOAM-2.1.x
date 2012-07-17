@@ -34,6 +34,7 @@ Description
 #include "turbulenceModel.H"
 #include "basicReactingCloud.H"
 #include "psiChemistryCombustionModel.H"
+#include "IObasicSourceList.H"
 #include "radiationModel.H"
 #include "SLGThermo.H"
 #include "pimpleControl.H"

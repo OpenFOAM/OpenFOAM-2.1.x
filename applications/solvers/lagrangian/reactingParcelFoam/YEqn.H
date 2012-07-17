@@ -30,9 +30,11 @@ tmp<fv::convectionScheme<scalar> > mvConvection
               ==
                 parcels.SYi(i, Yi)
               + combustion->R(Yi)
+              + sources(rho, Yi)
             );
 
             YiEqn.relax();
+            sources.constrain(YiEqn);
             YiEqn.solve(mesh.solver("Yi"));
 
             Yi.max(0.0);

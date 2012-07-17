@@ -11,30 +11,11 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "constant";
-    object      thermophysicalProperties;
+    object      sourcesProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-thermoType      hRhoThermo<pureMixture<sutherlandTransport<specieThermo<hConstThermo<perfectGas>>>>>;
 
-mixture
-{
-    specie
-    {
-        nMoles      1;
-        molWeight   28.9;
-    }
-    thermodynamics
-    {
-        Cp          1007;
-        Hf          0;
-    }
-    transport
-    {
-        As          1.4792e-06;
-        Ts          116;
-    }
-}
 
 
 // ************************************************************************* //
