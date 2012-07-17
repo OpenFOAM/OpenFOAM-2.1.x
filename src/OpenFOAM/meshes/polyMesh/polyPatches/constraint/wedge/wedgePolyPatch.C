@@ -66,8 +66,7 @@ void Foam::wedgePolyPatch::initTransforms()
         {
             FatalErrorIn
             (
-                "wedgePolyPatch::wedgePolyPatch(const polyPatch&, "
-                "const fvBoundaryMesh&)"
+                "wedgePolyPatch::initTransforms()"
             )   << "wedge " << name()
                 << " centre plane does not align with a coordinate plane by "
                 << 1
@@ -77,7 +76,6 @@ void Foam::wedgePolyPatch::initTransforms()
 
         axis_ = centreNormal_ ^ patchNormal_;
         scalar magAxis = mag(axis_);
-        axis_ /= magAxis;
 
         if (magAxis < SMALL)
         {
@@ -94,6 +92,8 @@ void Foam::wedgePolyPatch::initTransforms()
                 << " , implied coordinate plane direction is " << centreNormal_
                 << exit(FatalError);
         }
+
+        axis_ /= magAxis;
 
         faceT_ = rotationTensor(centreNormal_, patchNormal_);
         cellT_ = faceT_ & faceT_;
