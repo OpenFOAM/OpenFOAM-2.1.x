@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -32,7 +32,7 @@ Description
     \verbatim
         d/dt(k) + div(U*k) - div(nuEff*grad(k))
         =
-        -B*L - ce*k^3/2/delta
+        -D:B - ce*k^(3/2)/delta
 
     and
 
