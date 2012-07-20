@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -30,7 +30,7 @@ License
 Foam::autoPtr<Foam::heatTransferModel> Foam::heatTransferModel::New
 (
     const dictionary& interfaceDict,
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const phaseModel& phase1,
     const phaseModel& phase2
 )
@@ -58,7 +58,7 @@ Foam::autoPtr<Foam::heatTransferModel> Foam::heatTransferModel::New
             << exit(FatalError);
     }
 
-    return cstrIter()(interfaceDict, alpha, phase1, phase2);
+    return cstrIter()(interfaceDict, alpha1, phase1, phase2);
 }
 
 

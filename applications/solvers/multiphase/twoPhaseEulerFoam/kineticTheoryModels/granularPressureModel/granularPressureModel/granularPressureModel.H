@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -105,19 +105,19 @@ public:
         //- Granular pressure coefficient
         virtual tmp<volScalarField> granularPressureCoeff
         (
-            const volScalarField& alpha,
+            const volScalarField& alpha1,
             const volScalarField& g0,
-            const dimensionedScalar& rhoa,
+            const dimensionedScalar& rho1,
             const dimensionedScalar& e
         ) const = 0;
 
         //- Derivative of the granular pressure coefficient
         virtual tmp<volScalarField> granularPressureCoeffPrime
         (
-            const volScalarField& alpha,
+            const volScalarField& alpha1,
             const volScalarField& g0,
             const volScalarField& g0prime,
-            const dimensionedScalar& rhoa,
+            const dimensionedScalar& rho1,
             const dimensionedScalar& e
         ) const = 0;
 };

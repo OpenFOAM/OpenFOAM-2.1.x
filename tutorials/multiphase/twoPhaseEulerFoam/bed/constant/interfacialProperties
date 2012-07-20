@@ -15,11 +15,12 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dragModela      GidaspowSchillerNaumann;
+dragModel1      GidaspowSchillerNaumann;
 
-dragModelb      GidaspowSchillerNaumann;
+dragModel2      GidaspowSchillerNaumann;
 
-dragPhase       a;
+dragPhase       "1";
 
+residualSlip    0;
 
 // ************************************************************************* //

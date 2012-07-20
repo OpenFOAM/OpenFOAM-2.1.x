@@ -22,7 +22,7 @@ boundaryField
 {
     inlet
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
@@ -50,7 +50,7 @@ boundaryField
 
     hull_wall
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 }

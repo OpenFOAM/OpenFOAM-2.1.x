@@ -1,9 +1,9 @@
-    Info<< "Reading field alpha\n" << endl;
-    volScalarField alpha
+    Info<< "Reading field alpha1\n" << endl;
+    volScalarField alpha1
     (
         IOobject
         (
-            "alpha",
+            "alpha1",
             runTime.timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -12,18 +12,18 @@
         mesh
     );
 
-    volScalarField beta
+    volScalarField alpha2
     (
         IOobject
         (
-            "beta",
+            "alpha2",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        scalar(1) - alpha
-        //,alpha.boundaryField().types()
+        scalar(1) - alpha1
+        //,alpha1.boundaryField().types()
     );
 
     Info<< "Reading field p\n" << endl;
@@ -40,12 +40,12 @@
         mesh
     );
 
-    Info<< "Reading field Ua\n" << endl;
-    volVectorField Ua
+    Info<< "Reading field U1\n" << endl;
+    volVectorField U1
     (
         IOobject
         (
-            "Ua",
+            "U1",
             runTime.timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -54,12 +54,12 @@
         mesh
     );
 
-    Info<< "Reading field Ub\n" << endl;
-    volVectorField Ub
+    Info<< "Reading field U2\n" << endl;
+    volVectorField U2
     (
         IOobject
         (
-            "Ub",
+            "U2",
             runTime.timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -78,7 +78,7 @@
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        alpha*Ua + beta*Ub
+        alpha1*U1 + alpha2*U2
     );
 
 
@@ -96,34 +96,34 @@
         )
     );
 
-    dimensionedScalar rhoa
+    dimensionedScalar rho1
     (
-        transportProperties.lookup("rhoa")
+        transportProperties.lookup("rho1")
     );
 
-    dimensionedScalar rhob
+    dimensionedScalar rho2
     (
-        transportProperties.lookup("rhob")
+        transportProperties.lookup("rho2")
     );
 
-    dimensionedScalar nua
+    dimensionedScalar nu1
     (
-        transportProperties.lookup("nua")
+        transportProperties.lookup("nu1")
     );
 
-    dimensionedScalar nub
+    dimensionedScalar nu2
     (
-        transportProperties.lookup("nub")
+        transportProperties.lookup("nu2")
     );
 
-    dimensionedScalar da
+    dimensionedScalar d1
     (
-        transportProperties.lookup("da")
+        transportProperties.lookup("d1")
     );
 
-    dimensionedScalar db
+    dimensionedScalar d2
     (
-        transportProperties.lookup("db")
+        transportProperties.lookup("d2")
     );
 
     dimensionedScalar Cvm
@@ -141,8 +141,8 @@
         transportProperties.lookup("Ct")
     );
 
-    #include "createPhia.H"
-    #include "createPhib.H"
+    #include "createPhi1.H"
+    #include "createPhi2.H"
 
     surfaceScalarField phi
     (
@@ -152,8 +152,8 @@
             runTime.timeName(),
             mesh
         ),
-        fvc::interpolate(alpha)*phia
-      + fvc::interpolate(beta)*phib
+        fvc::interpolate(alpha1)*phi1
+      + fvc::interpolate(alpha2)*phi2
     );
 
     volScalarField rho
@@ -164,25 +164,25 @@
             runTime.timeName(),
             mesh
         ),
-        alpha*rhoa + beta*rhob
+        alpha1*rho1 + alpha2*rho2
     );
 
     #include "createRASTurbulence.H"
 
-    Info<< "Calculating field DDtUa and DDtUb\n" << endl;
+    Info<< "Calculating field DDtU1 and DDtU2\n" << endl;
 
-    volVectorField DDtUa
+    volVectorField DDtU1
     (
-        fvc::ddt(Ua)
-      + fvc::div(phia, Ua)
-      - fvc::div(phia)*Ua
+        fvc::ddt(U1)
+      + fvc::div(phi1, U1)
+      - fvc::div(phi1)*U1
     );
 
-    volVectorField DDtUb
+    volVectorField DDtU2
     (
-        fvc::ddt(Ub)
-      + fvc::div(phib, Ub)
-      - fvc::div(phib)*Ub
+        fvc::ddt(U2)
+      + fvc::div(phi2, U2)
+      - fvc::div(phi2)*U2
     );
 
 

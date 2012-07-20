@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,7 +25,7 @@ Application
     compressibleInterFoam
 
 Description
-    Solver for 2 compressible, isothermal immiscible fluids using a VOF
+    Solver for 2 compressible, non-isothermal immiscible fluids using a VOF
     (volume of fluid) phase-fraction based interface capturing approach.
 
     The momentum and other fluid properties are of the "mixture" and a single
@@ -40,6 +40,7 @@ Description
 #include "subCycle.H"
 #include "interfaceProperties.H"
 #include "twoPhaseMixture.H"
+#include "phaseEquationOfState.H"
 #include "turbulenceModel.H"
 #include "pimpleControl.H"
 
@@ -82,6 +83,7 @@ int main(int argc, char *argv[])
             solve(fvm::ddt(rho) + fvc::div(rhoPhi));
 
             #include "UEqn.H"
+            #include "TEqn.H"
 
             // --- Pressure corrector loop
             while (pimple.correct())

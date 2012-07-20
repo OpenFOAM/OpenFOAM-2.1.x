@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -46,12 +46,12 @@ namespace Foam
 Foam::Ergun::Ergun
 (
     const dictionary& interfaceDict,
-    const volScalarField& alpha,
-    const phaseModel& phasea,
-    const phaseModel& phaseb
+    const volScalarField& alpha1,
+    const phaseModel& phase1,
+    const phaseModel& phase2
 )
 :
-    dragModel(interfaceDict, alpha, phasea, phaseb)
+    dragModel(interfaceDict, alpha1, phase1, phase2)
 {}
 
 
@@ -68,12 +68,12 @@ Foam::tmp<Foam::volScalarField> Foam::Ergun::K
     const volScalarField& Ur
 ) const
 {
-    volScalarField beta(max(scalar(1) - alpha_, scalar(1.0e-6)));
+    volScalarField alpha2(max(scalar(1) - alpha1_, scalar(1.0e-6)));
 
     return
-        150.0*alpha_*phaseb_.nu()*phaseb_.rho()
-       /sqr(beta*phasea_.d())
-      + 1.75*phaseb_.rho()*Ur/(beta*phasea_.d());
+        150.0*alpha1_*phase2_.nu()*phase2_.rho()
+       /sqr(alpha2*phase1_.d())
+      + 1.75*phase2_.rho()*Ur/(alpha2*phase1_.d());
 }
 
 

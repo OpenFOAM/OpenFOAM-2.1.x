@@ -12,36 +12,36 @@
         )
     );
 
-    autoPtr<phaseModel> phasea = phaseModel::New
+    autoPtr<phaseModel> phase1 = phaseModel::New
     (
         mesh,
         transportProperties,
-        "a"
+        "1"
     );
 
-    autoPtr<phaseModel> phaseb = phaseModel::New
+    autoPtr<phaseModel> phase2 = phaseModel::New
     (
         mesh,
         transportProperties,
-        "b"
+        "2"
     );
 
-    volVectorField& Ua = phasea->U();
-    surfaceScalarField& phia = phasea->phi();
-    const dimensionedScalar& rhoa = phasea->rho();
-    const dimensionedScalar& nua = phasea->nu();
+    volVectorField& U1 = phase1->U();
+    surfaceScalarField& phi1 = phase1->phi();
+    const dimensionedScalar& rho1 = phase1->rho();
+    const dimensionedScalar& nu1 = phase1->nu();
 
-    volVectorField& Ub = phaseb->U();
-    surfaceScalarField& phib = phaseb->phi();
-    const dimensionedScalar& rhob = phaseb->rho();
-    const dimensionedScalar& nub = phaseb->nu();
+    volVectorField& U2 = phase2->U();
+    surfaceScalarField& phi2 = phase2->phi();
+    const dimensionedScalar& rho2 = phase2->rho();
+    const dimensionedScalar& nu2 = phase2->nu();
 
-    Info<< "Reading field alpha\n" << endl;
-    volScalarField alpha
+    Info<< "Reading field alpha1\n" << endl;
+    volScalarField alpha1
     (
         IOobject
         (
-            "alpha",
+            "alpha1",
             runTime.timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -50,18 +50,18 @@
         mesh
     );
 
-    volScalarField beta
+    volScalarField alpha2
     (
         IOobject
         (
-            "beta",
+            "alpha2",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        scalar(1) - alpha
-        //,alpha.boundaryField().types()
+        scalar(1) - alpha1
+        //,alpha1.boundaryField().types()
     );
 
     Info<< "Reading field p\n" << endl;
@@ -88,21 +88,27 @@
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        alpha*Ua + beta*Ub
+        alpha1*U1 + alpha2*U2
     );
 
     dimensionedScalar Cvm
     (
+        "Cvm",
+        dimless,
         transportProperties.lookup("Cvm")
     );
 
     dimensionedScalar Cl
     (
+        "Cl",
+        dimless,
         transportProperties.lookup("Cl")
     );
 
     dimensionedScalar Ct
     (
+        "Ct",
+        dimless,
         transportProperties.lookup("Ct")
     );
 
@@ -112,9 +118,11 @@
         (
             "phi",
             runTime.timeName(),
-            mesh
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
         ),
-        fvc::interpolate(alpha)*phia + fvc::interpolate(beta)*phib
+        fvc::interpolate(alpha1)*phi1 + fvc::interpolate(alpha2)*phi2
     );
 
     volScalarField rho
@@ -125,25 +133,25 @@
             runTime.timeName(),
             mesh
         ),
-        alpha*rhoa + beta*rhob
+        alpha1*rho1 + alpha2*rho2
     );
 
     #include "createRASTurbulence.H"
 
-    Info<< "Calculating field DDtUa and DDtUb\n" << endl;
+    Info<< "Calculating field DDtU1 and DDtU2\n" << endl;
 
-    volVectorField DDtUa
+    volVectorField DDtU1
     (
-        fvc::ddt(Ua)
-      + fvc::div(phia, Ua)
-      - fvc::div(phia)*Ua
+        fvc::ddt(U1)
+      + fvc::div(phi1, U1)
+      - fvc::div(phi1)*U1
     );
 
-    volVectorField DDtUb
+    volVectorField DDtU2
     (
-        fvc::ddt(Ub)
-      + fvc::div(phib, Ub)
-      - fvc::div(phib)*Ub
+        fvc::ddt(U2)
+      + fvc::div(phi2, U2)
+      - fvc::div(phi2)*U2
     );
 
 
@@ -162,20 +170,20 @@
         )
     );
 
-    autoPtr<dragModel> draga = dragModel::New
+    autoPtr<dragModel> drag1 = dragModel::New
     (
         interfacialProperties,
-        alpha,
-        phasea,
-        phaseb
+        alpha1,
+        phase1,
+        phase2
     );
 
-    autoPtr<dragModel> dragb = dragModel::New
+    autoPtr<dragModel> drag2 = dragModel::New
     (
         interfacialProperties,
-        beta,
-        phaseb,
-        phasea
+        alpha2,
+        phase2,
+        phase1
     );
 
     word dragPhase("blended");
@@ -184,7 +192,7 @@
         dragPhase = word(interfacialProperties.lookup("dragPhase"));
 
         bool validDrag =
-            dragPhase == "a" || dragPhase == "b" || dragPhase == "blended";
+            dragPhase == "1" || dragPhase == "2" || dragPhase == "blended";
 
         if (!validDrag)
         {
@@ -194,20 +202,31 @@
         }
     }
 
+    dimensionedScalar residualSlip
+    (
+        dimensionedScalar::lookupOrDefault
+        (
+            "residualSlip",
+            interfacialProperties,
+            0,
+            dimVelocity
+        )
+    );
+
     Info << "dragPhase is " << dragPhase << endl;
     kineticTheoryModel kineticTheory
     (
-        phasea,
-        Ub,
-        alpha,
-        draga
+        phase1,
+        U2,
+        alpha1,
+        drag1
     );
 
-    surfaceScalarField rUaAf
+    surfaceScalarField rAU1f
     (
         IOobject
         (
-            "rUaAf",
+            "rAU1f",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,

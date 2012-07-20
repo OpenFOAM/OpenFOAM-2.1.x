@@ -22,7 +22,7 @@ boundaryField
 {
     stationaryWalls
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
     atmosphere
@@ -38,7 +38,7 @@ boundaryField
     }
     floatingObject
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 }

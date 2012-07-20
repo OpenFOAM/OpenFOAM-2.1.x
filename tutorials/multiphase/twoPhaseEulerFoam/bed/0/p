@@ -22,20 +22,20 @@ boundaryField
 {
     bottom
     {
-        type            buoyantPressure;
-        value           uniform 0;
+        type               fixedFluxPressure;
+        value              $internalField;
     }
 
     top
     {
         type               fixedValue;
-        value              uniform 0;
+        value              $internalField;
     }
 
     walls
     {
-        type            buoyantPressure;
-        value           uniform 0;
+        type               fixedFluxPressure;
+        value              $internalField;
     }
 
     frontBack

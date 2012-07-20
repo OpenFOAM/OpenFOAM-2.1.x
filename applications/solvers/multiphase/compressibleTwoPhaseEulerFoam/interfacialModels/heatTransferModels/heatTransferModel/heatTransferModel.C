@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -39,13 +39,13 @@ namespace Foam
 Foam::heatTransferModel::heatTransferModel
 (
     const dictionary& interfaceDict,
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const phaseModel& phase1,
     const phaseModel& phase2
 )
 :
     interfaceDict_(interfaceDict),
-    alpha_(alpha),
+    alpha1_(alpha1),
     phase1_(phase1),
     phase2_(phase2)
 {}

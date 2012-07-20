@@ -15,11 +15,12 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dragModela      GidaspowErgunWenYu;
+dragModel1      GidaspowErgunWenYu;
 
-dragModelb      GidaspowErgunWenYu;
+dragModel2      GidaspowErgunWenYu;
 
-dragPhase       a;
+dragPhase       "1";
 
+residualSlip    0;
 
 // ************************************************************************* //

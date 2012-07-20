@@ -51,21 +51,21 @@
         )
     );
 
-    dimensionedScalar alphak
+    dimensionedScalar alpha1k
     (
         dimensionedScalar::lookupOrAddToDict
         (
-            "alphak",
+            "alpha1k",
             kEpsilonDict,
             1.0
         )
     );
 
-    dimensionedScalar alphaEps
+    dimensionedScalar alpha1Eps
     (
         dimensionedScalar::lookupOrAddToDict
         (
-            "alphaEps",
+            "alpha1Eps",
             kEpsilonDict,
             0.76923
         )
@@ -135,12 +135,12 @@
     );
 
 
-    Info<< "Calculating field nutb\n" << endl;
-    volScalarField nutb
+    Info<< "Calculating field nut2\n" << endl;
+    volScalarField nut2
     (
         IOobject
         (
-            "nutb",
+            "nut2",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
@@ -149,30 +149,30 @@
         Cmu*sqr(k)/epsilon
     );
 
-    Info<< "Calculating field nuEffa\n" << endl;
-    volScalarField nuEffa
+    Info<< "Calculating field nuEff1\n" << endl;
+    volScalarField nuEff1
     (
         IOobject
         (
-            "nuEffa",
+            "nuEff1",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        sqr(Ct)*nutb + nua
+        sqr(Ct)*nut2 + nu1
     );
 
-    Info<< "Calculating field nuEffb\n" << endl;
-    volScalarField nuEffb
+    Info<< "Calculating field nuEff2\n" << endl;
+    volScalarField nuEff2
     (
         IOobject
         (
-            "nuEffb",
+            "nuEff2",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        nutb + nub
+        nut2 + nu2
     );

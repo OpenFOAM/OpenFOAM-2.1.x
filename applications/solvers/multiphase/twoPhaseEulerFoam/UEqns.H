@@ -1,99 +1,99 @@
-fvVectorMatrix UaEqn(Ua, Ua.dimensions()*dimVol/dimTime);
-fvVectorMatrix UbEqn(Ub, Ub.dimensions()*dimVol/dimTime);
+fvVectorMatrix U1Eqn(U1, U1.dimensions()*dimVol/dimTime);
+fvVectorMatrix U2Eqn(U2, U2.dimensions()*dimVol/dimTime);
 
 {
     {
-        volTensorField gradUaT(T(fvc::grad(Ua)));
+        volTensorField gradU1T(T(fvc::grad(U1)));
 
         if (kineticTheory.on())
         {
-            kineticTheory.solve(gradUaT);
-            nuEffa = kineticTheory.mua()/rhoa;
+            kineticTheory.solve(gradU1T);
+            nuEff1 = kineticTheory.mu1()/rho1;
         }
         else // If not using kinetic theory is using Ct model
         {
-            nuEffa = sqr(Ct)*nutb + nua;
+            nuEff1 = sqr(Ct)*nut2 + nu1;
         }
 
-        volTensorField Rca
+        volTensorField Rc1
         (
-            "Rca",
-            ((2.0/3.0)*I)*(sqr(Ct)*k + nuEffa*tr(gradUaT)) - nuEffa*gradUaT
+            "Rc1",
+            (((2.0/3.0)*I)*nuEff1)*tr(gradU1T) - nuEff1*gradU1T
         );
 
         if (kineticTheory.on())
         {
-            Rca -= ((kineticTheory.lambda()/rhoa)*tr(gradUaT))*tensor(I);
+            Rc1 -= ((kineticTheory.lambda()/rho1)*tr(gradU1T))*tensor(I);
         }
 
-        surfaceScalarField phiRa
+        surfaceScalarField phiR1
         (
-            -fvc::interpolate(nuEffa)*mesh.magSf()*fvc::snGrad(alpha)
-            /fvc::interpolate(alpha + scalar(0.001))
+            -fvc::interpolate(nuEff1)*mesh.magSf()*fvc::snGrad(alpha1)
+            /fvc::interpolate(alpha1 + scalar(0.001))
         );
 
-        UaEqn =
+        U1Eqn =
         (
-            (scalar(1) + Cvm*rhob*beta/rhoa)*
+            (scalar(1) + Cvm*rho2*alpha2/rho1)*
             (
-                fvm::ddt(Ua)
-              + fvm::div(phia, Ua, "div(phia,Ua)")
-              - fvm::Sp(fvc::div(phia), Ua)
+                fvm::ddt(U1)
+              + fvm::div(phi1, U1, "div(phi1,U1)")
+              - fvm::Sp(fvc::div(phi1), U1)
             )
 
-          - fvm::laplacian(nuEffa, Ua)
-          + fvc::div(Rca)
+          - fvm::laplacian(nuEff1, U1)
+          + fvc::div(Rc1)
 
-          + fvm::div(phiRa, Ua, "div(phia,Ua)")
-          - fvm::Sp(fvc::div(phiRa), Ua)
-          + (fvc::grad(alpha)/(fvc::average(alpha) + scalar(0.001)) & Rca)
+          + fvm::div(phiR1, U1, "div(phi1,U1)")
+          - fvm::Sp(fvc::div(phiR1), U1)
+          + (fvc::grad(alpha1)/(fvc::average(alpha1) + scalar(0.001)) & Rc1)
          ==
         //  g                          // Buoyancy term transfered to p-equation
-          - fvm::Sp(beta/rhoa*K, Ua)
-        //+ beta/rhoa*K*Ub             // Explicit drag transfered to p-equation
-          - beta/rhoa*(liftCoeff - Cvm*rhob*DDtUb)
+          - fvm::Sp(alpha2/rho1*K, U1)
+        //+ alpha2/rho1*K*U2           // Explicit drag transfered to p-equation
+          - alpha2/rho1*(liftCoeff - Cvm*rho2*DDtU2)
         );
-
-        UaEqn.relax();
+        mrfZones.addCoriolis(scalar(1) + Cvm*rho2*alpha2/rho1, U1Eqn);
+        U1Eqn.relax();
     }
 
     {
-        volTensorField gradUbT(T(fvc::grad(Ub)));
-        volTensorField Rcb
+        volTensorField gradU2T(T(fvc::grad(U2)));
+        volTensorField Rc2
         (
-            "Rcb",
-            ((2.0/3.0)*I)*(k + nuEffb*tr(gradUbT)) - nuEffb*gradUbT
+            "Rc2",
+            (((2.0/3.0)*I)*nuEff2)*tr(gradU2T) - nuEff2*gradU2T
         );
 
-        surfaceScalarField phiRb
+        surfaceScalarField phiR2
         (
-            -fvc::interpolate(nuEffb)*mesh.magSf()*fvc::snGrad(beta)
-            /fvc::interpolate(beta + scalar(0.001))
+            -fvc::interpolate(nuEff2)*mesh.magSf()*fvc::snGrad(alpha2)
+            /fvc::interpolate(alpha2 + scalar(0.001))
         );
 
-        UbEqn =
+        U2Eqn =
         (
-            (scalar(1) + Cvm*rhob*alpha/rhob)*
+            (scalar(1) + Cvm*rho2*alpha1/rho2)*
             (
-                fvm::ddt(Ub)
-              + fvm::div(phib, Ub, "div(phib,Ub)")
-              - fvm::Sp(fvc::div(phib), Ub)
+                fvm::ddt(U2)
+              + fvm::div(phi2, U2, "div(phi2,U2)")
+              - fvm::Sp(fvc::div(phi2), U2)
             )
 
-          - fvm::laplacian(nuEffb, Ub)
-          + fvc::div(Rcb)
+          - fvm::laplacian(nuEff2, U2)
+          + fvc::div(Rc2)
 
-          + fvm::div(phiRb, Ub, "div(phib,Ub)")
-          - fvm::Sp(fvc::div(phiRb), Ub)
+          + fvm::div(phiR2, U2, "div(phi2,U2)")
+          - fvm::Sp(fvc::div(phiR2), U2)
 
-          + (fvc::grad(beta)/(fvc::average(beta) + scalar(0.001)) & Rcb)
+          + (fvc::grad(alpha2)/(fvc::average(alpha2) + scalar(0.001)) & Rc2)
          ==
         //  g                          // Buoyancy term transfered to p-equation
-          - fvm::Sp(alpha/rhob*K, Ub)
-        //+ alpha/rhob*K*Ua            // Explicit drag transfered to p-equation
-          + alpha/rhob*(liftCoeff + Cvm*rhob*DDtUa)
+          - fvm::Sp(alpha1/rho2*K, U2)
+        //+ alpha1/rho2*K*U1           // Explicit drag transfered to p-equation
+          + alpha1/rho2*(liftCoeff + Cvm*rho2*DDtU1)
         );
-
-        UbEqn.relax();
+        mrfZones.addCoriolis(scalar(1) + Cvm*rho2*alpha1/rho2, U2Eqn);
+        U2Eqn.relax();
     }
 }

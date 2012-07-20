@@ -22,19 +22,19 @@ boundaryField
 {
     leftWall
     {
-        type            multiphaseFixedFluxPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     rightWall
     {
-        type            multiphaseFixedFluxPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     lowerWall
     {
-        type            multiphaseFixedFluxPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 

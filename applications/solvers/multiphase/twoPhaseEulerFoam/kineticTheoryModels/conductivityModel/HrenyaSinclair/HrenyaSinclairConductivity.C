@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -65,10 +65,10 @@ Foam::HrenyaSinclairConductivity::~HrenyaSinclairConductivity()
 
 Foam::tmp<Foam::volScalarField> Foam::HrenyaSinclairConductivity::kappa
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const volScalarField& Theta,
     const volScalarField& g0,
-    const dimensionedScalar& rhoa,
+    const dimensionedScalar& rho1,
     const dimensionedScalar& da,
     const dimensionedScalar& e
 ) const
@@ -77,15 +77,15 @@ Foam::tmp<Foam::volScalarField> Foam::HrenyaSinclairConductivity::kappa
 
     volScalarField lamda
     (
-        scalar(1) + da/(6.0*sqrt(2.0)*(alpha + scalar(1.0e-5)))/L_
+        scalar(1) + da/(6.0*sqrt(2.0)*(alpha1 + scalar(1.0e-5)))/L_
     );
 
-    return rhoa*da*sqrt(Theta)*
+    return rho1*da*sqrt(Theta)*
     (
-        2.0*sqr(alpha)*g0*(1.0 + e)/sqrtPi
-      + (9.0/8.0)*sqrtPi*0.25*sqr(1.0 + e)*(2.0*e - 1.0)*sqr(alpha)
+        2.0*sqr(alpha1)*g0*(1.0 + e)/sqrtPi
+      + (9.0/8.0)*sqrtPi*0.25*sqr(1.0 + e)*(2.0*e - 1.0)*sqr(alpha1)
        /(49.0/16.0 - 33.0*e/16.0)
-      + (15.0/16.0)*sqrtPi*alpha*(0.5*sqr(e) + 0.25*e - 0.75 + lamda)
+      + (15.0/16.0)*sqrtPi*alpha1*(0.5*sqr(e) + 0.25*e - 0.75 + lamda)
        /((49.0/16.0 - 33.0*e/16.0)*lamda)
       + (25.0/64.0)*sqrtPi
        /((1.0 + e)*(49.0/16.0 - 33.0*e/16.0)*lamda*g0)

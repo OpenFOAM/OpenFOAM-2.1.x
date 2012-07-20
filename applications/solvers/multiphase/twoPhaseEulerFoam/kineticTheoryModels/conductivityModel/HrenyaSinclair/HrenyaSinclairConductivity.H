@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -75,10 +75,10 @@ public:
 
         tmp<volScalarField> kappa
         (
-            const volScalarField& alpha,
+            const volScalarField& alpha1,
             const volScalarField& Theta,
             const volScalarField& g0,
-            const dimensionedScalar& rhoa,
+            const dimensionedScalar& rho1,
             const dimensionedScalar& da,
             const dimensionedScalar& e
         ) const;

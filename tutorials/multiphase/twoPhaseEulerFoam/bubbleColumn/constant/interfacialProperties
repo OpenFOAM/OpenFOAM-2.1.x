@@ -15,11 +15,12 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dragModela      SchillerNaumann;
+dragModel1      SchillerNaumann;
 
-dragModelb      SchillerNaumann;
+dragModel2      SchillerNaumann;
 
 dragPhase       blended;
 
+residualSlip    0;
 
 // ************************************************************************* //

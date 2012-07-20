@@ -43,14 +43,20 @@ Foam::phaseModel::phaseModel
     name_(phaseName),
     d_
     (
+        "d",
+        dimLength,
         dict_.lookup("d")
     ),
     nu_
     (
+        "nu",
+        dimensionSet(0, 2, -1, 0, 0),
         dict_.lookup("nu")
     ),
     rho_
     (
+        "rho",
+        dimDensity,
         dict_.lookup("rho")
     ),
     U_

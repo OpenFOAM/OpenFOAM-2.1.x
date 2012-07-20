@@ -41,12 +41,6 @@
             {
                 label faceCelli = currPatch.faceCells()[facei];
 
-                scalar yPlus =
-                    Cmu25*y[patchi][facei]
-                    *::sqrt(k[faceCelli])
-                    /nu2_;
-
-
                 // For corner cells (with two boundary or more faces),
                 // epsilon and G in the near-wall cell are calculated
                 // as an average
@@ -57,13 +51,10 @@
                      Cmu75*::pow(k[faceCelli], 1.5)
                     /(kappa_*y[patchi][facei]);
 
-                if (yPlus > 11.6)
-                {
-                    G[faceCelli] +=
-                        (nut2w[facei] + nu2_)*magFaceGradU[facei]
-                        *Cmu25*::sqrt(k[faceCelli])
-                        /(kappa_*y[patchi][facei]);
-                }
+                G[faceCelli] +=
+                    (nut2w[facei] + nu2_)*magFaceGradU[facei]
+                   *Cmu25*::sqrt(k[faceCelli])
+                   /(kappa_*y[patchi][facei]);
             }
         }
     }
@@ -83,6 +74,7 @@
 
                 epsilon[faceCelli] /= cellBoundaryFaceCount[faceCelli];
                 G[faceCelli] /= cellBoundaryFaceCount[faceCelli];
+                cellBoundaryFaceCount[faceCelli] = 1;
             }
         }
     }

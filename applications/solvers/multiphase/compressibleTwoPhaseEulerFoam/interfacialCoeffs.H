@@ -36,7 +36,7 @@ volScalarField heatTransferCoeff
 
 {
     volVectorField Ur(U1 - U2);
-    volScalarField magUr(mag(Ur));
+    volScalarField magUr(mag(Ur) + residualSlip);
 
     if (dispersedPhase == "1")
     {
@@ -69,12 +69,20 @@ volScalarField heatTransferCoeff
             << exit(FatalError);
     }
 
-    volScalarField alphaCoeff
-    (
-        (alpha1 + minInterfaceAlpha)*(alpha2 + minInterfaceAlpha)
-    );
+    volScalarField alphaCoeff(max(alpha1*alpha2, residualPhaseFraction));
     dragCoeff *= alphaCoeff;
     heatTransferCoeff *= alphaCoeff;
 
     liftForce = Cl*(alpha1*rho1 + alpha2*rho2)*(Ur ^ fvc::curl(U));
+
+    // Remove lift, drag and phase heat-transfer at fixed-flux boundaries
+    forAll(phi1.boundaryField(), patchi)
+    {
+        if (isA<fixedValueFvsPatchScalarField>(phi1.boundaryField()[patchi]))
+        {
+            dragCoeff.boundaryField()[patchi] = 0.0;
+            heatTransferCoeff.boundaryField()[patchi] = 0.0;
+            liftForce.boundaryField()[patchi] = vector::zero;
+        }
+    }
 }

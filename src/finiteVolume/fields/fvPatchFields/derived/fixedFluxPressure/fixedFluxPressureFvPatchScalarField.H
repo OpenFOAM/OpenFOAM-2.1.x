@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,7 +25,14 @@ Class
     Foam::fixedFluxPressureFvPatchScalarField
 
 Description
-    Foam::fixedFluxPressureFvPatchScalarField
+    Adjusts the pressure gradient such that the flux on the boundary is that
+    specified by the velocity boundary condition.
+
+    The predicted flux to be compensated by the pressure gradient is evaluated
+    as (phi - phiHbyA), both of which are looked-up from the database as is
+    the pressure diffusivity Dp used to calculate the gradient.
+
+    The names of the phi, phiHbyA and Dp fields may be optionally specified.
 
 SourceFiles
     fixedFluxPressureFvPatchScalarField.C
@@ -54,8 +61,8 @@ class fixedFluxPressureFvPatchScalarField
 {
     // Private data
 
-        //- Name of the velocity field
-        word UName_;
+        //- Name of the predicted flux transporting the field
+        word phiHbyAName_;
 
         //- Name of the flux transporting the field
         word phiName_;
@@ -63,6 +70,9 @@ class fixedFluxPressureFvPatchScalarField
         //- Name of the density field used to normalise the mass flux
         //  if neccessary
         word rhoName_;
+
+        //- Name of the pressure diffusivity field
+        word DpName_;
 
         //- Is the pressure adjoint, i.e. has the opposite sign
         Switch adjoint_;

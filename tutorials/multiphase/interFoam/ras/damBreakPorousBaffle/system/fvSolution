@@ -68,11 +68,11 @@ PIMPLE
     cAlpha          2;
 }
 
-relaxation
+relaxationFactors
 {
-    U           1;
-    k           1;
-    epsilon     1;
+    "U.*"           1;
+    "k.*"           1;
+    "epsilon.*"     1;
 }
 
 // ************************************************************************* //

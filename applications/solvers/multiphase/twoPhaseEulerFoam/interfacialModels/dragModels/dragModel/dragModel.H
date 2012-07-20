@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -55,9 +55,9 @@ protected:
     // Protected data
 
         const dictionary& interfaceDict_;
-        const volScalarField& alpha_;
-        const phaseModel& phasea_;
-        const phaseModel& phaseb_;
+        const volScalarField& alpha1_;
+        const phaseModel& phase1_;
+        const phaseModel& phase2_;
 
 
 public:
@@ -75,11 +75,11 @@ public:
             dictionary,
             (
                 const dictionary& interfaceDict,
-                const volScalarField& alpha,
-                const phaseModel& phasea,
-                const phaseModel& phaseb
+                const volScalarField& alpha1,
+                const phaseModel& phase1,
+                const phaseModel& phase2
             ),
-            (interfaceDict, alpha, phasea, phaseb)
+            (interfaceDict, alpha1, phase1, phase2)
         );
 
 
@@ -88,9 +88,9 @@ public:
         dragModel
         (
             const dictionary& interfaceDict,
-            const volScalarField& alpha,
-            const phaseModel& phasea,
-            const phaseModel& phaseb
+            const volScalarField& alpha1,
+            const phaseModel& phase1,
+            const phaseModel& phase2
         );
 
 
@@ -103,22 +103,23 @@ public:
         static autoPtr<dragModel> New
         (
             const dictionary& interfaceDict,
-            const volScalarField& alpha,
-            const phaseModel& phasea,
-            const phaseModel& phaseb
+            const volScalarField& alpha1,
+            const phaseModel& phase1,
+            const phaseModel& phase2
         );
 
 
     // Member Functions
 
         //- the dragfunction K used in the momentum eq.
-        //    ddt(alpha*rhoa*Ua) + ... = ... alpha*beta*K*(Ua-Ub)
-        //    ddt(beta*rhob*Ub) + ...  = ... alpha*beta*K*(Ub-Ua)
-        // ********************************** NB! *****************************
-        // for numerical reasons alpha and beta has been
+        //    ddt(alpha1*rho1*U1) + ... = ... alpha1*alpha2*K*(U1-U2)
+        //    ddt(alpha2*rho2*U2) + ...  = ... alpha1*alpha2*K*(U2-U1)
+        // ********************************** NB ! *****************************
+        // for numerical reasons alpha1 and alpha2 has been
         // extracted from the dragFunction K,
-        // so you MUST divide K by alpha*beta when implemnting the drag function
-        // ********************************** NB! *****************************
+        // so you MUST divide K by alpha1*alpha2 when implemnting the drag
+        // function
+        // ********************************** NB ! *****************************
         virtual tmp<volScalarField> K(const volScalarField& Ur) const = 0;
 };
 

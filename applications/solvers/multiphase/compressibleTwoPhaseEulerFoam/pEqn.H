@@ -2,6 +2,79 @@
     rho1 = rho10 + psi1*p;
     rho2 = rho20 + psi2*p;
 
+    mrfZones.absoluteFlux(phi1.oldTime());
+    mrfZones.absoluteFlux(phi1);
+    mrfZones.absoluteFlux(phi2.oldTime());
+    mrfZones.absoluteFlux(phi2);
+
+    surfaceScalarField alpha1f(fvc::interpolate(alpha1));
+    surfaceScalarField alpha2f(scalar(1) - alpha1f);
+
+    rAU1 = 1.0/U1Eqn.A();
+    volScalarField rAU2(1.0/U2Eqn.A());
+
+    surfaceScalarField rAlphaAU1f(fvc::interpolate(alpha1*rAU1));
+    surfaceScalarField rAlphaAU2f(fvc::interpolate(alpha2*rAU2));
+
+    volVectorField HbyA1("HbyA1", U1);
+    HbyA1 = rAU1*U1Eqn.H();
+
+    volVectorField HbyA2("HbyA2", U2);
+    HbyA2 = rAU2*U2Eqn.H();
+
+    surfaceScalarField phiHbyA1
+    (
+        "phiHbyA1",
+        (fvc::interpolate(HbyA1) & mesh.Sf())
+      + fvc::ddtPhiCorr(rAU1, alpha1, U1, phi1)
+      + fvc::interpolate((1.0/rho1)*rAU1*dragCoeff)*phi2
+      + rAlphaAU1f*(g & mesh.Sf())
+    );
+
+    if (g0.value() > 0.0)
+    {
+        phiHbyA1 -= ppMagf*fvc::snGrad(alpha1)*mesh.magSf();
+    }
+
+    if (kineticTheory.on())
+    {
+        phiHbyA1 -=
+            fvc::interpolate((1.0/rho1)*rAU1)
+           *fvc::snGrad(kineticTheory.pa())*mesh.magSf();
+    }
+
+    mrfZones.relativeFlux(phiHbyA1);
+
+    surfaceScalarField phiHbyA2
+    (
+        "phiHbyA2",
+        (fvc::interpolate(HbyA2) & mesh.Sf())
+      + fvc::ddtPhiCorr(rAU2, alpha2, U2, phi2)
+      + fvc::interpolate((1.0/rho2)*rAU2*dragCoeff)*phi1
+      + rAlphaAU2f*(g & mesh.Sf())
+    );
+    mrfZones.relativeFlux(phiHbyA2);
+
+    mrfZones.relativeFlux(phi1.oldTime());
+    mrfZones.relativeFlux(phi1);
+    mrfZones.relativeFlux(phi2.oldTime());
+    mrfZones.relativeFlux(phi2);
+
+    surfaceScalarField phiHbyA("phiHbyA", alpha1f*phiHbyA1 + alpha2f*phiHbyA2);
+
+    HbyA1 += (1.0/rho1)*rAU1*dragCoeff*U2;
+    HbyA2 += (1.0/rho2)*rAU2*dragCoeff*U1;
+
+    surfaceScalarField Dp
+    (
+        "Dp",
+        mag
+        (
+            alpha1f*rAlphaAU1f/fvc::interpolate(rho1)
+          + alpha2f*rAlphaAU2f/fvc::interpolate(rho2)
+        )
+    );
+
     tmp<fvScalarMatrix> pEqnComp1;
     tmp<fvScalarMatrix> pEqnComp2;
 
@@ -24,68 +97,11 @@
           - fvc::Sp(fvc::div(phid2), p);
     }
 
-    surfaceScalarField alpha1f(fvc::interpolate(alpha1));
-    surfaceScalarField alpha2f(scalar(1) - alpha1f);
-
-    volVectorField U10 = U1;
-    volVectorField U20 = U2;
-
-    rAU1 = 1.0/U1Eqn.A();
-    volScalarField rAU2(1.0/U2Eqn.A());
-
-    surfaceScalarField rAlphaAU1f = fvc::interpolate(alpha1*rAU1);
-    surfaceScalarField rAlphaAU2f = fvc::interpolate(alpha2*rAU2);
-
-    U1 = rAU1*U1Eqn.H();
-    U2 = rAU2*U2Eqn.H();
-
-    {
-        surfaceScalarField phi10 = phi1;
-
-        phi1 =
-        (
-            (fvc::interpolate(U1) & mesh.Sf())
-          + fvc::ddtPhiCorr(rAU1, alpha1, U1, phi1)
-          + fvc::interpolate((1.0/rho1)*rAU1*dragCoeff)*phi2
-          + rAlphaAU1f*(g & mesh.Sf())
-        );
-
-        phi2 =
-        (
-            (fvc::interpolate(U2) & mesh.Sf())
-          + fvc::ddtPhiCorr(rAU2, alpha2, U2, phi2)
-          + fvc::interpolate((1.0/rho2)*rAU2*dragCoeff)*phi10
-          + rAlphaAU2f*(g & mesh.Sf())
-        );
-    }
-
-    if (g0.value() > 0.0)
-    {
-        phi1 -= ppMagf*fvc::snGrad(alpha1)*mesh.magSf();
-    }
-
-    if (kineticTheory.on())
-    {
-        phi1 -=
-            fvc::interpolate((1.0/rho1)*rAU1)
-           *fvc::snGrad(kineticTheory.pa())*mesh.magSf();
-    }
-
-    phi = alpha1f*phi1 + alpha2f*phi2;
-    adjustPhi(phi, U, p);
-
-    surfaceScalarField Dp
-    (
-        "(rho*1|A(U))",
-        mag(alpha1f*rAlphaAU1f/fvc::interpolate(rho1)
-      + alpha2f*rAlphaAU2f/fvc::interpolate(rho2))
-    );
-
     while (pimple.correctNonOrthogonal())
     {
         fvScalarMatrix pEqnIncomp
         (
-            fvc::div(phi)
+            fvc::div(phiHbyA)
           - fvm::laplacian(Dp, p)
         );
 
@@ -96,13 +112,15 @@
               + (alpha2/rho2)*pEqnComp2()
             )
           + pEqnIncomp,
-            mesh.solver(p.select(pimple.finalInnerIter())));
+            mesh.solver(p.select(pimple.finalInnerIter()))
+        );
 
         if (pimple.finalNonOrthogonalIter())
         {
-            surfaceScalarField mSfGradp = pEqnIncomp.flux()/Dp;
-            phi1 += rAlphaAU1f*mSfGradp/fvc::interpolate(rho1);
-            phi2 += rAlphaAU2f*mSfGradp/fvc::interpolate(rho2);
+            surfaceScalarField mSfGradp(pEqnIncomp.flux()/Dp);
+
+            phi1 = phiHbyA1 + rAlphaAU1f*mSfGradp/fvc::interpolate(rho1);
+            phi2 = phiHbyA2 + rAlphaAU2f*mSfGradp/fvc::interpolate(rho2);
             phi = alpha1f*phi1 + alpha2f*phi2;
 
             dgdt =
@@ -114,19 +132,25 @@
             p.relax();
             mSfGradp = pEqnIncomp.flux()/Dp;
 
-            U1 += (1.0/rho1)*rAU1*dragCoeff*U20
+            U1 = HbyA1
                + fvc::reconstruct
                  (
-                     rAlphaAU1f*(g & mesh.Sf())
-                   + rAlphaAU1f*mSfGradp/fvc::interpolate(rho1)
+                     rAlphaAU1f
+                    *(
+                         (g & mesh.Sf())
+                       + mSfGradp/fvc::interpolate(rho1)
+                     )
                  );
             U1.correctBoundaryConditions();
 
-            U2 += (1.0/rho2)*rAU2*dragCoeff*U10
+            U2 = HbyA2
                + fvc::reconstruct
                  (
-                     rAlphaAU2f*(g & mesh.Sf())
-                   + rAlphaAU2f*mSfGradp/fvc::interpolate(rho2)
+                     rAlphaAU2f
+                    *(
+                        (g & mesh.Sf())
+                      + mSfGradp/fvc::interpolate(rho2)
+                    )
                  );
             U2.correctBoundaryConditions();
 

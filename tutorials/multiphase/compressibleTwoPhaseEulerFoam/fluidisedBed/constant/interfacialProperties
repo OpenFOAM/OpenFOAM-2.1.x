@@ -23,6 +23,7 @@ heatTransferModel2  RanzMarshall;
 
 dispersedPhase      "1";
 
-minInterfaceAlpha   1e-2;
+residualPhaseFraction   1e-3;
+residualSlip            1e-2;
 
 // ************************************************************************* //

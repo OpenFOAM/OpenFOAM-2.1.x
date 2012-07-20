@@ -91,7 +91,7 @@ solvers
         nSweeps         1;
     }
 
-    "(k|B|nuTilda)"
+    "(T|k|B|nuTilda).*"
     {
         solver          PBiCG;
         preconditioner  DILU;

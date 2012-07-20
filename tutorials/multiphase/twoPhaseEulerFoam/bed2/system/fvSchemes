@@ -28,25 +28,25 @@ gradSchemes
 divSchemes
 {
     default         none;
-    div(phia,Ua)    Gauss limitedLinearV 1;
-    div(phib,Ub)    Gauss limitedLinearV 1;
-    div(phib,k)     Gauss limitedLinear 1;
-    div(phib,epsilon) Gauss limitedLinear 1;
-    div(phi,alpha)  Gauss limitedLinear01 1;
-    div(phir,alpha) Gauss limitedLinear01 1;
+    div(phi1,U1)    Gauss limitedLinearV 1;
+    div(phi2,U2)    Gauss limitedLinearV 1;
+    div(phi2,k)     Gauss limitedLinear 1;
+    div(phi2,epsilon) Gauss limitedLinear 1;
+    div(phi,alpha1)  Gauss limitedLinear01 1;
+    div(phir,alpha1) Gauss limitedLinear01 1;
     div(phi,Theta)  Gauss limitedLinear 1;
-    div(Rca)        Gauss linear;
-    div(Rcb)        Gauss linear;
+    div(Rc1)        Gauss linear;
+    div(Rc2)        Gauss linear;
 }
 
 laplacianSchemes
 {
     default         none;
-    laplacian(nuEffa,Ua) Gauss linear corrected;
-    laplacian(nuEffb,Ub) Gauss linear corrected;
-    laplacian((rho*(1|A(U))),p) Gauss linear corrected;
-    laplacian(alphaPpMag,alpha) Gauss linear corrected;
-    laplacian(Galphaf,alpha) Gauss linear corrected;
+    laplacian(nuEff1,U1) Gauss linear corrected;
+    laplacian(nuEff2,U2) Gauss linear corrected;
+    laplacian(Dp,p) Gauss linear corrected;
+    laplacian(alpha1PpMag,alpha1) Gauss linear corrected;
+    laplacian(Galpha1f,alpha1) Gauss linear corrected;
     laplacian(DkEff,k) Gauss linear corrected;
     laplacian(DepsilonEff,epsilon) Gauss linear corrected;
     laplacian(kappa,Theta) Gauss linear corrected;

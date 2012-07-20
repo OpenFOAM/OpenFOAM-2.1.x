@@ -20,16 +20,11 @@
 
                 // calculate yPlus
                 scalar yPlus =
-                    Cmu25*y[patchi][facei]
-                   *::sqrt(k[faceCelli])
-                   /nu2_;
+                    Cmu25*y[patchi][facei]*::sqrt(k[faceCelli])/nu2_;
 
                 if (yPlus > 11.6)
                 {
-                    nutw[facei] =
-                        yPlus*nu2_*kappa_
-                       /::log(E_*yPlus)
-                      - nu2_;
+                    nutw[facei] = nu2_*(yPlus*kappa_/::log(E_*yPlus) - 1);
                 }
                 else
                 {

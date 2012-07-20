@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -69,14 +69,14 @@ Foam::kineticTheoryModels::granularPressureModels::Lun::~Lun()
 Foam::tmp<Foam::volScalarField>
 Foam::kineticTheoryModels::granularPressureModels::Lun::granularPressureCoeff
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const volScalarField& g0,
-    const dimensionedScalar& rhoa,
+    const dimensionedScalar& rho1,
     const dimensionedScalar& e
 ) const
 {
 
-    return rhoa*alpha*(1.0 + 2.0*(1.0 + e)*alpha*g0);
+    return rho1*alpha1*(1.0 + 2.0*(1.0 + e)*alpha1*g0);
 }
 
 
@@ -84,14 +84,14 @@ Foam::tmp<Foam::volScalarField>
 Foam::kineticTheoryModels::granularPressureModels::Lun::
 granularPressureCoeffPrime
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const volScalarField& g0,
     const volScalarField& g0prime,
-    const dimensionedScalar& rhoa,
+    const dimensionedScalar& rho1,
     const dimensionedScalar& e
 ) const
 {
-    return rhoa*(1.0 + alpha*(1.0 + e)*(4.0*g0 + 2.0*g0prime*alpha));
+    return rho1*(1.0 + alpha1*(1.0 + e)*(4.0*g0 + 2.0*g0prime*alpha1));
 }
 
 
