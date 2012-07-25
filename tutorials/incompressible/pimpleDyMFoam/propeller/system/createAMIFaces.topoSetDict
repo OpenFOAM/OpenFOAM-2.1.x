@@ -91,6 +91,20 @@ actions
             cellSet     innerCylinderSmall;
         }
     }
+
+
+    // Dummy faceSet for creating initial patches
+    {
+        name    dummyFaces;
+        type    faceSet;
+        action  new;
+        source  labelToFace;
+        sourceInfo
+        {
+            value ();
+        }
+    }
+
 );
 
 // ************************************************************************* //
