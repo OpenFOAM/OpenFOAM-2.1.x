@@ -94,7 +94,7 @@ void changePatchID
 
 
 // Filter out the empty patches.
-void filterPatches(polyMesh& mesh)
+void filterPatches(polyMesh& mesh, const HashSet<word>& addedPatchNames)
 {
     const polyBoundaryMesh& patches = mesh.boundaryMesh();
 
@@ -111,7 +111,19 @@ void filterPatches(polyMesh& mesh)
         // Note: reduce possible since non-proc patches guaranteed in same order
         if (!isA<processorPolyPatch>(pp))
         {
-            if (returnReduce(pp.size(), sumOp<label>()) > 0)
+
+            // Add if
+            // - non zero size
+            // - or added from the createPatchDict
+            // - or cyclic (since referred to by other cyclic half or
+            //   proccyclic)
+
+            if
+            (
+                addedPatchNames.found(pp.name())
+             || returnReduce(pp.size(), sumOp<label>()) > 0
+             || isA<coupledPolyPatch>(pp)
+            )
             {
                 allPatches.append
                 (
@@ -126,8 +138,9 @@ void filterPatches(polyMesh& mesh)
             }
             else
             {
-                Info<< "Removing empty patch " << pp.name() << " at position "
-                    << patchI << endl;
+                Info<< "Removing zero-sized patch " << pp.name()
+                    << " type " << pp.type()
+                    << " at position " << patchI << endl;
             }
         }
     }
@@ -552,6 +565,12 @@ int main(int argc, char *argv[])
     // Read patch construct info from dictionary
     PtrList<dictionary> patchSources(dict.lookup("patches"));
 
+    HashSet<word> addedPatchNames;
+    forAll(patchSources, addedI)
+    {
+        const dictionary& dict = patchSources[addedI];
+        addedPatchNames.insert(dict.lookup("name"));
+    }
 
 
     // 1. Add all new patches
@@ -617,6 +636,11 @@ int main(int argc, char *argv[])
                         patches
                     ).ptr()
                 );
+            }
+            else
+            {
+                Info<< "Patch '" << patchName << "' already exists.  Only "
+                    << "moving patch faces - type will remain the same" << endl;
             }
         }
 
@@ -863,7 +887,7 @@ int main(int argc, char *argv[])
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Info<< "Removing patches with no faces in them." << nl<< endl;
-    filterPatches(mesh);
+    filterPatches(mesh, addedPatchNames);
 
 
     dumpCyclicMatch("final_", mesh);
