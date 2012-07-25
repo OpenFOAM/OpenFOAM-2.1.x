@@ -9,42 +9,21 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      p;
+    class       dictionary;
+    object      decomposeParDict;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include        "include/initialConditions"
+numberOfSubdomains 4;
 
-dimensions      [0 2 -2 0 0 0 0];
+method          hierarchical;
 
-internalField   uniform $pressure;
-
-boundaryField
+hierarchicalCoeffs
 {
-    inlet
-    {
-        type            zeroGradient;
-    }
-
-    outlet
-    {
-        type            uniformFixedValue;
-        value           $pressure;
-        uniformValue    constant $pressure;
-    }
-
-    "terrain_.*"
-    {
-        type            zeroGradient;
-    }
-
-    ground
-    {
-        type            zeroGradient;
-    }
-
-    #include "include/sideAndTopPatches"
+    n           (2 2 1);
+    delta       0.001;
+    order       xyz;
 }
 
 // ************************************************************************* //

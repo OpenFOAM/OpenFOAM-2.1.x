@@ -5,25 +5,20 @@
 |   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
-FoamFile
+
+top
 {
-    version     2.0;
-    format      ascii;
-    class       dictionary;
-    object      decomposeParDict;
+    type slip;
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-numberOfSubdomains 2;
-
-method          hierarchical;
-
-hierarchicalCoeffs
+sides
 {
-    n           (2 1 1);
-    delta       0.001;
-    order       xyz;
+    type slip;
+}
+
+"proc.*"
+{
+    type            processor;
 }
 
 // ************************************************************************* //
