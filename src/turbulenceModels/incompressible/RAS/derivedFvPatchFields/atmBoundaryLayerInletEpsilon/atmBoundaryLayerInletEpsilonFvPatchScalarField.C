@@ -171,9 +171,15 @@ void atmBoundaryLayerInletEpsilonFvPatchScalarField::rmap
 
 void atmBoundaryLayerInletEpsilonFvPatchScalarField::updateCoeffs()
 {
+    if (updated())
+    {
+        return;
+    }
+
     const vectorField& c = patch().Cf();
-    tmp<scalarField> coord = (c & z_);
-    scalarField::operator=(pow3(Ustar_)/(kappa_*(coord - zGround_ + z0_)));
+    scalarField::operator=(pow3(Ustar_)/(kappa_*((c & z_) - zGround_ + z0_)));
+
+    fixedValueFvPatchScalarField::updateCoeffs();
 }
 
 
