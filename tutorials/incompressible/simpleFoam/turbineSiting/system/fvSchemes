@@ -16,20 +16,18 @@ FoamFile
 
 ddtSchemes
 {
-    default            steadyState;
+    default             steadyState;
 }
 
 gradSchemes
 {
-    default            Gauss linear;
-    grad(p)             Gauss linear;
-    grad(U)             Gauss linear;
+    default             Gauss linear;
 }
 
 divSchemes
 {
     default             none;
-    div(phi,U)          Gauss upwind grad(U);
+    div(phi,U)          Gauss upwind;
     div((nuEff*dev(T(grad(U)))))    Gauss linear;
     div(phi,epsilon)    Gauss upwind;
     div(phi,k)          Gauss upwind;
