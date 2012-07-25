@@ -20,6 +20,7 @@ FoamFile
 // - always: order faces on coupled patches such that they are opposite. This
 //   is done for all coupled faces, not just for any patches created.
 // - optional: synchronise points on coupled patches.
+// - always: remove zero-sized (non-coupled) patches (that were not added)
 
 // 1. Create cyclic:
 // - specify where the faces should come from

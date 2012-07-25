@@ -46,6 +46,37 @@ patches
 
         set outletFaces;
     }
+
+
+    // Construct empty patches
+    {
+        name AMI1;
+        patchInfo
+        {
+            type            cyclicAMI;
+            neighbourPatch  AMI2;
+            transform       noOrdering;
+            surface
+            {}
+        }
+        constructFrom set;
+        set dummyFaces;
+    }
+    {
+        name AMI2;
+
+        patchInfo
+        {
+            type            cyclicAMI;
+            neighbourPatch  AMI1;
+            transform       noOrdering;
+            surface
+            {}
+        }
+        constructFrom set;
+        set dummyFaces;
+    }
+
 );
 
 // ************************************************************************* //
