@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,6 +25,10 @@ License
 
 #include "faceAreaIntersect.H"
 
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+Foam::scalar Foam::faceAreaIntersect::tol = 1e-6;
+
 // * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * * //
 
 void Foam::faceAreaIntersect::triSliceWithPlane
@@ -36,8 +40,6 @@ void Foam::faceAreaIntersect::triSliceWithPlane
     const scalar len
 )
 {
-    const scalar matchTol = 1e-6;
-
     // distance to cutting plane
     FixedList<scalar, 3> d;
 
@@ -51,7 +53,7 @@ void Foam::faceAreaIntersect::triSliceWithPlane
     {
         d[i] = ((tri[i] - p.refPoint()) & p.normal());
 
-        if (mag(d[i]) < matchTol*len)
+        if (mag(d[i]) < tol*len)
         {
             nCoPlanar++;
             copI = i;

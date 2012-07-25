@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,6 +22,8 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
+
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 inline void Foam::faceAreaIntersect::setTriPoints
 (
@@ -103,6 +105,14 @@ inline Foam::point Foam::faceAreaIntersect::planeIntersection
 inline Foam::scalar Foam::faceAreaIntersect::triArea(const triPoints& t) const
 {
     return mag(0.5*((t[1] - t[0])^(t[2] - t[0])));
+}
+
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+Foam::scalar& Foam::faceAreaIntersect::tolerance()
+{
+    return tol;
 }
 
 
