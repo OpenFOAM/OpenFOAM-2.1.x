@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -169,7 +169,7 @@ namespace Foam
         forAll(values, elemI)
         {
             const symmTensor& v = values[elemI];
-            os  << float(v[0]) << ' ' << float(v[1]) << ' ' << float(v[2])
+            os  << float(v[0]) << ' ' << float(v[1]) << ' ' << float(v[2]) << ' '
                 << float(v[3]) << ' ' << float(v[4]) << ' ' << float(v[5])
                 << nl;
 
@@ -189,8 +189,8 @@ namespace Foam
         forAll(values, elemI)
         {
             const tensor& v = values[elemI];
-            os  << float(v[0]) << ' ' << float(v[1]) << ' ' << float(v[2])
-                << float(v[3]) << ' ' << float(v[4]) << ' ' << float(v[5])
+            os  << float(v[0]) << ' ' << float(v[1]) << ' ' << float(v[2]) << ' '
+                << float(v[3]) << ' ' << float(v[4]) << ' ' << float(v[5]) << ' '
                 << float(v[6]) << ' ' << float(v[7]) << ' ' << float(v[8])
                 << nl;
         }
