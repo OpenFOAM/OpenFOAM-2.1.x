@@ -10,7 +10,7 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    object      k;
+    object      p;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -18,28 +18,24 @@ FoamFile
 
 dimensions      [0 2 -2 0 0 0 0];
 
-internalField   uniform $turbulentKE;
+internalField   uniform $pressure;
 
 boundaryField
 {
-    #include "include/ABLConditions"
+    inlet
+    {
+        type            zeroGradient;
+    }
 
     outlet
     {
-        type            inletOutlet;
-        inletValue      uniform 0.0;
-        value           $internalField;
-    }
-    inlet
-    {
         type            uniformFixedValue;
-        value           $turbulentKE;
-        uniformValue    constant $turbulentKE;
+        uniformValue    constant $pressure;
     }
+
     "terrain_.*"
     {
-        type            kqRWallFunction;
-        value           uniform 0.0;
+        type            zeroGradient;
     }
 
     ground
@@ -49,6 +45,5 @@ boundaryField
 
     #include "include/sideAndTopPatches"
 }
-
 
 // ************************************************************************* //

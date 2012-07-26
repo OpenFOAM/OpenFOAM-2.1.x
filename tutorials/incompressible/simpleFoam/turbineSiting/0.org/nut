@@ -22,6 +22,7 @@ internalField   uniform 0;
 boundaryField
 {
     #include "include/ABLConditions"
+
     inlet
     {
         type            calculated;
@@ -48,7 +49,6 @@ boundaryField
     }
 
     #include "include/sideAndTopPatches"
-
 }
 
 
