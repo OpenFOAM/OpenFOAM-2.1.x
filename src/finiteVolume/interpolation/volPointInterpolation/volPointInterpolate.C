@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -51,8 +51,8 @@ void volPointInterpolation::syncUntransformedData
     const indirectPrimitivePatch& cpp = gmd.coupledPatch();
     const labelList& meshPoints = cpp.meshPoints();
 
-    const mapDistribute& slavesMap = gmd.globalPointSlavesMap();
-    const labelListList& slaves = gmd.globalPointSlaves();
+    const mapDistribute& slavesMap = gmd.globalCoPointSlavesMap();
+    const labelListList& slaves = gmd.globalCoPointSlaves();
 
     List<Type> elems(slavesMap.constructSize());
     forAll(meshPoints, i)
@@ -105,8 +105,8 @@ void volPointInterpolation::pushUntransformedData
     const indirectPrimitivePatch& cpp = gmd.coupledPatch();
     const labelList& meshPoints = cpp.meshPoints();
 
-    const mapDistribute& slavesMap = gmd.globalPointSlavesMap();
-    const labelListList& slaves = gmd.globalPointSlaves();
+    const mapDistribute& slavesMap = gmd.globalCoPointSlavesMap();
+    const labelListList& slaves = gmd.globalCoPointSlaves();
 
     List<Type> elems(slavesMap.constructSize());
     forAll(meshPoints, i)
@@ -155,14 +155,14 @@ void volPointInterpolation::addSeparated
             refCast<coupledPointPatchField<Type> >
                 (pf.boundaryField()[patchI]).initSwapAddSeparated
                 (
-                    Pstream::blocking,  //Pstream::nonBlocking,
+                    Pstream::nonBlocking,
                     pf.internalField()
                 );
         }
     }
 
     // Block for any outstanding requests
-    //Pstream::waitRequests();
+    Pstream::waitRequests();
 
     forAll(pf.boundaryField(), patchI)
     {
@@ -171,7 +171,7 @@ void volPointInterpolation::addSeparated
             refCast<coupledPointPatchField<Type> >
                 (pf.boundaryField()[patchI]).swapAddSeparated
                 (
-                    Pstream::blocking,  //Pstream::nonBlocking,
+                    Pstream::nonBlocking,
                     pf.internalField()
                 );
         }
@@ -306,7 +306,6 @@ void volPointInterpolation::interpolateBoundaryField
     }
 
     // Sum collocated contributions
-    //mesh().globalData().syncPointData(pfi, plusEqOp<Type>());
     syncUntransformedData(pfi, plusEqOp<Type>());
 
     // And add separated contributions
@@ -314,9 +313,7 @@ void volPointInterpolation::interpolateBoundaryField
 
     // Push master data to slaves. It is possible (not sure how often) for
     // a coupled point to have its master on a different patch so
-    // to make sure just push master data to slaves. Reuse the syncPointData
-    // structure.
-    //mesh().globalData().syncPointData(pfi, nopEqOp<Type>());
+    // to make sure just push master data to slaves.
     pushUntransformedData(pfi);
 
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -113,9 +113,7 @@ void volPointInterpolation::calcBoundaryAddressing()
     {
         boolList oldData(isPatchPoint_);
 
-        //mesh().globalData().syncPointData(isPatchPoint_, orEqOp<bool>());
         syncUntransformedData(isPatchPoint_, orEqOp<bool>());
-
 
         forAll(isPatchPoint_, pointI)
         {
@@ -272,7 +270,7 @@ void volPointInterpolation::makeWeights()
     makeInternalWeights(sumWeights);
 
 
-    // Create boundary weights; add to sumWeights
+    // Create boundary weights; override sumWeights
     makeBoundaryWeights(sumWeights);
 
 
@@ -292,7 +290,6 @@ void volPointInterpolation::makeWeights()
 
 
     // Sum collocated contributions
-    //mesh().globalData().syncPointData(sumWeights, plusEqOp<scalar>());
     syncUntransformedData(sumWeights, plusEqOp<scalar>());
 
     // And add separated contributions
@@ -302,7 +299,6 @@ void volPointInterpolation::makeWeights()
     // a coupled point to have its master on a different patch so
     // to make sure just push master data to slaves. Reuse the syncPointData
     // structure.
-    //mesh().globalData().syncPointData(sumWeights, nopEqOp<scalar>());
     pushUntransformedData(sumWeights);
 
 
