@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -110,6 +110,9 @@ public:
 
 
     // Public Member Functions
+
+        //- Return the dictionary used for construction
+        const dictionary& dict() const;
 
         //- Read reactions from dictionary
         bool readReactionDict();

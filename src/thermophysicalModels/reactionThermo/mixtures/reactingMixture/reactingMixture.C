@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -32,7 +32,8 @@ template<class ThermoType>
 Foam::reactingMixture<ThermoType>::reactingMixture
 (
     const dictionary& thermoDict,
-    const fvMesh& mesh
+    const fvMesh& mesh,
+    const bool clearReader
 )
 :
     speciesTable(),
@@ -52,7 +53,10 @@ Foam::reactingMixture<ThermoType>::reactingMixture
         autoPtr<chemistryReader<ThermoType> >::operator()().reactions()
     )
 {
-    autoPtr<chemistryReader<ThermoType> >::clear();
+    if (clearReader)
+    {
+        autoPtr<chemistryReader<ThermoType> >::clear();
+    }
 }
 
 
