@@ -17,8 +17,9 @@ FoamFile
 
 defaultFieldValues
 (
-    volScalarFieldValue alpha1 1
+    volScalarFieldValue alphawater 1
     volScalarFieldValue p_rgh 1e5
+    volScalarFieldValue T 300
 );
 
 regions
@@ -29,8 +30,9 @@ regions
         radius 0.1;
         fieldValues
         (
-            volScalarFieldValue alpha1 0
+            volScalarFieldValue alphawater 0
             volScalarFieldValue p_rgh 1e6
+            volScalarFieldValue T 578
         );
     }
     boxToCell
@@ -38,7 +40,7 @@ regions
         box (-10 1 -1) (10 10 1);
         fieldValues
         (
-            volScalarFieldValue alpha1 0
+            volScalarFieldValue alphawater 0
         );
     }
 );

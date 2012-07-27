@@ -1,72 +1,74 @@
-fvVectorMatrix UaEqn(Ua, Ua.dimensions()*dimVol/dimTime);
-fvVectorMatrix UbEqn(Ub, Ub.dimensions()*dimVol/dimTime);
+fvVectorMatrix U1Eqn(U1, U1.dimensions()*dimVol/dimTime);
+fvVectorMatrix U2Eqn(U2, U2.dimensions()*dimVol/dimTime);
 
 {
-    volTensorField Rca(-nuEffa*(T(fvc::grad(Ua))));
-    Rca = Rca + (2.0/3.0)*sqr(Ct)*I*k - (2.0/3.0)*I*tr(Rca);
+    volTensorField Rc1(-nuEff1*(T(fvc::grad(U1))));
+    Rc1 = Rc1 + (2.0/3.0)*sqr(Ct)*I*k - (2.0/3.0)*I*tr(Rc1);
 
-    surfaceScalarField phiRa
+    surfaceScalarField phiR1
     (
-      - fvc::interpolate(nuEffa)
-       *mesh.magSf()*fvc::snGrad(alpha)/fvc::interpolate(alpha + scalar(0.001))
+      - fvc::interpolate(nuEff1)
+       *mesh.magSf()*fvc::snGrad(alpha1)
+       /fvc::interpolate(alpha1 + scalar(0.001))
     );
 
-    UaEqn =
+    U1Eqn =
     (
-        (scalar(1) + Cvm*rhob*beta/rhoa)*
+        (scalar(1) + Cvm*rho2*alpha2/rho1)*
         (
-            fvm::ddt(Ua)
-          + fvm::div(phia, Ua, "div(phia,Ua)")
-          - fvm::Sp(fvc::div(phia), Ua)
+            fvm::ddt(U1)
+          + fvm::div(phi1, U1, "div(phi1,U1)")
+          - fvm::Sp(fvc::div(phi1), U1)
         )
 
-      - fvm::laplacian(nuEffa, Ua)
-      + fvc::div(Rca)
+      - fvm::laplacian(nuEff1, U1)
+      + fvc::div(Rc1)
 
-      + fvm::div(phiRa, Ua, "div(phia,Ua)")
-      - fvm::Sp(fvc::div(phiRa), Ua)
-      + (fvc::grad(alpha)/(fvc::average(alpha) + scalar(0.001)) & Rca)
+      + fvm::div(phiR1, U1, "div(phi1,U1)")
+      - fvm::Sp(fvc::div(phiR1), U1)
+      + (fvc::grad(alpha1)/(fvc::average(alpha1) + scalar(0.001)) & Rc1)
      ==
     //  g                        // Buoyancy term transfered to p-equation
-      - fvm::Sp(beta/rhoa*dragCoef, Ua)
-    //+ beta/rhoa*dragCoef*Ub    // Explicit drag transfered to p-equation
-      - beta/rhoa*(liftCoeff - Cvm*rhob*DDtUb)
+      - fvm::Sp(alpha2/rho1*dragCoef, U1)
+    //+ alpha2/rho1*dragCoef*U2    // Explicit drag transfered to p-equation
+      - alpha2/rho1*(liftCoeff - Cvm*rho2*DDtU2)
     );
 
-    UaEqn.relax();
+    U1Eqn.relax();
 
 
-    volTensorField Rcb(-nuEffb*T(fvc::grad(Ub)));
-    Rcb = Rcb + (2.0/3.0)*I*k - (2.0/3.0)*I*tr(Rcb);
+    volTensorField Rc2(-nuEff2*T(fvc::grad(U2)));
+    Rc2 = Rc2 + (2.0/3.0)*I*k - (2.0/3.0)*I*tr(Rc2);
 
-    surfaceScalarField phiRb
+    surfaceScalarField phiR2
     (
-       - fvc::interpolate(nuEffb)
-        *mesh.magSf()*fvc::snGrad(beta)/fvc::interpolate(beta + scalar(0.001))
+       - fvc::interpolate(nuEff2)
+        *mesh.magSf()*fvc::snGrad(alpha2)
+        /fvc::interpolate(alpha2 + scalar(0.001))
     );
 
-    UbEqn =
+    U2Eqn =
     (
-        (scalar(1) + Cvm*rhob*alpha/rhob)*
+        (scalar(1) + Cvm*rho2*alpha1/rho2)*
         (
-            fvm::ddt(Ub)
-          + fvm::div(phib, Ub, "div(phib,Ub)")
-          - fvm::Sp(fvc::div(phib), Ub)
+            fvm::ddt(U2)
+          + fvm::div(phi2, U2, "div(phi2,U2)")
+          - fvm::Sp(fvc::div(phi2), U2)
         )
 
-      - fvm::laplacian(nuEffb, Ub)
-      + fvc::div(Rcb)
+      - fvm::laplacian(nuEff2, U2)
+      + fvc::div(Rc2)
 
-      + fvm::div(phiRb, Ub, "div(phib,Ub)")
-      - fvm::Sp(fvc::div(phiRb), Ub)
+      + fvm::div(phiR2, U2, "div(phi2,U2)")
+      - fvm::Sp(fvc::div(phiR2), U2)
 
-      + (fvc::grad(beta)/(fvc::average(beta) + scalar(0.001)) & Rcb)
+      + (fvc::grad(alpha2)/(fvc::average(alpha2) + scalar(0.001)) & Rc2)
      ==
     //  g                        // Buoyancy term transfered to p-equation
-      - fvm::Sp(alpha/rhob*dragCoef, Ub)
-    //+ alpha/rhob*dragCoef*Ua   // Explicit drag transfered to p-equation
-      + alpha/rhob*(liftCoeff + Cvm*rhob*DDtUa)
+      - fvm::Sp(alpha1/rho2*dragCoef, U2)
+    //+ alpha1/rho2*dragCoef*U1   // Explicit drag transfered to p-equation
+      + alpha1/rho2*(liftCoeff + Cvm*rho2*DDtU1)
     );
 
-    UbEqn.relax();
+    U2Eqn.relax();
 }

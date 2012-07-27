@@ -35,7 +35,6 @@ boundaryField
     walls
     {
         type            fixedFluxPressure;
-        adjoint         no;
     }
 
     defaultFaces

@@ -22,7 +22,7 @@ boundaryField
 {
     inlet
     {
-        type            multiphaseFixedFluxPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
     outlet

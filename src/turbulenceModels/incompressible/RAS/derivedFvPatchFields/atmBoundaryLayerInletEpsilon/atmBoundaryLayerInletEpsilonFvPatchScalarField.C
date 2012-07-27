@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -67,13 +67,13 @@ atmBoundaryLayerInletEpsilonFvPatchScalarField
 )
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
-    Ustar_(ptf.Ustar_),
+    Ustar_(ptf.Ustar_, mapper),
     z_(ptf.z_),
-    z0_(ptf.z0_),
+    z0_(ptf.z0_, mapper),
     kappa_(ptf.kappa_),
     Uref_(ptf.Uref_),
     Href_(ptf.Href_),
-    zGround_(ptf.zGround_)
+    zGround_(ptf.zGround_, mapper)
 {}
 
 
@@ -140,11 +140,46 @@ atmBoundaryLayerInletEpsilonFvPatchScalarField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void atmBoundaryLayerInletEpsilonFvPatchScalarField::autoMap
+(
+    const fvPatchFieldMapper& m
+)
+{
+    fixedValueFvPatchScalarField::autoMap(m);
+    Ustar_.autoMap(m);
+    z0_.autoMap(m);
+    zGround_.autoMap(m);
+}
+
+
+void atmBoundaryLayerInletEpsilonFvPatchScalarField::rmap
+(
+    const fvPatchScalarField& ptf,
+    const labelList& addr
+)
+{
+    fixedValueFvPatchScalarField::rmap(ptf, addr);
+
+    const atmBoundaryLayerInletEpsilonFvPatchScalarField& blptf =
+        refCast<const atmBoundaryLayerInletEpsilonFvPatchScalarField>(ptf);
+
+    Ustar_.rmap(blptf.Ustar_, addr);
+    z0_.rmap(blptf.z0_, addr);
+    zGround_.rmap(blptf.zGround_, addr);
+}
+
+
 void atmBoundaryLayerInletEpsilonFvPatchScalarField::updateCoeffs()
 {
+    if (updated())
+    {
+        return;
+    }
+
     const vectorField& c = patch().Cf();
-    tmp<scalarField> coord = (c & z_);
-    scalarField::operator=(pow3(Ustar_)/(kappa_*(coord - zGround_ + z0_)));
+    scalarField::operator=(pow3(Ustar_)/(kappa_*((c & z_) - zGround_ + z0_)));
+
+    fixedValueFvPatchScalarField::updateCoeffs();
 }
 
 

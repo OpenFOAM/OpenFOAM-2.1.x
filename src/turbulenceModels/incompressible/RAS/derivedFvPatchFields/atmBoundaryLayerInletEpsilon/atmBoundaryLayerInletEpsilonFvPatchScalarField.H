@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -93,7 +93,7 @@ class atmBoundaryLayerInletEpsilonFvPatchScalarField
         //- Direction of the z-coordinate
         vector z_;
 
-        //- Surface roughness lenght
+        //- Surface roughness length
         scalarField z0_;
 
         //- Von Karman constant
@@ -105,8 +105,8 @@ class atmBoundaryLayerInletEpsilonFvPatchScalarField
         //- Reference hight
         const scalar Href_;
 
-        //- Minimum corrdinate value in z direction
-        const scalarField zGround_;
+        //- Minimum coordinate value in z direction
+        scalarField zGround_;
 
 
 public:
@@ -184,6 +184,20 @@ public:
         {
             return z_;
         }
+
+
+        //- Map (and resize as needed) from self given a mapping object
+        virtual void autoMap
+        (
+            const fvPatchFieldMapper&
+        );
+
+        //- Reverse map the given fvPatchField onto this fvPatchField
+        virtual void rmap
+        (
+            const fvPatchScalarField&,
+            const labelList&
+        );
 
         //- Update coefficients
         virtual void updateCoeffs();

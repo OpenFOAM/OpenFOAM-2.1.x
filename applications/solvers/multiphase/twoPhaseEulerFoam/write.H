@@ -10,7 +10,7 @@
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
-            Ua - Ub
+            U1 - U2
         );
 
         runTime.write();

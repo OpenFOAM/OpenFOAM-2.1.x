@@ -32,7 +32,7 @@ solvers
         relTol          0;
     }
 
-    alpha
+    alpha1
     {
         solver          PBiCG;
         preconditioner  DILU;
@@ -40,9 +40,9 @@ solvers
         relTol          0.1;
     }
 
-    alphaFinal
+    alpha1Final
     {
-        $alpha;
+        $alpha1;
         tolerance       1e-10;
         relTol          0;
     }

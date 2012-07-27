@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -70,22 +70,22 @@ Foam::kineticTheoryModels::conductivityModels::Syamlal::~Syamlal()
 Foam::tmp<Foam::volScalarField>
 Foam::kineticTheoryModels::conductivityModels::Syamlal::kappa
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const volScalarField& Theta,
     const volScalarField& g0,
-    const dimensionedScalar& rhoa,
+    const dimensionedScalar& rho1,
     const volScalarField& da,
     const dimensionedScalar& e
 ) const
 {
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
 
-    return rhoa*da*sqrt(Theta)*
+    return rho1*da*sqrt(Theta)*
     (
-        2.0*sqr(alpha)*g0*(1.0 + e)/sqrtPi
-      + (9.0/8.0)*sqrtPi*g0*0.25*sqr(1.0 + e)*(2.0*e - 1.0)*sqr(alpha)
+        2.0*sqr(alpha1)*g0*(1.0 + e)/sqrtPi
+      + (9.0/8.0)*sqrtPi*g0*0.25*sqr(1.0 + e)*(2.0*e - 1.0)*sqr(alpha1)
        /(49.0/16.0 - 33.0*e/16.0)
-      + (15.0/32.0)*sqrtPi*alpha/(49.0/16.0 - 33.0*e/16.0)
+      + (15.0/32.0)*sqrtPi*alpha1/(49.0/16.0 - 33.0*e/16.0)
     );
 }
 

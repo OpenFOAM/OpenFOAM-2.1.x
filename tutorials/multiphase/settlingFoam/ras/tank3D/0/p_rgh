@@ -22,115 +22,115 @@ boundaryField
 {
     SYMP3
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     INLE1
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     OUTL9
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     OUTL10
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     OUTL11
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     OUTL12
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL6
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL8
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL61
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL62
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL63
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL64
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL65
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL66
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL67
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL68
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL69
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL7
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 
     WALL70
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 

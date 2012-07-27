@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -59,8 +59,8 @@ Foam::twoPhaseMixture::twoPhaseMixture
 :
     transportModel(U, phi),
 
-    phase1Name_("phase1"),
-    phase2Name_("phase2"),
+    phase1Name_(found("phases") ? wordList(lookup("phases"))[0] : "phase1"),
+    phase2Name_(found("phases") ? wordList(lookup("phases"))[1] : "phase2"),
 
     nuModel1_
     (
@@ -83,13 +83,24 @@ Foam::twoPhaseMixture::twoPhaseMixture
         )
     ),
 
-    rho1_(nuModel1_->viscosityProperties().lookup("rho")),
-    rho2_(nuModel2_->viscosityProperties().lookup("rho")),
+    rho1_("rho", dimDensity, nuModel1_->viscosityProperties().lookup("rho")),
+    rho2_("rho", dimDensity, nuModel2_->viscosityProperties().lookup("rho")),
 
     U_(U),
     phi_(phi),
 
-    alpha1_(U_.db().lookupObject<const volScalarField> (alpha1Name)),
+    alpha1_
+    (
+        IOobject
+        (
+            found("phases") ? word("alpha" + phase1Name_) : alpha1Name,
+            U_.time().timeName(),
+            U_.db(),
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        U_.mesh()
+    ),
 
     nu_
     (

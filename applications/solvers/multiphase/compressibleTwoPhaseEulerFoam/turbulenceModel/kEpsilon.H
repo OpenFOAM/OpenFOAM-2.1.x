@@ -18,7 +18,7 @@ if (turbulence)
       + fvm::div(alphaPhi2, epsilon)
       - fvm::laplacian
         (
-            alphaEps*nuEff2, epsilon,
+            alpha1Eps*nuEff2, epsilon,
             "laplacian(DepsilonEff,epsilon)"
         )
       ==
@@ -43,7 +43,7 @@ if (turbulence)
       + fvm::div(alphaPhi2, k)
       - fvm::laplacian
         (
-            alphak*nuEff2, k,
+            alpha1k*nuEff2, k,
             "laplacian(DkEff,k)"
         )
       ==

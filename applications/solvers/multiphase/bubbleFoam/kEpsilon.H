@@ -5,25 +5,26 @@ if (turbulence)
         y.correct();
     }
 
-    tmp<volTensorField> tgradUb = fvc::grad(Ub);
-    volScalarField G(2*nutb*(tgradUb() && dev(symm(tgradUb()))));
-    tgradUb.clear();
+    tmp<volTensorField> tgradU2 = fvc::grad(U2);
+    volScalarField G(2*nut2*(tgradU2() && dev(symm(tgradU2()))));
+    tgradU2.clear();
 
     #include "wallFunctions.H"
 
     // Dissipation equation
     fvScalarMatrix epsEqn
     (
-        fvm::ddt(beta, epsilon)
-      + fvm::div(phib, epsilon)
+        fvm::ddt(epsilon)
+      + fvm::div(phi2, epsilon)
+      - fvm::Sp(fvc::div(phi2), epsilon)
       - fvm::laplacian
         (
-            alphaEps*nuEffb, epsilon,
+            alpha1Eps*nuEff2, epsilon,
             "laplacian(DepsilonEff,epsilon)"
         )
       ==
-         C1*beta*G*epsilon/k
-       - fvm::Sp(C2*beta*epsilon/k, epsilon)
+         C1*G*epsilon/k
+       - fvm::Sp(C2*epsilon/k, epsilon)
     );
 
     #include "wallDissipation.H"
@@ -37,16 +38,17 @@ if (turbulence)
     // Turbulent kinetic energy equation
     fvScalarMatrix kEqn
     (
-        fvm::ddt(beta, k)
-      + fvm::div(phib, k)
+        fvm::ddt(k)
+      + fvm::div(phi2, k)
+      - fvm::Sp(fvc::div(phi2), k)
       - fvm::laplacian
         (
-            alphak*nuEffb, k,
+            alpha1k*nuEff2, k,
             "laplacian(DkEff,k)"
         )
       ==
-        beta*G
-      - fvm::Sp(beta*epsilon/k, k)
+        G
+      - fvm::Sp(epsilon/k, k)
     );
     kEqn.relax();
     kEqn.solve();
@@ -54,10 +56,9 @@ if (turbulence)
     k.max(dimensionedScalar("zero", k.dimensions(), 1.0e-8));
 
     //- Re-calculate turbulence viscosity
-    nutb = Cmu*sqr(k)/epsilon;
+    nut2 = Cmu*sqr(k)/epsilon;
 
     #include "wallViscosity.H"
 }
 
-nuEffa = sqr(Ct)*nutb + nua;
-nuEffb = nutb + nub;
+nuEff2 = nut2 + nu2;

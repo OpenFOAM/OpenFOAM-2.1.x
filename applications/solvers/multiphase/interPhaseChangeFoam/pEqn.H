@@ -1,24 +1,28 @@
 {
-    volScalarField rAU(1.0/UEqn.A());
-    surfaceScalarField rAUf(fvc::interpolate(rAU));
+    volScalarField rAU("rAU", 1.0/UEqn.A());
+    surfaceScalarField rAUf("Dp", fvc::interpolate(rAU));
 
-    U = rAU*UEqn.H();
+    volVectorField HbyA("HbyA", U);
+    HbyA = rAU*UEqn.H();
 
-    surfaceScalarField phiU
+    surfaceScalarField phiHbyA
     (
-        "phiU",
-        (fvc::interpolate(U) & mesh.Sf())
+        "phiHbyA",
+        (fvc::interpolate(HbyA) & mesh.Sf())
       + fvc::ddtPhiCorr(rAU, rho, U, phi)
     );
 
-    adjustPhi(phiU, U, p_rgh);
+    adjustPhi(phiHbyA, U, p_rgh);
 
-    phi =
-        phiU
-      + (
+    surfaceScalarField phig
+    (
+        (
             fvc::interpolate(interface.sigmaK())*fvc::snGrad(alpha1)
           - ghf*fvc::snGrad(rho)
-        )*rAUf*mesh.magSf();
+        )*rAUf*mesh.magSf()
+    );
+
+    phiHbyA += phig;
 
     Pair<tmp<volScalarField> > vDotP = twoPhaseProperties->vDotP();
     const volScalarField& vDotcP = vDotP[0]();
@@ -28,7 +32,7 @@
     {
         fvScalarMatrix p_rghEqn
         (
-            fvc::div(phi) - fvm::laplacian(rAUf, p_rgh)
+            fvc::div(phiHbyA) - fvm::laplacian(rAUf, p_rgh)
           - (vDotvP - vDotcP)*(pSat - rho*gh) + fvm::Sp(vDotvP - vDotcP, p_rgh)
         );
 
@@ -38,12 +42,12 @@
 
         if (pimple.finalNonOrthogonalIter())
         {
-            phi += p_rghEqn.flux();
+            phi = phiHbyA + p_rghEqn.flux();
+
+            U = HbyA + rAU*fvc::reconstruct((phig + p_rghEqn.flux())/rAUf);
+            U.correctBoundaryConditions();
         }
     }
-
-    U += rAU*fvc::reconstruct((phi - phiU)/rAUf);
-    U.correctBoundaryConditions();
 
     #include "continuityErrs.H"
 

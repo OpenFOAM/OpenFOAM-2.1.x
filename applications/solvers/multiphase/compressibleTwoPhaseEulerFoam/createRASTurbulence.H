@@ -52,21 +52,21 @@
         )
     );
 
-    dimensionedScalar alphak
+    dimensionedScalar alpha1k
     (
         dimensionedScalar::lookupOrAddToDict
         (
-            "alphak",
+            "alpha1k",
             kEpsilonDict,
             1.0
         )
     );
 
-    dimensionedScalar alphaEps
+    dimensionedScalar alpha1Eps
     (
         dimensionedScalar::lookupOrAddToDict
         (
-            "alphaEps",
+            "alpha1Eps",
             kEpsilonDict,
             0.76923
         )

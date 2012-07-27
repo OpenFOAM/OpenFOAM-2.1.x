@@ -4,7 +4,7 @@
     scalar Cmu25 = ::pow(Cmu.value(), 0.25);
     scalar Cmu75 = ::pow(Cmu.value(), 0.75);
     scalar kappa_ = kappa.value();
-    scalar nub_ = nub.value();
+    scalar nu2_ = nu2.value();
 
     const fvPatchList& patches = mesh.boundary();
 
@@ -33,19 +33,13 @@
 
         if (isA<wallFvPatch>(currPatch))
         {
-            const scalarField& nutbw = nutb.boundaryField()[patchi];
+            const scalarField& nut2w = nut2.boundaryField()[patchi];
 
-            scalarField magFaceGradU(mag(Ub.boundaryField()[patchi].snGrad()));
+            scalarField magFaceGradU(mag(U2.boundaryField()[patchi].snGrad()));
 
             forAll(currPatch, facei)
             {
                 label faceCelli = currPatch.faceCells()[facei];
-
-                scalar yPlus =
-                    Cmu25*y[patchi][facei]
-                    *::sqrt(k[faceCelli])
-                    /nub_;
-
 
                 // For corner cells (with two boundary or more faces),
                 // epsilon and G in the near-wall cell are calculated
@@ -57,13 +51,10 @@
                      Cmu75*::pow(k[faceCelli], 1.5)
                     /(kappa_*y[patchi][facei]);
 
-                if (yPlus > 11.6)
-                {
-                    G[faceCelli] +=
-                        (nutbw[facei] + nub_)*magFaceGradU[facei]
-                        *Cmu25*::sqrt(k[faceCelli])
-                        /(kappa_*y[patchi][facei]);
-                }
+                G[faceCelli] +=
+                    (nut2w[facei] + nu2_)*magFaceGradU[facei]
+                   *Cmu25*::sqrt(k[faceCelli])
+                   /(kappa_*y[patchi][facei]);
             }
         }
     }
@@ -83,6 +74,7 @@
 
                 epsilon[faceCelli] /= cellBoundaryFaceCount[faceCelli];
                 G[faceCelli] /= cellBoundaryFaceCount[faceCelli];
+                cellBoundaryFaceCount[faceCelli] = 1;
             }
         }
     }

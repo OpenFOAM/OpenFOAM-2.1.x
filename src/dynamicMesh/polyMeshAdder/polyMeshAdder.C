@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -1604,6 +1604,8 @@ Foam::autoPtr<Foam::mapAddedPolyMesh> Foam::polyMeshAdder::add
     polyBoundaryMesh& allPatches =
         const_cast<polyBoundaryMesh&>(mesh0.boundaryMesh());
     allPatches.setSize(allPatchNames.size());
+    labelList patchSizes(allPatches.size());
+    labelList patchStarts(allPatches.size());
 
     label startFaceI = nInternalFaces;
 
@@ -1629,7 +1631,9 @@ Foam::autoPtr<Foam::mapAddedPolyMesh> Foam::polyMeshAdder::add
         }
         else
         {
-            // Clone.
+            // Clone. Note dummy size and start. Gets overwritten later in
+            // resetPrimitives. This avoids getting temporarily illegal
+            // SubList construction in polyPatch.
             allPatches.set
             (
                 allPatchI,
@@ -1637,10 +1641,12 @@ Foam::autoPtr<Foam::mapAddedPolyMesh> Foam::polyMeshAdder::add
                 (
                     allPatches,
                     allPatchI,
-                    nFaces[patch0],
-                    startFaceI
+                    0,          // dummy size
+                    0           // dummy start
                 )
             );
+            patchSizes[allPatchI] = nFaces[patch0];
+            patchStarts[allPatchI] = startFaceI;
 
             // Record new index in allPatches
             from0ToAllPatches[patch0] = allPatchI;
@@ -1686,10 +1692,12 @@ Foam::autoPtr<Foam::mapAddedPolyMesh> Foam::polyMeshAdder::add
                     (
                         allPatches,
                         allPatchI,
-                        nFaces[uncompactAllPatchI],
-                        startFaceI
+                        0,          // dummy size
+                        0           // dummy start
                     )
                 );
+                patchSizes[allPatchI] = nFaces[uncompactAllPatchI];
+                patchStarts[allPatchI] = startFaceI;
 
                 // Record new index in allPatches
                 from1ToAllPatches[patch1] = allPatchI;
@@ -1702,6 +1710,8 @@ Foam::autoPtr<Foam::mapAddedPolyMesh> Foam::polyMeshAdder::add
     }
 
     allPatches.setSize(allPatchI);
+    patchSizes.setSize(allPatchI);
+    patchStarts.setSize(allPatchI);
 
 
     // Construct map information before changing mesh0 primitives
@@ -1739,9 +1749,6 @@ Foam::autoPtr<Foam::mapAddedPolyMesh> Foam::polyMeshAdder::add
 
     // Now we have extracted all information from all meshes.
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    labelList patchSizes(getPatchSizes(allPatches));
-    labelList patchStarts(getPatchStarts(allPatches));
 
     mesh0.resetMotion();    // delete any oldPoints.
     mesh0.resetPrimitives

@@ -1,54 +1,61 @@
-volScalarField rAU(1.0/UEqn.A());
-
-surfaceScalarField rAUf
-(
-    "(rho*(1|A(U)))",
-    fvc::interpolate(rho)*fvc::interpolate(rAU)
-);
-
-U = rAU*UEqn.H();
-phi =
-    fvc::interpolate(rho)
-   *(
-       (fvc::interpolate(U) & mesh.Sf())
-     + fvc::ddtPhiCorr(rAU, rho, U, phi)
-    );
-
-surfaceScalarField phiU("phiU", phi);
-phi -= ghf*fvc::snGrad(rho)*rAUf*mesh.magSf();
-
-while (pimple.correctNonOrthogonal())
 {
-    fvScalarMatrix p_rghEqn
+    volScalarField rAU("rAU", 1.0/UEqn.A());
+
+    surfaceScalarField rAUf("Dp", fvc::interpolate(rho*rAU));
+
+    volVectorField HbyA("HbyA", U);
+    HbyA = rAU*UEqn.H();
+
+    surfaceScalarField phiHbyA
     (
-        fvm::laplacian(rAUf, p_rgh) == fvc::ddt(rho) + fvc::div(phi)
+        "phiHbyA",
+        fvc::interpolate(rho)
+       *(
+           (fvc::interpolate(HbyA) & mesh.Sf())
+         + fvc::ddtPhiCorr(rAU, rho, U, phi)
+        )
     );
 
-    p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
+    surfaceScalarField phig
+    (
+        - ghf*fvc::snGrad(rho)*rAUf*mesh.magSf()
+    );
 
-    p_rghEqn.solve(mesh.solver(p_rgh.select(pimple.finalInnerIter())));
+    phiHbyA += phig;
 
-    if (pimple.finalNonOrthogonalIter())
+    while (pimple.correctNonOrthogonal())
     {
-        phi -= p_rghEqn.flux();
+        fvScalarMatrix p_rghEqn
+        (
+            fvm::laplacian(rAUf, p_rgh) == fvc::ddt(rho) + fvc::div(phiHbyA)
+        );
+
+        p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
+
+        p_rghEqn.solve(mesh.solver(p_rgh.select(pimple.finalInnerIter())));
+
+        if (pimple.finalNonOrthogonalIter())
+        {
+            phi = phiHbyA - p_rghEqn.flux();
+
+            U = HbyA + rAU*fvc::reconstruct((phig - p_rghEqn.flux())/rAUf);
+            U.correctBoundaryConditions();
+        }
     }
+
+    p == p_rgh + rho*gh;
+
+    if (p_rgh.needReference())
+    {
+        p += dimensionedScalar
+        (
+            "p",
+            p.dimensions(),
+            pRefValue - getRefCellValue(p, pRefCell)
+        );
+        p_rgh = p - rho*gh;
+    }
+
+    #include "rhoEqn.H"
+    #include "compressibleContinuityErrs.H"
 }
-
-p == p_rgh + rho*gh;
-
-if (p_rgh.needReference())
-{
-    p += dimensionedScalar
-    (
-        "p",
-        p.dimensions(),
-        pRefValue - getRefCellValue(p, pRefCell)
-    );
-    p_rgh = p - rho*gh;
-}
-
-#include "rhoEqn.H"
-#include "compressibleContinuityErrs.H"
-
-U += rAU*fvc::reconstruct((phi - phiU)/rAUf);
-U.correctBoundaryConditions();

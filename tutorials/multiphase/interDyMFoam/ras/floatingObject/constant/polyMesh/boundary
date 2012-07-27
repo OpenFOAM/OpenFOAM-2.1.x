@@ -21,19 +21,19 @@ FoamFile
     {
         type            wall;
         nFaces          11200;
-        startFace       281600;
+        startFace       277808;
     }
     atmosphere
     {
         type            patch;
         nFaces          1600;
-        startFace       292800;
+        startFace       289008;
     }
     floatingObject
     {
         type            wall;
-        nFaces          0;
-        startFace       294400;
+        nFaces          672;
+        startFace       290608;
     }
 )
 

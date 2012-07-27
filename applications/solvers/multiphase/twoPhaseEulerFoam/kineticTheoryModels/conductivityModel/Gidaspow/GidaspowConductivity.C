@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -60,21 +60,21 @@ Foam::GidaspowConductivity::~GidaspowConductivity()
 
 Foam::tmp<Foam::volScalarField> Foam::GidaspowConductivity::kappa
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const volScalarField& Theta,
     const volScalarField& g0,
-    const dimensionedScalar& rhoa,
+    const dimensionedScalar& rho1,
     const dimensionedScalar& da,
     const dimensionedScalar& e
 ) const
 {
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
 
-    return rhoa*da*sqrt(Theta)*
+    return rho1*da*sqrt(Theta)*
     (
-        2.0*sqr(alpha)*g0*(1.0 + e)/sqrtPi
-      + (9.0/8.0)*sqrtPi*g0*0.5*(1.0 + e)*sqr(alpha)
-      + (15.0/16.0)*sqrtPi*alpha
+        2.0*sqr(alpha1)*g0*(1.0 + e)/sqrtPi
+      + (9.0/8.0)*sqrtPi*g0*0.5*(1.0 + e)*sqr(alpha1)
+      + (15.0/16.0)*sqrtPi*alpha1
       + (25.0/64.0)*sqrtPi/((1.0 + e)*g0)
     );
 }

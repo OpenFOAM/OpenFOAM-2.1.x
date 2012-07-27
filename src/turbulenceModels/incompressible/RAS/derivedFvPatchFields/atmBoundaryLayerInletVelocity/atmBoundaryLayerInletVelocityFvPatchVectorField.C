@@ -145,8 +145,42 @@ atmBoundaryLayerInletVelocityFvPatchVectorField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void atmBoundaryLayerInletVelocityFvPatchVectorField::autoMap
+(
+    const fvPatchFieldMapper& m
+)
+{
+    fixedValueFvPatchVectorField::autoMap(m);
+    z0_.autoMap(m);
+    zGround_.autoMap(m);
+    Ustar_.autoMap(m);
+}
+
+
+void atmBoundaryLayerInletVelocityFvPatchVectorField::rmap
+(
+    const fvPatchVectorField& ptf,
+    const labelList& addr
+)
+{
+    fixedValueFvPatchVectorField::rmap(ptf, addr);
+
+    const atmBoundaryLayerInletVelocityFvPatchVectorField& blptf =
+        refCast<const atmBoundaryLayerInletVelocityFvPatchVectorField>(ptf);
+
+    z0_.rmap(blptf.z0_, addr);
+    zGround_.rmap(blptf.zGround_, addr);
+    Ustar_.rmap(blptf.Ustar_, addr);
+}
+
+
 void atmBoundaryLayerInletVelocityFvPatchVectorField::updateCoeffs()
 {
+    if (updated())
+    {
+        return;
+    }
+
     const vectorField& c = patch().Cf();
     const scalarField coord(c & z_);
     scalarField Un(coord.size());

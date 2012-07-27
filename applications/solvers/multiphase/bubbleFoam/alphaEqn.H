@@ -1,7 +1,7 @@
 {
-    word scheme("div(phi,alpha)");
+    word scheme("div(phi,alpha1)");
 
-    surfaceScalarField phir(phia - phib);
+    surfaceScalarField phir(phi1 - phi2);
 
     Info<< "Max Ur Courant Number = "
         << (
@@ -15,42 +15,47 @@
 
     for (int acorr=0; acorr<nAlphaCorr; acorr++)
     {
-        fvScalarMatrix alphaEqn
+        fvScalarMatrix alpha1Eqn
         (
-             fvm::ddt(alpha)
-           + fvm::div(phi, alpha, scheme)
-           + fvm::div(-fvc::flux(-phir, beta, scheme), alpha, scheme)
+             fvm::ddt(alpha1)
+           + fvm::div(phi, alpha1, scheme)
+           + fvm::div(-fvc::flux(-phir, alpha2, scheme), alpha1, scheme)
         );
-        alphaEqn.relax();
-        alphaEqn.solve();
+        alpha1Eqn.relax();
+        alpha1Eqn.solve();
 
         /*
-        fvScalarMatrix betaEqn
+        fvScalarMatrix alpha2Eqn
         (
-              fvm::ddt(beta)
-            + fvm::div(phi, beta, scheme)
-            + fvm::div(-fvc::flux(phir, scalar(1) - beta, scheme), beta, scheme)
+            fvm::ddt(alpha2)
+          + fvm::div(phi, alpha2, scheme)
+          + fvm::div
+            (
+                -fvc::flux(phir, scalar(1) - alpha2, scheme),
+                alpha2,
+                scheme
+            )
         );
-        betaEqn.relax();
-        betaEqn.solve();
+        alpha2Eqn.relax();
+        alpha2Eqn.solve();
 
-        alpha =
+        alpha1 =
             0.5
            *(
                  scalar(1)
-               + sqr(scalar(1) - beta)
-               - sqr(scalar(1) - alpha)
+               + sqr(scalar(1) - alpha2)
+               - sqr(scalar(1) - alpha1)
             );
         */
 
-        beta = scalar(1) - alpha;
+        alpha2 = scalar(1) - alpha1;
     }
 
     Info<< "Dispersed phase volume fraction = "
-        << alpha.weightedAverage(mesh.V()).value()
-        << "  Min(alpha) = " << min(alpha).value()
-        << "  Max(alpha) = " << max(alpha).value()
+        << alpha1.weightedAverage(mesh.V()).value()
+        << "  Min(alpha1) = " << min(alpha1).value()
+        << "  Max(alpha1) = " << max(alpha1).value()
         << endl;
 }
 
-rho = alpha*rhoa + beta*rhob;
+rho = alpha1*rho1 + alpha2*rho2;

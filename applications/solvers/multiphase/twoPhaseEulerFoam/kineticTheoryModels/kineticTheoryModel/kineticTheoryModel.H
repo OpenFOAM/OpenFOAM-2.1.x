@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -56,17 +56,17 @@ class kineticTheoryModel
 {
     // Private data
 
-        const phaseModel& phasea_;
-        const volVectorField& Ua_;
-        const volVectorField& Ub_;
-        const volScalarField& alpha_;
-        const surfaceScalarField& phia_;
+        const phaseModel& phase1_;
+        const volVectorField& U1_;
+        const volVectorField& U2_;
+        const volScalarField& alpha1_;
+        const surfaceScalarField& phi1_;
 
-        const dragModel& draga_;
+        const dragModel& drag1_;
 
-        const dimensionedScalar& rhoa_;
+        const dimensionedScalar& rho1_;
         const dimensionedScalar& da_;
-        const dimensionedScalar& nua_;
+        const dimensionedScalar& nu1_;
 
         //- dictionary holding the modeling info
         IOdictionary kineticTheoryProperties_;
@@ -112,7 +112,7 @@ class kineticTheoryModel
         volScalarField Theta_;
 
         //- The granular viscosity
-        volScalarField mua_;
+        volScalarField mu1_;
 
         //- The granular bulk viscosity
         volScalarField lambda_;
@@ -143,10 +143,10 @@ public:
         //- Construct from components
         kineticTheoryModel
         (
-            const phaseModel& phasea,
-            const volVectorField& Ub,
-            const volScalarField& alpha,
-            const dragModel& draga
+            const phaseModel& phase1,
+            const volVectorField& U2,
+            const volScalarField& alpha1,
+            const dragModel& drag1
         );
 
 
@@ -156,16 +156,16 @@ public:
 
     // Member Functions
 
-        void solve(const volTensorField& gradUat);
+        void solve(const volTensorField& gradU1t);
 
         bool on() const
         {
             return kineticTheory_;
         }
 
-        const volScalarField& mua() const
+        const volScalarField& mu1() const
         {
-            return mua_;
+            return mu1_;
         }
 
         const volScalarField& pa() const

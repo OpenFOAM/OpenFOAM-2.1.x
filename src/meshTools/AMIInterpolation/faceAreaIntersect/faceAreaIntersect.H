@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -78,6 +78,11 @@ private:
         const bool reverseB_;
 
 
+    // Static data members
+
+        static scalar tol;
+
+
     // Private Member Functions
 
         //- Get triPoints from face
@@ -151,6 +156,9 @@ public:
 
 
     // Public Member Functions
+
+        //- Fraction of local length scale to use as intersection tolerance
+        inline static scalar& tolerance();
 
         //- Return area of intersection of faceA with faceB
         scalar calc

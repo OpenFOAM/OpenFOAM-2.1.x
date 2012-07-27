@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,14 +25,14 @@ Class
     Foam::compressible::LESModels::oneEqEddy
 
 Description
-    One Equation Eddy Viscosity Model for incompressible flows
+    One Equation Eddy Viscosity Model for compressible flows
 
     Eddy viscosity SGS model using a modeled balance equation to simulate the
     behaviour of k, hence,
     \verbatim
         d/dt(rho*k) + div(rho*U*k) - div(muEff*grad(k))
         =
-        -rho*D:B - ce*rho*k^3/2/delta
+        -rho*D:B - ce*rho*k^(3/2)/delta
 
     and
 
@@ -41,9 +41,10 @@ Description
     where
 
         D = symm(grad(U));
-        muSgs = ck*rho*sqrt(k)*delta
+        nuSgs = ck*sqrt(k)*delta
+        muSgs = rho*nuSgs
+        muEff = muSgs + mu
     \endverbatim
-
 
 SourceFiles
     oneEqEddy.C

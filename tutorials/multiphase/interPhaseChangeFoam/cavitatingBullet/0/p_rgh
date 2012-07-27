@@ -39,7 +39,7 @@ boundaryField
 
     bullet
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
     }
 }
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -49,12 +49,12 @@ namespace dragModels
 Foam::dragModels::WenYu::WenYu
 (
     const dictionary& interfaceDict,
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const phaseModel& phase1,
     const phaseModel& phase2
 )
 :
-    dragModel(interfaceDict, alpha, phase1, phase2)
+    dragModel(interfaceDict, alpha1, phase1, phase2)
 {}
 
 
@@ -71,8 +71,8 @@ Foam::tmp<Foam::volScalarField> Foam::dragModels::WenYu::K
     const volScalarField& Ur
 ) const
 {
-    volScalarField beta(max(scalar(1) - alpha_, scalar(1.0e-6)));
-    volScalarField bp(pow(beta, -2.65));
+    volScalarField alpha2(max(scalar(1) - alpha1_, scalar(1.0e-6)));
+    volScalarField bp(pow(alpha2, -2.65));
 
     volScalarField Re(max(Ur*phase1_.d()/phase2_.nu(), scalar(1.0e-3)));
     volScalarField Cds

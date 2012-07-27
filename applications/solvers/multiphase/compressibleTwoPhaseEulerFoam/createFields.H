@@ -206,7 +206,9 @@
         (
             "phi",
             runTime.timeName(),
-            mesh
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
         ),
         fvc::interpolate(alpha1)*phi1 + fvc::interpolate(alpha2)*phi2
     );
@@ -308,12 +310,19 @@
 
     Info << "dispersedPhase is " << dispersedPhase << endl;
 
-    scalar minInterfaceAlpha
+    scalar residualPhaseFraction
     (
         readScalar
         (
-            interfacialProperties.lookup("minInterfaceAlpha")
+            interfacialProperties.lookup("residualPhaseFraction")
         )
+    );
+
+    dimensionedScalar residualSlip
+    (
+        "residualSlip",
+        dimVelocity,
+        interfacialProperties.lookup("residualSlip")
     );
 
     kineticTheoryModel kineticTheory

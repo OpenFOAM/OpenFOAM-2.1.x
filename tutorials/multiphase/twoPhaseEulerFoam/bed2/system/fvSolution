@@ -63,7 +63,7 @@ solvers
         relTol          0.1;
     }
 
-    alphaFinal
+    alpha1Final
     {
         solver          PBiCG;
         preconditioner  DILU;
@@ -76,7 +76,8 @@ PIMPLE
 {
     nCorrectors     2;
     nNonOrthogonalCorrectors 0;
-    nAlphaCorr      2;
+    nAlphaCorr      1;
+    nAlphaSubCycles 3;
     correctAlpha    yes;
     pRefCell        0;
     pRefValue       0;

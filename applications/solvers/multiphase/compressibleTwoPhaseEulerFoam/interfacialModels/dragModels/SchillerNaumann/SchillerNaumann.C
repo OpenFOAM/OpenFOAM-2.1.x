@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -49,12 +49,12 @@ namespace dragModels
 Foam::dragModels::SchillerNaumann::SchillerNaumann
 (
     const dictionary& interfaceDict,
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const phaseModel& phase1,
     const phaseModel& phase2
 )
 :
-    dragModel(interfaceDict, alpha, phase1, phase2)
+    dragModel(interfaceDict, alpha1, phase1, phase2)
 {}
 
 

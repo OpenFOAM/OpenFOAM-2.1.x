@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -58,23 +58,23 @@ Foam::kineticTheoryModels::SyamlalViscosity::~SyamlalViscosity()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::tmp<Foam::volScalarField> Foam::kineticTheoryModels::SyamlalViscosity::mua
+Foam::tmp<Foam::volScalarField> Foam::kineticTheoryModels::SyamlalViscosity::mu1
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const volScalarField& Theta,
     const volScalarField& g0,
-    const dimensionedScalar& rhoa,
+    const dimensionedScalar& rho1,
     const dimensionedScalar& da,
     const dimensionedScalar& e
 ) const
 {
     const scalar sqrtPi = sqrt(constant::mathematical::pi);
 
-    return rhoa*da*sqrt(Theta)*
+    return rho1*da*sqrt(Theta)*
     (
-        (4.0/5.0)*sqr(alpha)*g0*(1.0 + e)/sqrtPi
-      + (1.0/15.0)*sqrtPi*g0*(1.0 + e)*(3.0*e - 1.0)*sqr(alpha)/(3.0 - e)
-      + (1.0/6.0)*alpha*sqrtPi/(3.0 - e)
+        (4.0/5.0)*sqr(alpha1)*g0*(1.0 + e)/sqrtPi
+      + (1.0/15.0)*sqrtPi*g0*(1.0 + e)*(3.0*e - 1.0)*sqr(alpha1)/(3.0 - e)
+      + (1.0/6.0)*alpha1*sqrtPi/(3.0 - e)
     );
 }
 

@@ -22,7 +22,8 @@ boundaryField
 {
     inlet
     {
-        type            zeroGradient;
+        type            fixedFluxPressure;
+        value           uniform 0;
     }
 
     outlet
@@ -33,7 +34,7 @@ boundaryField
 
     walls
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 

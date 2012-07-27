@@ -60,21 +60,21 @@ functions
         outputControl   outputTime;
         fields
         (
-            Ua
+            U1
             {
                  mean        on;
                  prime2Mean  off;
                  base        time;
             }
 
-            Ub
+            U2
             {
                  mean        on;
                  prime2Mean  off;
                  base        time;
             }
 
-            alpha
+            alpha1
             {
                  mean        on;
                  prime2Mean  off;

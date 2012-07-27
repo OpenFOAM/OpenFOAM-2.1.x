@@ -70,7 +70,7 @@ Foam::tmp<Foam::volScalarField>
 Foam::kineticTheoryModels::frictionalStressModels::Schaeffer::
 frictionalPressure
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const dimensionedScalar& alphaMinFriction,
     const dimensionedScalar& alphaMax,
     const dimensionedScalar& Fr,
@@ -80,7 +80,7 @@ frictionalPressure
 {
     return
         dimensionedScalar("1e24", dimensionSet(1, -1, -2, 0, 0), 1e24)
-       *pow(Foam::max(alpha - alphaMinFriction, scalar(0)), 10.0);
+       *pow(Foam::max(alpha1 - alphaMinFriction, scalar(0)), 10.0);
 }
 
 
@@ -88,7 +88,7 @@ Foam::tmp<Foam::volScalarField>
 Foam::kineticTheoryModels::frictionalStressModels::Schaeffer::
 frictionalPressurePrime
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const dimensionedScalar& alphaMinFriction,
     const dimensionedScalar& alphaMax,
     const dimensionedScalar& Fr,
@@ -98,14 +98,14 @@ frictionalPressurePrime
 {
     return
         dimensionedScalar("1e25", dimensionSet(1, -1, -2, 0, 0), 1e25)
-       *pow(Foam::max(alpha - alphaMinFriction, scalar(0)), 9.0);
+       *pow(Foam::max(alpha1 - alphaMinFriction, scalar(0)), 9.0);
 }
 
 
 Foam::tmp<Foam::volScalarField>
 Foam::kineticTheoryModels::frictionalStressModels::Schaeffer::muf
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const dimensionedScalar& alphaMax,
     const volScalarField& pf,
     const volSymmTensorField& D,
@@ -123,10 +123,10 @@ Foam::kineticTheoryModels::frictionalStressModels::Schaeffer::muf
             IOobject
             (
                 "muf",
-                alpha.mesh().time().timeName(),
-                alpha.mesh()
+                alpha1.mesh().time().timeName(),
+                alpha1.mesh()
             ),
-            alpha.mesh(),
+            alpha1.mesh(),
             dimensionedScalar("muf", dimensionSet(1, -1, -1, 0, 0), 0.0)
         )
     );
@@ -135,7 +135,7 @@ Foam::kineticTheoryModels::frictionalStressModels::Schaeffer::muf
 
     forAll (D, celli)
     {
-        if (alpha[celli] > alphaMax.value() - 5e-2)
+        if (alpha1[celli] > alphaMax.value() - 5e-2)
         {
             muff[celli] =
                 0.5*pf[celli]*sin(phi.value())

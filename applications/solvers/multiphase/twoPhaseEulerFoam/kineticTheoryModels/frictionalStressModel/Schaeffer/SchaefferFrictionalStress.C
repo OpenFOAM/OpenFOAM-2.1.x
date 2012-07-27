@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -63,7 +63,7 @@ Foam::SchaefferFrictionalStress::~SchaefferFrictionalStress()
 Foam::tmp<Foam::volScalarField> Foam::SchaefferFrictionalStress::
 frictionalPressure
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const dimensionedScalar& alphaMinFriction,
     const dimensionedScalar& alphaMax,
     const dimensionedScalar& Fr,
@@ -73,14 +73,14 @@ frictionalPressure
 {
     return
         dimensionedScalar("1e24", dimensionSet(1, -1, -2, 0, 0), 1e24)
-       *pow(Foam::max(alpha - alphaMinFriction, scalar(0)), 10.0);
+       *pow(Foam::max(alpha1 - alphaMinFriction, scalar(0)), 10.0);
 }
 
 
 Foam::tmp<Foam::volScalarField> Foam::SchaefferFrictionalStress::
 frictionalPressurePrime
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const dimensionedScalar& alphaMinFriction,
     const dimensionedScalar& alphaMax,
     const dimensionedScalar& Fr,
@@ -90,13 +90,13 @@ frictionalPressurePrime
 {
     return
         dimensionedScalar("1e25", dimensionSet(1, -1, -2, 0, 0), 1e25)
-       *pow(Foam::max(alpha - alphaMinFriction, scalar(0)), 9.0);
+       *pow(Foam::max(alpha1 - alphaMinFriction, scalar(0)), 9.0);
 }
 
 
 Foam::tmp<Foam::volScalarField> Foam::SchaefferFrictionalStress::muf
 (
-    const volScalarField& alpha,
+    const volScalarField& alpha1,
     const dimensionedScalar& alphaMax,
     const volScalarField& pf,
     const volSymmTensorField& D,
@@ -114,10 +114,10 @@ Foam::tmp<Foam::volScalarField> Foam::SchaefferFrictionalStress::muf
             IOobject
             (
                 "muf",
-                alpha.mesh().time().timeName(),
-                alpha.mesh()
+                alpha1.mesh().time().timeName(),
+                alpha1.mesh()
             ),
-            alpha.mesh(),
+            alpha1.mesh(),
             dimensionedScalar("muf", dimensionSet(1, -1, -1, 0, 0), 0.0)
         )
     );
@@ -126,7 +126,7 @@ Foam::tmp<Foam::volScalarField> Foam::SchaefferFrictionalStress::muf
 
     forAll (D, celli)
     {
-        if (alpha[celli] > alphaMax.value() - 5e-2)
+        if (alpha1[celli] > alphaMax.value() - 5e-2)
         {
             muff[celli] =
                 0.5*pf[celli]*sin(phi.value())

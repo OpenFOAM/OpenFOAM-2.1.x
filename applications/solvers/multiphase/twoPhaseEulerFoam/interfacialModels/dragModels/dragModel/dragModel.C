@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -39,15 +39,15 @@ namespace Foam
 Foam::dragModel::dragModel
 (
     const dictionary& interfaceDict,
-    const volScalarField& alpha,
-    const phaseModel& phasea,
-    const phaseModel& phaseb
+    const volScalarField& alpha1,
+    const phaseModel& phase1,
+    const phaseModel& phase2
 )
 :
     interfaceDict_(interfaceDict),
-    alpha_(alpha),
-    phasea_(phasea),
-    phaseb_(phaseb)
+    alpha1_(alpha1),
+    phase1_(phase1),
+    phase2_(phase2)
 {}
 
 

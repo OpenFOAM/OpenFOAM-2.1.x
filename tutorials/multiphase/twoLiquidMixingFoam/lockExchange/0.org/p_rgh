@@ -23,19 +23,19 @@ boundaryField
 {
     left
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
     }
     right
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
     }
     bottom
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
     }
     top
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
     }
     frontBack
     {

@@ -22,7 +22,7 @@ boundaryField
 {
     walls
     {
-        type            buoyantPressure;
+        type            fixedFluxPressure;
         value           uniform 0;
     }
 }

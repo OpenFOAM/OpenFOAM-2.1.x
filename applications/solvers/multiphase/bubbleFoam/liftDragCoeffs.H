@@ -1,23 +1,23 @@
-    volVectorField Ur(Ua - Ub);
+    volVectorField Ur(U1 - U2);
     volScalarField magUr(mag(Ur));
 
-    volScalarField CdaMagUr
+    volScalarField Cd1MagUr
     (
-        (24.0*nub/da)*(scalar(1) + 0.15*pow(da*magUr/nub, 0.687))
+        (24.0*nu2/d1)*(scalar(1) + 0.15*pow(d1*magUr/nu2, 0.687))
     );
 
-    volScalarField CdbMagUr
+    volScalarField Cd2MagUr
     (
-        (24.0*nua/db)*(scalar(1) + 0.15*pow(db*magUr/nua, 0.687))
+        (24.0*nu1/d2)*(scalar(1) + 0.15*pow(d2*magUr/nu1, 0.687))
     );
 
     volScalarField dragCoef
     (
         "Cd",
-        0.75*(beta*rhob*CdaMagUr/da + alpha*rhoa*CdbMagUr/db)
+        0.75*(alpha2*rho2*Cd1MagUr/d1 + alpha1*rho1*Cd2MagUr/d2)
     );
 
     volVectorField liftCoeff
     (
-        Cl*(beta*rhob + alpha*rhoa)*(Ur ^ fvc::curl(U))
+        Cl*(alpha2*rho2 + alpha1*rho1)*(Ur ^ fvc::curl(U))
     );
