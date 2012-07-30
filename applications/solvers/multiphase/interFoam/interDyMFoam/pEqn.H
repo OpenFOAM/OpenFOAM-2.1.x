@@ -4,6 +4,8 @@
 
     volVectorField HbyA("HbyA", U);
     HbyA = rAU*UEqn.H();
+    phi.boundaryField() =
+        fvc::interpolate(U.boundaryField()) & mesh.Sf().boundaryField();
 
     surfaceScalarField phiHbyA
     (

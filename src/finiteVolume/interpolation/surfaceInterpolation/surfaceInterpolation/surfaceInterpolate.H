@@ -169,6 +169,20 @@ namespace fvc
     (
         const GeometricField<Type, fvPatchField, volMesh>& tvf
     );
+
+    //- Interpolate boundary field onto faces (simply a type conversion)
+    template<class Type>
+    static tmp<FieldField<fvsPatchField, Type> > interpolate
+    (
+        const FieldField<fvPatchField, Type>& fvpff
+    );
+
+    //- Interpolate boundary field onto faces (simply a type conversion)
+    template<class Type>
+    static tmp<FieldField<fvsPatchField, Type> > interpolate
+    (
+        const tmp<FieldField<fvPatchField, Type> >& tfvpff
+    );
 }
 
 
