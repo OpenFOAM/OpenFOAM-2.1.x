@@ -98,20 +98,19 @@ calculatedFvPatchField<Type>::calculatedFvPatchField
 
 
 template<class Type>
-template<class Type2>
 tmp<fvPatchField<Type> > fvPatchField<Type>::NewCalculatedType
 (
-    const fvPatchField<Type2>& pf
+    const fvPatch& p
 )
 {
     typename patchConstructorTable::iterator patchTypeCstrIter =
-        patchConstructorTablePtr_->find(pf.patch().type());
+        patchConstructorTablePtr_->find(p.type());
 
     if (patchTypeCstrIter != patchConstructorTablePtr_->end())
     {
         return patchTypeCstrIter()
         (
-            pf.patch(),
+            p,
             DimensionedField<Type, volMesh>::null()
         );
     }
@@ -121,11 +120,22 @@ tmp<fvPatchField<Type> > fvPatchField<Type>::NewCalculatedType
         (
             new calculatedFvPatchField<Type>
             (
-                pf.patch(),
+                p,
                 DimensionedField<Type, volMesh>::null()
             )
         );
     }
+}
+
+
+template<class Type>
+template<class Type2>
+tmp<fvPatchField<Type> > fvPatchField<Type>::NewCalculatedType
+(
+    const fvPatchField<Type2>& pf
+)
+{
+    return NewCalculatedType(pf.patch());
 }
 
 

@@ -206,6 +206,12 @@ class globalPoints
         );
 
         //- Debug printing
+        void printProcPoint
+        (
+            const labelList& patchToMeshPoint,
+            const labelPair& pointInfo
+        ) const;
+
         void printProcPoints
         (
             const labelList& patchToMeshPoint,

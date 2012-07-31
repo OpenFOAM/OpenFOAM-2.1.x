@@ -1121,6 +1121,39 @@ void Foam::autoLayerDriver::shrinkMeshMedialDistance
             *dispVec[pointI];
     }
 
+    if (debug)
+    {
+        const_cast<Time&>(mesh.time())++;
+        Info<< "Writing wanted-displacement mesh (possibly illegal) to "
+            << meshRefiner_.timeName() << endl;
+        pointField oldPoints(mesh.points());
+        meshMover.movePoints
+        (
+            (
+                mesh.points()
+         +      (
+                    meshMover.scale().internalField()
+                  * displacement.internalField()
+                )
+            )()
+        );
+
+        // Above move will have changed the instance only on the points (which
+        // is correct).
+        // However the previous mesh written will be the mesh with layers
+        // (see autoLayerDriver.C) so we now have to force writing all files
+        // so we can easily step through time steps. Note that if you
+        // don't write the mesh with layers this is not necessary.
+        meshRefiner_.mesh().setInstance(meshRefiner_.timeName());
+
+        meshRefiner_.write
+        (
+            debug,
+            mesh.time().path()/meshRefiner_.timeName()
+        );
+        meshMover.movePoints(oldPoints);
+    }
+
     // Current faces to check. Gets modified in meshMover.scaleMesh
     labelList checkFaces(identity(mesh.nFaces()));
 

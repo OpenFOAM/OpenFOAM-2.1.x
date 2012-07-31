@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -107,12 +107,7 @@ Foam::UIPstream::UIPstream
 
         if (!messageSize_)
         {
-            FatalErrorIn
-            (
-                "UIPstream::UIPstream(const commsTypes, const int, "
-                "DynamicList<char>&, streamFormat, versionNumber)"
-            )   << "read failed"
-                << Foam::abort(FatalError);
+            setEof();
         }
     }
 }
@@ -199,11 +194,7 @@ Foam::UIPstream::UIPstream(const int fromProcNo, PstreamBuffers& buffers)
 
         if (!messageSize_)
         {
-            FatalErrorIn
-            (
-                "UIPstream::UIPstream(const int, PstreamBuffers&)"
-            )   << "read failed"
-                << Foam::abort(FatalError);
+            setEof();
         }
     }
 }
