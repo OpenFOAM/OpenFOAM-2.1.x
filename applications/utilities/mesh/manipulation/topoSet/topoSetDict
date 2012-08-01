@@ -177,6 +177,7 @@ FoamFile
 //    {
 //        volume  2e-05;
 //        normal  (1 1 1);
+//        //set     mask;       // optional cellSet to delimit search
 //    }
 //
 //
