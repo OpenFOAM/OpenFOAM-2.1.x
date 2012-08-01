@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -127,8 +127,9 @@ public:
             virtual void postPatch
             (
                 const parcelType& p,
-                const label patchI,
-                const label patchFaceI
+                const polyPatch& pp,
+                const scalar trackFraction,
+                const tetIndices& tetIs
             );
 };
 

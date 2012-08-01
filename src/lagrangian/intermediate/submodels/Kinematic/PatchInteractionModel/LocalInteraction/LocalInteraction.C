@@ -247,7 +247,7 @@ bool Foam::LocalInteraction<CloudType>::correct
                 vector nw;
                 vector Up;
 
-                this->patchData(p, pp, trackFraction, tetIs, nw, Up);
+                this->owner().patchData(p, pp, trackFraction, tetIs, nw, Up);
 
                 // Calculate motion relative to patch velocity
                 U -= Up;
