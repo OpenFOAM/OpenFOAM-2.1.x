@@ -555,6 +555,18 @@ public:
             template<class TrackData>
             void motion(TrackData& td);
 
+            //- Calculate the patch normal and velocity to interact with,
+            //  accounting for patch motion if required.
+            void patchData
+            (
+                const parcelType& p,
+                const polyPatch& pp,
+                const scalar trackFraction,
+                const tetIndices& tetIs,
+                vector& normal,
+                vector& Up
+            );
+
 
         // I-O
 

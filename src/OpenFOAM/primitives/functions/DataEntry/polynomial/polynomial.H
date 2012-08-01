@@ -45,7 +45,7 @@ SourceFiles
 #ifndef polynomial_H
 #define polynomial_H
 
-#include "DataEntry.H"
+#include "DataEntryFwd.H"
 #include "Tuple2.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -69,7 +69,7 @@ Ostream& operator<<
 
 class polynomial
 :
-    public DataEntry<scalar>
+    public scalarDataEntry
 {
     // Private data
 
@@ -100,9 +100,9 @@ public:
         polynomial(const polynomial& poly);
 
         //- Construct and return a clone
-        virtual tmp<DataEntry<scalar> > clone() const
+        virtual tmp<scalarDataEntry> clone() const
         {
-            return tmp<DataEntry<scalar> >(new polynomial(*this));
+            return tmp<scalarDataEntry>(new polynomial(*this));
         }
 
 

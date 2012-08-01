@@ -81,8 +81,6 @@ subModels
 {
     particleForces
     {
-        sphereDrag;
-        gravity;
     }
 
     injectionModel  manualInjection;
@@ -91,11 +89,11 @@ subModels
 
     patchInteractionModel standardWallInteraction;
 
-    heatTransferModel RanzMarshall;
+    heatTransferModel none; // RanzMarshall;
 
     compositionModel singlePhaseMixture;
 
-    phaseChangeModel liquidEvaporation;
+    phaseChangeModel none; // liquidEvaporation;
 
     surfaceFilmModel none;
 
@@ -103,11 +101,11 @@ subModels
 
     manualInjectionCoeffs
     {
-        massTotal       1e-8;
+        massTotal       1e-3;
         parcelBasisType mass;
         SOI             0;
         positionsFile   "reactingCloud1Positions";
-        U0              ( 0 0 0 );
+        U0              ( 0 -0.1 0 );
         sizeDistribution
         {
             type        uniform;
@@ -150,7 +148,13 @@ subModels
 
 
 cloudFunctions
-{}
+{
+    particleErosion
+    {
+        p 2.7e9;
+        patches (walls);
+    }
+}
 
 
 // ************************************************************************* //
