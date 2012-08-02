@@ -27,6 +27,7 @@ License
 #include "polyMesh.H"
 #include "globalMeshData.H"
 #include "plane.H"
+#include "cellSet.H"
 
 #include "addToRunTimeSelectionTable.H"
 
@@ -74,6 +75,7 @@ Foam::scalar Foam::targetVolumeToCell::volumeOfSet
 Foam::label Foam::targetVolumeToCell::selectCells
 (
     const scalar normalComp,
+    const PackedBoolList& maskSet,
     PackedBoolList& selected
 ) const
 {
@@ -86,7 +88,7 @@ Foam::label Foam::targetVolumeToCell::selectCells
     {
         const point& cc = mesh_.cellCentres()[cellI];
 
-        if ((cc&n_) < normalComp)
+        if (maskSet[cellI] && ((cc&n_) < normalComp))
         {
             selected[cellI] = true;
             nSelected++;
@@ -103,15 +105,26 @@ void Foam::targetVolumeToCell::combine(topoSet& set, const bool add) const
         // Select no cells
         return;
     }
-    else if (gSum(mesh_.cellVolumes()) < vol_)
+
+
+    PackedBoolList maskSet(mesh_.nCells(), 1);
+    label nTotCells = mesh_.globalData().nTotalCells();
+    if (maskSetName_.size())
     {
-        // Select all cells
-        forAll(mesh_.cellVolumes(), cellI)
+        // Read cellSet
+        Info<< "    Operating on subset defined by cellSet " << maskSetName_
+            << endl;
+
+        maskSet = 0;
+        cellSet subset(mesh_, maskSetName_);
+
+        forAllConstIter(cellSet, subset, iter)
         {
-            addOrDelete(set, cellI, add);
+            maskSet[iter.key()] = 1;
         }
-        return;
-    }
+
+        nTotCells = returnReduce(subset.size(), sumOp<label>());
+    }   
 
 
     // Get plane for min,max volume.
@@ -144,16 +157,16 @@ void Foam::targetVolumeToCell::combine(topoSet& set, const bool add) const
         }
 
         PackedBoolList maxSelected(mesh_.nCells());
-        maxCells = selectCells(maxComp, maxSelected);
+        maxCells = selectCells(maxComp, maskSet, maxSelected);
         maxVol = volumeOfSet(maxSelected);
 
         // Check that maxPoint indeed selects all cells
-        if (maxCells != mesh_.globalData().nTotalCells())
+        if (maxCells != nTotCells)
         {
             WarningIn("targetVolumeToCell::combine(topoSet&, const bool) const")
                 << "Plane " << plane(points[maxPointI], n_)
                 << " selects " << maxCells
-                << " cells instead of all " << mesh_.globalData().nTotalCells()
+                << " cells instead of all " << nTotCells
                 << " cells. Results might be wrong." << endl;
         }
     }
@@ -178,7 +191,7 @@ void Foam::targetVolumeToCell::combine(topoSet& set, const bool add) const
     {
         scalar mid = 0.5*(low + high);
 
-        nSelected = selectCells(mid, selected);
+        nSelected = selectCells(mid, maskSet, selected);
         selectedVol = volumeOfSet(selected);
 
         //Pout<< "High:" << high << " low:" << low << " mid:" << mid << nl
@@ -191,7 +204,7 @@ void Foam::targetVolumeToCell::combine(topoSet& set, const bool add) const
             low = mid;
 
             PackedBoolList highSelected(mesh_.nCells());
-            label nHigh = selectCells(high, selected);
+            label nHigh = selectCells(high, maskSet, selected);
             if (nSelected == nHigh)
             {
                 break;
@@ -202,7 +215,7 @@ void Foam::targetVolumeToCell::combine(topoSet& set, const bool add) const
             high = mid;
 
             PackedBoolList lowSelected(mesh_.nCells());
-            label nLow = selectCells(low, selected);
+            label nLow = selectCells(low, maskSet, selected);
             if (nSelected == nLow)
             {
                 break;
@@ -210,7 +223,7 @@ void Foam::targetVolumeToCell::combine(topoSet& set, const bool add) const
         }
     }
 
-    nSelected = selectCells(high, selected);
+    nSelected = selectCells(high, maskSet, selected);
     selectedVol = volumeOfSet(selected);
 
     if (selectedVol < vol_)
@@ -219,7 +232,7 @@ void Foam::targetVolumeToCell::combine(topoSet& set, const bool add) const
     }
     else
     {
-        nSelected = selectCells(low, selected);
+        nSelected = selectCells(low, maskSet, selected);
         selectedVol = volumeOfSet(selected);
 
         if (selectedVol < vol_)
@@ -278,7 +291,8 @@ Foam::targetVolumeToCell::targetVolumeToCell
 :
     topoSetSource(mesh),
     vol_(readScalar(dict.lookup("volume"))),
-    n_(dict.lookup("normal"))
+    n_(dict.lookup("normal")),
+    maskSetName_(dict.lookupOrDefault<word>("set", ""))
 {}
 
 

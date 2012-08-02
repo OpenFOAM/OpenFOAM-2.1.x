@@ -166,29 +166,31 @@ template<class CloudType>
 void Foam::ParticleErosion<CloudType>::postPatch
 (
     const parcelType& p,
-    const label patchI,
-    const label patchFaceI
+    const polyPatch& pp,
+    const scalar trackFraction,
+    const tetIndices& tetIs
 )
 {
+    const label patchI = pp.index();
+
     const label localPatchI = applyToPatch(patchI);
 
     if (localPatchI != -1)
     {
-        const fvMesh& mesh = this->owner().mesh();
+        vector nw;
+        vector Up;
 
-        // patch-normal direction
-        vector nw = p.currentTetIndices().faceTri(mesh).normal();
+        this->owner().patchData(p, pp, trackFraction, tetIs, nw, Up);
 
-        // particle direction of travel
-        const vector& U = p.U();
+        // particle velocity relative to patch
+        const vector U = p.U() - Up;
         
         // quick reject if particle travelling away from the patch
-        if ((-nw & U) < 0)
+        if ((nw & U) < 0)
         {
             return;
         }
 
-        nw /= mag(nw);
         const scalar magU = mag(U);
         const vector Udir = U/magU;
 
@@ -197,7 +199,9 @@ void Foam::ParticleErosion<CloudType>::postPatch
 
         const scalar coeff = p.nParticle()*p.mass()*sqr(magU)/(p_*psi_*K_);
 
+        const label patchFaceI = pp.whichFace(p.face());
         scalar& Q = QPtr_->boundaryField()[patchI][patchFaceI];
+
         if (tan(alpha) < K_/6.0)
         {
             Q += coeff*(sin(2.0*alpha) - 6.0/K_*sqr(sin(alpha)));

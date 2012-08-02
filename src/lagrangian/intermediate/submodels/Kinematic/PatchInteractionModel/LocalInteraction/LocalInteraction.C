@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -43,8 +43,26 @@ Foam::LocalInteraction<CloudType>::LocalInteraction
     nEscape_(patchData_.size(), 0),
     massEscape_(patchData_.size(), 0.0),
     nStick_(patchData_.size(), 0),
-    massStick_(patchData_.size(), 0.0)
+    massStick_(patchData_.size(), 0.0),
+    writeFields_(this->coeffDict().lookupOrDefault("writeFields", false)),
+    massEscapePtr_(NULL),
+    massStickPtr_(NULL)
 {
+    if (writeFields_)
+    {
+        word massEscapeName(this->owner().name() + "::massEscape");
+        word massStickName(this->owner().name() + "::massStick");
+        Info<< "    Interaction fields will be written to " << massEscapeName
+            << " and " << massStickName << endl;
+
+        (void)massEscape();
+        (void)massStick();
+    }
+    else
+    {
+        Info<< "    Interaction fields will not be written" << endl;
+    }
+
     // intialise starting counters
     this->getModelProperty("nEscape", nEscape0_);
     this->getModelProperty("massEscape", massEscape0_);
@@ -88,7 +106,10 @@ Foam::LocalInteraction<CloudType>::LocalInteraction
     nEscape_(pim.nEscape_),
     massEscape_(pim.massEscape_),
     nStick_(pim.nStick_),
-    massStick_(pim.massStick_)
+    massStick_(pim.massStick_),
+    writeFields_(pim.writeFields_),
+    massEscapePtr_(NULL),
+    massStickPtr_(NULL)
 {}
 
 
@@ -102,6 +123,64 @@ Foam::LocalInteraction<CloudType>::~LocalInteraction()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template<class CloudType>
+Foam::volScalarField& Foam::LocalInteraction<CloudType>::massEscape()
+{
+    if (!massEscapePtr_.valid())
+    {
+        const fvMesh& mesh = this->owner().mesh();
+
+        massEscapePtr_.reset
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    this->owner().name() + "::massEscape",
+                    mesh.time().timeName(),
+                    mesh,
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh,
+                dimensionedScalar("zero", dimMass, 0.0)
+            )
+        );
+    }
+
+    return massEscapePtr_();
+}
+
+
+template<class CloudType>
+Foam::volScalarField& Foam::LocalInteraction<CloudType>::massStick()
+{
+    if (!massStickPtr_.valid())
+    {
+        const fvMesh& mesh = this->owner().mesh();
+
+        massStickPtr_.reset
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    this->owner().name() + "::massStick",
+                    mesh.time().timeName(),
+                    mesh,
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh,
+                dimensionedScalar("zero", dimMass, 0.0)
+            )
+        );
+    }
+
+    return massStickPtr_();
+}
+
+
+template<class CloudType>
 bool Foam::LocalInteraction<CloudType>::correct
 (
     typename CloudType::parcelType& p,
@@ -111,14 +190,13 @@ bool Foam::LocalInteraction<CloudType>::correct
     const tetIndices& tetIs
 )
 {
-    vector& U = p.U();
-
-    bool& active = p.active();
-
     label patchI = patchData_.applyToPatch(pp.index());
 
     if (patchI >= 0)
     {
+        vector& U = p.U();
+        bool& active = p.active();
+
         typename PatchInteractionModel<CloudType>::interactionType it =
             this->wordToInteractionType
             (
@@ -129,20 +207,36 @@ bool Foam::LocalInteraction<CloudType>::correct
         {
             case PatchInteractionModel<CloudType>::itEscape:
             {
+                scalar dm = p.mass()*p.nParticle();
+
                 keepParticle = false;
                 active = false;
                 U = vector::zero;
                 nEscape_[patchI]++;
-                massEscape_[patchI] += p.mass()*p.nParticle();
+                massEscape_[patchI] += dm;
+                if (writeFields_)
+                {
+                    label pI = pp.index();
+                    label fI = pp.whichFace(p.face());
+                    massEscape().boundaryField()[pI][fI] += dm;
+                }
                 break;
             }
             case PatchInteractionModel<CloudType>::itStick:
             {
+                scalar dm = p.mass()*p.nParticle();
+
                 keepParticle = true;
                 active = false;
                 U = vector::zero;
                 nStick_[patchI]++;
-                massStick_[patchI] += p.mass()*p.nParticle();
+                massStick_[patchI] += dm;
+                if (writeFields_)
+                {
+                    label pI = pp.index();
+                    label fI = pp.whichFace(p.face());
+                    massStick().boundaryField()[pI][fI] += dm;
+                }
                 break;
             }
             case PatchInteractionModel<CloudType>::itRebound:
@@ -153,7 +247,7 @@ bool Foam::LocalInteraction<CloudType>::correct
                 vector nw;
                 vector Up;
 
-                this->patchData(p, pp, trackFraction, tetIs, nw, Up);
+                this->owner().patchData(p, pp, trackFraction, tetIs, nw, Up);
 
                 // Calculate motion relative to patch velocity
                 U -= Up;

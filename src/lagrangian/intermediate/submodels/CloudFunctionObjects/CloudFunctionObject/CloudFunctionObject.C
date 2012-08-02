@@ -107,8 +107,9 @@ template<class CloudType>
 void Foam::CloudFunctionObject<CloudType>::postPatch
 (
     const typename CloudType::parcelType&,
-    const label,
-    const label
+    const polyPatch&,
+    const scalar,
+    const tetIndices&
 )
 {
     // do nothing

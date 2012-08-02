@@ -37,7 +37,6 @@ SourceFiles
 #define targetVolumeToCell_H
 
 #include "topoSetSource.H"
-//#include "plane.H"
 #include "PackedBoolList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -63,8 +62,10 @@ class targetVolumeToCell
         const scalar vol_;
 
         //- Normal of plane to sweep
-        vector n_;
-        //plane pl_;
+        const vector n_;
+
+        //- Optional name of cellSet to calculate volume in
+        const word maskSetName_;
 
 
     // Private Member Functions
@@ -74,6 +75,7 @@ class targetVolumeToCell
         label selectCells
         (
             const scalar normalComp,
+            const PackedBoolList&,
             PackedBoolList& selected
         ) const;
 
@@ -92,7 +94,6 @@ public:
         (
             const polyMesh& mesh,
             const scalar vol,
-            //const plane&
             const vector&
         );
 
