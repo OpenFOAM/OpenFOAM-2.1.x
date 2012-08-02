@@ -823,6 +823,17 @@ void Foam::KinematicCloud<CloudType>::patchData
 
 
 template<class CloudType>
+void Foam::KinematicCloud<CloudType>::autoMap(const mapPolyMesh& mapper)
+{
+    typedef typename particle::TrackingData<KinematicCloud<CloudType> > tdType;
+
+    tdType td(*this);
+
+    Cloud<parcelType>::template autoMap<tdType>(td, mapper);
+}
+
+
+template<class CloudType>
 void Foam::KinematicCloud<CloudType>::info()
 {
     vector linearMomentum = linearMomentumOfSystem();
