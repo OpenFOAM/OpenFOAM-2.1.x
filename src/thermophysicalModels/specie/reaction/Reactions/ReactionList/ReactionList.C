@@ -99,6 +99,13 @@ Foam::ReactionList<ThermoType>::~ReactionList()
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class ThermoType>
+const Foam::dictionary& Foam::ReactionList<ThermoType>::dict() const
+{
+    return dict_;
+}
+
+
+template<class ThermoType>
 bool Foam::ReactionList<ThermoType>::readReactionDict()
 {
     const dictionary& reactions(dict_.subDict("reactions"));

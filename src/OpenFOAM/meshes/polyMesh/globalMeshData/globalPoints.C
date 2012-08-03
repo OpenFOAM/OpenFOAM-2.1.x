@@ -339,6 +339,31 @@ bool Foam::globalPoints::storeInitialInfo
 }
 
 
+void Foam::globalPoints::printProcPoint
+(
+    const labelList& patchToMeshPoint,
+    const labelPair& pointInfo
+) const
+{
+    label procI = globalIndexAndTransform::processor(pointInfo);
+    label index = globalIndexAndTransform::index(pointInfo);
+    label trafoI = globalIndexAndTransform::transformIndex(pointInfo);
+
+    Pout<< "    proc:" << procI;
+    Pout<< " localpoint:";
+    Pout<< index;
+    Pout<< " through transform:"
+        << trafoI << " bits:"
+        << globalTransforms_.decodeTransformIndex(trafoI);
+
+    if (procI == Pstream::myProcNo())
+    {
+        label meshPointI = localToMeshPoint(patchToMeshPoint, index);
+        Pout<< " at:" <<  mesh_.points()[meshPointI];
+    }
+}
+
+
 void Foam::globalPoints::printProcPoints
 (
     const labelList& patchToMeshPoint,
@@ -347,23 +372,7 @@ void Foam::globalPoints::printProcPoints
 {
     forAll(pointInfo, i)
     {
-        label procI = globalIndexAndTransform::processor(pointInfo[i]);
-        label index = globalIndexAndTransform::index(pointInfo[i]);
-        label trafoI = globalIndexAndTransform::transformIndex(pointInfo[i]);
-
-        Pout<< "    proc:" << procI;
-        Pout<< " localpoint:";
-        Pout<< index;
-        Pout<< " through transform:"
-            << trafoI << " bits:"
-            << globalTransforms_.decodeTransformIndex(trafoI);
-
-        if (procI == Pstream::myProcNo())
-        {
-            label meshPointI = localToMeshPoint(patchToMeshPoint, index);
-            Pout<< " at:" <<  mesh_.points()[meshPointI];
-        }
-
+        printProcPoint(patchToMeshPoint, pointInfo[i]);
         Pout<< endl;
     }
 }

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -27,7 +27,6 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "argList.H"
-#include "timeSelector.H"
 #include "Time.H"
 #include "fvMesh.H"
 #include "topoSetSource.H"
@@ -332,14 +331,8 @@ public:
 
 int main(int argc, char *argv[])
 {
-    timeSelector::addOptions();
-
 #   include "setRootCase.H"
 #   include "createTime.H"
-
-    // Get times list
-    instantList timeDirs = timeSelector::select0(runTime, args);
-
 #   include "createMesh.H"
 
     Info<< "Reading setFieldsDict\n" << endl;

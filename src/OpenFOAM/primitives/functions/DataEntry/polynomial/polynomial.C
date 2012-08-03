@@ -25,19 +25,21 @@ License
 
 #include "polynomial.H"
 #include "Time.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
     defineTypeNameAndDebug(polynomial, 0);
+    addToRunTimeSelectionTable(scalarDataEntry, polynomial, dictionary);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::polynomial::polynomial(const word& entryName, const dictionary& dict)
 :
-    DataEntry<scalar>(entryName),
+    scalarDataEntry(entryName),
     coeffs_(),
     canIntegrate_(true)
 {
@@ -48,8 +50,10 @@ Foam::polynomial::polynomial(const word& entryName, const dictionary& dict)
 
     if (!coeffs_.size())
     {
-        FatalErrorIn("Foam::polynomial::polynomial(const word&, Istream&)")
-            << "polynomial coefficients for entry " << this->name_
+        FatalErrorIn
+        (
+            "Foam::polynomial::polynomial(const word&, const dictionary&)"
+        )   << "polynomial coefficients for entry " << this->name_
             << " are invalid (empty)" << nl << exit(FatalError);
     }
 
@@ -66,8 +70,10 @@ Foam::polynomial::polynomial(const word& entryName, const dictionary& dict)
     {
         if (!canIntegrate_)
         {
-            WarningIn("Foam::polynomial::polynomial(const word&, Istream&)")
-                << "Polynomial " << this->name_ << " cannot be integrated"
+            WarningIn
+            (
+                "Foam::polynomial::polynomial(const word&, const dictionary&)"
+            )   << "Polynomial " << this->name_ << " cannot be integrated"
                 << endl;
         }
     }
@@ -76,7 +82,7 @@ Foam::polynomial::polynomial(const word& entryName, const dictionary& dict)
 
 Foam::polynomial::polynomial(const polynomial& poly)
 :
-    DataEntry<scalar>(poly),
+    scalarDataEntry(poly),
     coeffs_(poly.coeffs_),
     canIntegrate_(poly.canIntegrate_)
 {}

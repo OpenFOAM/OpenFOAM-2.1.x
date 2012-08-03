@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -80,6 +80,12 @@ Foam::autoPtr<Foam::dictionary> Foam::dictionary::New(Istream& is)
 
 bool Foam::dictionary::read(Istream& is, const bool keepHeader)
 {
+    // Check for empty dictionary
+    if (is.eof())
+    {
+        return true;
+    }
+
     if (!is.good())
     {
         FatalIOErrorIn("dictionary::read(Istream&, bool)", is)

@@ -8,7 +8,7 @@
 FoamFile
 {
     version     2.0;
-    format      ascii;
+    format      binary;
     class       polyBoundaryMesh;
     location    "constant/polyMesh";
     object      boundary;
@@ -50,7 +50,7 @@ FoamFile
     terrain_patch0
     {
         type            wall;
-        nFaces          16037;
+        nFaces          14400;
         startFace       369404;
     }
 )

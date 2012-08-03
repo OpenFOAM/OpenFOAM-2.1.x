@@ -306,8 +306,9 @@ void Foam::PairCollision<CloudType>::wallInteraction()
                         this->owner().functions().postPatch
                         (
                             p,
-                            patchI,
-                            patchFaceI
+                            mesh.boundaryMesh()[patchI],
+                            1.0,
+                            p.currentTetIndices()
                         );
                      }
                 }

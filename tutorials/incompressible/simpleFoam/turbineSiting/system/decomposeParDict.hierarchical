@@ -9,39 +9,21 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volSymmTensorField;
-    location    "0";
-    object      R;
+    class       dictionary;
+    object      decomposeParDict;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [ 0 2 -2 0 0 0 0 ];
+numberOfSubdomains 4;
 
-internalField   uniform ( 0 0 0 0 0 0 );
+method          hierarchical;
 
-boundaryField
+hierarchicalCoeffs
 {
-    lowerWall
-    {
-        type            zeroGradient;
-    }
-    upperWall
-    {
-        type            zeroGradient;
-    }
-    front
-    {
-        type            cyclic;
-    }
-    back
-    {
-        type            cyclic;
-    }
-    defaultFaces
-    {
-        type            empty;
-    }
+    n           (2 2 1);
+    delta       0.001;
+    order       xyz;
 }
-
 
 // ************************************************************************* //

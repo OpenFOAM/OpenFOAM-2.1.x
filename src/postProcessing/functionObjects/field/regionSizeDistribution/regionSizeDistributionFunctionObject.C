@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,48 +23,24 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "reactingMixture.H"
-#include "fvMesh.H"
+#include "regionSizeDistributionFunctionObject.H"
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-template<class ThermoType>
-Foam::reactingMixture<ThermoType>::reactingMixture
-(
-    const dictionary& thermoDict,
-    const fvMesh& mesh,
-    const bool clearReader
-)
-:
-    speciesTable(),
-    autoPtr<chemistryReader<ThermoType> >
-    (
-        chemistryReader<ThermoType>::New(thermoDict, *this)
-    ),
-    multiComponentMixture<ThermoType>
-    (
-        thermoDict,
-        *this,
-        autoPtr<chemistryReader<ThermoType> >::operator()().speciesThermo(),
-        mesh
-    ),
-    PtrList<Reaction<ThermoType> >
-    (
-        autoPtr<chemistryReader<ThermoType> >::operator()().reactions()
-    )
+namespace Foam
 {
-    if (clearReader)
-    {
-        autoPtr<chemistryReader<ThermoType> >::clear();
-    }
+    defineNamedTemplateTypeNameAndDebug
+    (
+        regionSizeDistributionFunctionObject,
+        0
+    );
+
+    addToRunTimeSelectionTable
+    (
+        functionObject,
+        regionSizeDistributionFunctionObject,
+        dictionary
+    );
 }
-
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-template<class ThermoType>
-void Foam::reactingMixture<ThermoType>::read(const dictionary& thermoDict)
-{}
-
 
 // ************************************************************************* //

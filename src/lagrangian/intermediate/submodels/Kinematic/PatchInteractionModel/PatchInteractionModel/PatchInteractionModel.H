@@ -164,19 +164,6 @@ public:
             const tetIndices& tetIs
         );
 
-        //- Calculate the patch normal and velocity to interact with,
-        //  accounting for patch motion if required.
-        void patchData
-        (
-            typename CloudType::parcelType& p,
-            const polyPatch& pp,
-            const scalar trackFraction,
-            const tetIndices& tetIs,
-            vector& normal,
-            vector& Up
-        ) const;
-
-
         // I-O
 
             //- Write patch interaction info to stream

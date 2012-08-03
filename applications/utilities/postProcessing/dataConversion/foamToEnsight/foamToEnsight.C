@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -228,6 +228,13 @@ int main(int argc, char *argv[])
 
 #   include "checkMeshMoving.H"
 
+    if (meshMoving)
+    {
+        Info<< "Detected a moving mesh (multiple polyMesh/points files)."
+            << " Writing meshes for every timestep." << endl;
+    }
+
+
     wordHashSet allCloudNames;
     if (Pstream::master())
     {
@@ -346,13 +353,14 @@ int main(int argc, char *argv[])
             eMesh.correct();
         }
 
-        if (timeIndex == 0 || (meshState != polyMesh::UNCHANGED))
+        if (timeIndex == 0 || meshMoving)
         {
             eMesh.write
             (
                 ensightDir,
                 prepend,
                 timeIndex,
+                meshMoving,
                 ensightCaseFile
             );
         }

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -1014,6 +1014,7 @@ void Foam::ensightMesh::write
     const fileName& postProcPath,
     const word& prepend,
     const label timeIndex,
+    const bool meshMoving,
     Ostream& ensightCaseFile
 ) const
 {
@@ -1027,7 +1028,7 @@ void Foam::ensightMesh::write
     {
         timeFile += "000.";
     }
-    else if (mesh_.moving())
+    else if (meshMoving)
     {
         timeFile += itoa(timeIndex) + '.';
     }

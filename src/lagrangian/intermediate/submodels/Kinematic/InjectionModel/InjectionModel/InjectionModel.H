@@ -138,7 +138,8 @@ protected:
         virtual bool validInjection(const label parcelI);
 
         //- Determine properties for next time step/injection interval
-        virtual void prepareForNextTimeStep
+        //  Return true if leads to valid injection
+        virtual bool prepareForNextTimeStep
         (
             const scalar time,
             label& newParcels,

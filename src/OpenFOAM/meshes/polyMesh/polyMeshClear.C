@@ -100,6 +100,16 @@ void Foam::polyMesh::clearAddressing()
     geometricD_ = Vector<label>::zero;
     solutionD_ = Vector<label>::zero;
 
+    // Update zones
+    pointZones_.clearAddressing();
+    faceZones_.clearAddressing();
+    cellZones_.clearAddressing();
+
+    // Remove the stored tet base points
+    tetBasePtIsPtr_.clear();
+    // Remove the cell tree
+    cellTreePtr_.clear();
+
     pointMesh::Delete(*this);
 }
 

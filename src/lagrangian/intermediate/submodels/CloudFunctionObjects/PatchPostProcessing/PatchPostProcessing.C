@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -218,11 +218,14 @@ template<class CloudType>
 void Foam::PatchPostProcessing<CloudType>::postPatch
 (
     const parcelType& p,
-    const label patchI,
-    const label
+    const polyPatch& pp,
+    const scalar,
+    const tetIndices&
 )
 {
+    const label patchI = pp.index();
     const label localPatchI = applyToPatch(patchI);
+
     if (localPatchI != -1 && patchData_[localPatchI].size() < maxStoredParcels_)
     {
         times_[localPatchI].append(this->owner().time().value());

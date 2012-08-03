@@ -692,7 +692,7 @@ Foam::label Foam::AMIInterpolation<SourcePatch, TargetPatch>::findTargetFace
 
     const pointField& srcPts = srcPatch.points();
     const face& srcFace = srcPatch[srcFaceI];
-    const point& srcPt = srcFace.centre(srcPts);
+    const point srcPt = srcFace.centre(srcPts);
     const scalar srcFaceArea = srcFace.mag(srcPts);
 
 //    pointIndexHit sample = treePtr_->findNearest(srcPt, sqr(0.1*bb.mag()));
@@ -762,6 +762,62 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::appendNbrFaces
 
 
 template<class SourcePatch, class TargetPatch>
+bool Foam::AMIInterpolation<SourcePatch, TargetPatch>::processSourceFace
+(
+    const primitivePatch& srcPatch,
+    const primitivePatch& tgtPatch,
+    const label srcFaceI,
+    const label tgtStartFaceI,
+
+    // list of tgt face neighbour faces
+    DynamicList<label>& nbrFaces,
+    // list of faces currently visited for srcFaceI to avoid multiple hits
+    DynamicList<label>& visitedFaces,
+
+    // temporary storage for addressing and weights
+    List<DynamicList<label> >& srcAddr,
+    List<DynamicList<scalar> >& srcWght,
+    List<DynamicList<label> >& tgtAddr,
+    List<DynamicList<scalar> >& tgtWght
+)
+{
+    nbrFaces.clear();
+    visitedFaces.clear();
+
+    // append initial target face and neighbours
+    nbrFaces.append(tgtStartFaceI);
+    appendNbrFaces(tgtStartFaceI, tgtPatch, visitedFaces, nbrFaces);
+
+    bool faceProcessed = false;
+
+    do
+    {
+        // process new target face
+        label tgtFaceI = nbrFaces.remove();
+        visitedFaces.append(tgtFaceI);
+        scalar area = interArea(srcFaceI, tgtFaceI, srcPatch, tgtPatch);
+
+        // store when intersection area > 0
+        if (area > 0)
+        {
+            srcAddr[srcFaceI].append(tgtFaceI);
+            srcWght[srcFaceI].append(area);
+
+            tgtAddr[tgtFaceI].append(srcFaceI);
+            tgtWght[tgtFaceI].append(area);
+
+            appendNbrFaces(tgtFaceI, tgtPatch, visitedFaces, nbrFaces);
+
+            faceProcessed = true;
+        }
+
+    } while (nbrFaces.size() > 0);
+
+    return faceProcessed;
+}
+
+
+template<class SourcePatch, class TargetPatch>
 void Foam::AMIInterpolation<SourcePatch, TargetPatch>::setNextFaces
 (
     label& srcFaceI,
@@ -789,7 +845,7 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::setNextFaces
                 label faceT = visitedFaces[j];
                 scalar area = interArea(faceS, faceT, srcPatch0, tgtPatch0);
 
-                if (area > 0)
+                if (area/srcMagSf_[srcFaceI] > faceAreaIntersect::tolerance())
                 {
                     // TODO - throwing area away - re-use in next iteration?
 
@@ -842,7 +898,7 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::setNextFaces
                 << "target face" << endl;
         }
 
-//        foundNextSeed = false;
+        foundNextSeed = false;
         for (label faceI = startSeedI_; faceI < mapFlag.size(); faceI++)
         {
             if (mapFlag[faceI])
@@ -865,7 +921,8 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::setNextFaces
 
         FatalErrorIn
         (
-            "void Foam::cyclicAMIPolyPatch::setNextFaces"
+            "void Foam::AMIInterpolation<SourcePatch, TargetPatch>::"
+            "setNextFaces"
             "("
                 "label&, "
                 "label&, "
@@ -921,6 +978,24 @@ Foam::scalar Foam::AMIInterpolation<SourcePatch, TargetPatch>::interArea
     {
         area = inter.calc(src, tgt, n, triMode_);
     }
+    else
+    {
+        WarningIn
+        (
+            "void Foam::AMIInterpolation<SourcePatch, TargetPatch>::"
+            "interArea"
+            "("
+                "const label, "
+                "const label, "
+                "const primitivePatch&, "
+                "const primitivePatch&"
+            ") const"
+        )   << "Invalid normal for source face " << srcFaceI
+            << " points " << UIndirectList<point>(srcPoints, src)
+            << " target face " << tgtFaceI
+            << " points " << UIndirectList<point>(tgtPoints, tgt)
+            << endl;
+    }
 
     if ((debug > 1) && (area > 0))
     {
@@ -928,6 +1003,105 @@ Foam::scalar Foam::AMIInterpolation<SourcePatch, TargetPatch>::interArea
     }
 
     return area;
+}
+
+
+template<class SourcePatch, class TargetPatch>
+void Foam::AMIInterpolation<SourcePatch, TargetPatch>::
+restartUncoveredSourceFace
+(
+    const primitivePatch& srcPatch,
+    const primitivePatch& tgtPatch,
+    List<DynamicList<label> >& srcAddr,
+    List<DynamicList<scalar> >& srcWght,
+    List<DynamicList<label> >& tgtAddr,
+    List<DynamicList<scalar> >& tgtWght
+)
+{
+    // Collect all src faces with a low weight
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    labelHashSet lowWeightFaces(100);
+    forAll(srcWght, srcFaceI)
+    {
+        scalar s = sum(srcWght[srcFaceI]);
+        scalar t = s/srcMagSf_[srcFaceI];
+
+        if (t < 0.5)
+        {
+            lowWeightFaces.insert(srcFaceI);
+        }
+    }
+
+    Info<< "AMIInterpolation : restarting search on "
+        << returnReduce(lowWeightFaces.size(), sumOp<label>())
+        << " faces since sum of weights < 0.5" << endl;
+
+    if (lowWeightFaces.size() > 0)
+    {
+        // Erase all the lowWeight source faces from the target
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        DynamicList<label> okSrcFaces(10);
+        DynamicList<scalar> okSrcWeights(10);
+        forAll(tgtAddr, tgtFaceI)
+        {
+            okSrcFaces.clear();
+            okSrcWeights.clear();
+            DynamicList<label>& srcFaces = tgtAddr[tgtFaceI];
+            DynamicList<scalar>& srcWeights = tgtWght[tgtFaceI];
+            forAll(srcFaces, i)
+            {
+                if (!lowWeightFaces.found(srcFaces[i]))
+                {
+                    okSrcFaces.append(srcFaces[i]);
+                    okSrcWeights.append(srcWeights[i]);
+                }
+            }
+            if (okSrcFaces.size() < srcFaces.size())
+            {
+                srcFaces.transfer(okSrcFaces);
+                srcWeights.transfer(okSrcWeights);
+            }
+        }
+
+
+
+        // Restart search from best hit
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        // list of tgt face neighbour faces
+        DynamicList<label> nbrFaces(10);
+
+        // list of faces currently visited for srcFaceI to avoid multiple hits
+        DynamicList<label> visitedFaces(10);
+
+        forAllConstIter(labelHashSet, lowWeightFaces, iter)
+        {
+            label srcFaceI = iter.key();
+            label tgtFaceI = findTargetFace(srcFaceI, srcPatch);
+            if (tgtFaceI != -1)
+            {
+                //bool faceProcessed =
+                processSourceFace
+                (
+                    srcPatch,
+                    tgtPatch,
+                    srcFaceI,
+                    tgtFaceI,
+
+                    nbrFaces,
+                    visitedFaces,
+
+                    srcAddr,
+                    srcWght,
+                    tgtAddr,
+                    tgtWght
+                );
+                // ? Check faceProcessed to see if restarting has worked.
+            }
+        }
+    }
 }
 
 
@@ -1046,37 +1220,22 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::calcAddressing
     label nNonOverlap = 0;
     do
     {
-        nbrFaces.clear();
-        visitedFaces.clear();
+        // Do advancing front starting from srcFaceI,tgtFaceI
+        bool faceProcessed = processSourceFace
+        (
+            srcPatch,
+            tgtPatch,
+            srcFaceI,
+            tgtFaceI,
 
-        // append initial target face and neighbours
-        nbrFaces.append(tgtFaceI);
-        appendNbrFaces(tgtFaceI, tgtPatch, visitedFaces, nbrFaces);
+            nbrFaces,
+            visitedFaces,
 
-        bool faceProcessed = false;
-
-        do
-        {
-            // process new target face
-            tgtFaceI = nbrFaces.remove();
-            visitedFaces.append(tgtFaceI);
-            scalar area = interArea(srcFaceI, tgtFaceI, srcPatch, tgtPatch);
-
-            // store when intersection area > 0
-            if (area > 0)
-            {
-                srcAddr[srcFaceI].append(tgtFaceI);
-                srcWght[srcFaceI].append(area);
-
-                tgtAddr[tgtFaceI].append(srcFaceI);
-                tgtWght[tgtFaceI].append(area);
-
-                appendNbrFaces(tgtFaceI, tgtPatch, visitedFaces, nbrFaces);
-
-                faceProcessed = true;
-            }
-
-        } while (nbrFaces.size() > 0);
+            srcAddr,
+            srcWght,
+            tgtAddr,
+            tgtWght
+        );
 
         mapFlag[srcFaceI] = false;
 
@@ -1101,6 +1260,7 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::calcAddressing
                 visitedFaces
             );
         }
+
     } while (nFacesRemaining > 0);
 
     if (nNonOverlap != 0)
@@ -1108,6 +1268,21 @@ void Foam::AMIInterpolation<SourcePatch, TargetPatch>::calcAddressing
         Pout<< "AMI: " << nNonOverlap << " non-overlap faces identified"
             << endl;
     }
+
+    // Check for any uncovered faces
+    if (debug)
+    {
+        restartUncoveredSourceFace
+        (
+            srcPatch,
+            tgtPatch,
+            srcAddr,
+            srcWght,
+            tgtAddr,
+            tgtWght
+        );
+    }
+
 
     // transfer data to persistent storage
     forAll(srcAddr, i)

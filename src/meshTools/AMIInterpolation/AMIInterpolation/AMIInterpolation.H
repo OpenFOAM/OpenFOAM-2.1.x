@@ -38,6 +38,11 @@ Description
     orientations (opposite normals).  The 'reverseTarget' flag can be used to
     reverse the orientation of the target patch.
 
+    It requires all the faces covering any source face to be reachable through
+    a face-edge-face walk. In exceptional cases local intersection tolerances
+    might interfere with this walk and one will see the minimum sum of weights
+    become much less than one. There is some experimental functionality
+    (by setting debug to 1) to re start the walk on these faces.
 
 SourceFiles
     AMIInterpolation.C
@@ -271,6 +276,22 @@ class AMIInterpolation
                 DynamicList<label>& faceIDs
             ) const;
 
+            //- Do all (marching front) for single source face srcFaceI,
+            //  starting from target tgtFaceI. Finishes if front exhausted.
+            bool processSourceFace
+            (
+                const primitivePatch& srcPatch,
+                const primitivePatch& tgtPatch,
+                const label srcFaceI,
+                const label tgtFaceI,
+                DynamicList<label>& nbrFaces,
+                DynamicList<label>& visitedFaces,
+                List<DynamicList<label> >& srcAddr,
+                List<DynamicList<scalar> >& srcWght,
+                List<DynamicList<label> >& tgtAddr,
+                List<DynamicList<scalar> >& tgtWght
+            );
+
             //- Set the source and target seed faces
             void setNextFaces
             (
@@ -283,6 +304,18 @@ class AMIInterpolation
                 const DynamicList<label>& visitedFaces
             );
 
+            //- Restart any source faces that have low weight sum. This might
+            //  indicate that advancing front has not walked all over face which
+            //  might happen in due to tolerances. Not enabled by default.
+            void restartUncoveredSourceFace
+            (
+                const primitivePatch& srcPatch,
+                const primitivePatch& tgtPatch,
+                List<DynamicList<label> >& srcAddr,
+                List<DynamicList<scalar> >& srcWght,
+                List<DynamicList<label> >& tgtAddr,
+                List<DynamicList<scalar> >& tgtWght
+            );
 
         // Evaluation
 
@@ -294,6 +327,7 @@ class AMIInterpolation
                 const primitivePatch& srcPatch,
                 const primitivePatch& tgtPatch
             ) const;
+
 
             //- Calculate addressing
             void calcAddressing

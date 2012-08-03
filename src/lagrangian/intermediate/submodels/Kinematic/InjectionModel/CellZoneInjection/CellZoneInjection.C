@@ -77,7 +77,7 @@ void Foam::CellZoneInjection<CloudType>::setPositions
         for (label tetI = 1; tetI < cellTetIs.size() - 1; tetI++)
         {
             cTetVFrac[tetI] =
-                (cTetVFrac[tetI-1] + cellTetIs[tetI].tet(mesh).mag())/V[cellI];
+                cTetVFrac[tetI-1] + cellTetIs[tetI].tet(mesh).mag()/V[cellI];
         }
         cTetVFrac.last() = 1.0;
 

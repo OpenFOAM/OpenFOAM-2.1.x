@@ -9,44 +9,47 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volTensorField;
-    object      B;
+    class       volScalarField;
+    location    "0";
+    object      nut;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -2 0 0 0 0];
+dimensions      [0 2 -1 0 0 0 0];
 
-internalField   uniform (0 0 0 0 0 0 0 0 0);
+internalField   uniform 0;
 
 boundaryField
 {
+    #include "include/ABLConditions"
+
     inlet
     {
-        type            fixedValue;
-        value           uniform (0 0 0 0 0 0 0 0 0);
+        type            calculated;
+        value           uniform 0;
     }
 
     outlet
     {
-        type            inletOutlet;
-        inletValue      uniform (0 0 0 0 0 0 0 0 0);
-        value           uniform (0 0 0 0 0 0 0 0 0);
+        type            calculated;
+        value           uniform 0;
     }
 
-    upperWall
+    "terrain_.*"
     {
-        type            zeroGradient;
+        type            nutkAtmRoughWallFunction;
+        z0              $z0;
+        value           uniform 0.0;
     }
 
-    lowerWall
+    ground
     {
-        type            zeroGradient;
+        type            calculated;
+        value           uniform 0;
     }
 
-    frontAndBack
-    {
-        type            empty;
-    }
+    #include "include/sideAndTopPatches"
 }
+
 
 // ************************************************************************* //

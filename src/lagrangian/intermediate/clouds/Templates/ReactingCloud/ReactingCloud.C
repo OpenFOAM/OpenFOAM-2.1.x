@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -340,6 +340,17 @@ void Foam::ReactingCloud<CloudType>::evolve()
     }
 }
 
+
+
+template<class CloudType>
+void Foam::ReactingCloud<CloudType>::autoMap(const mapPolyMesh& mapper)
+{
+    typedef typename particle::TrackingData<ReactingCloud<CloudType> > tdType;
+
+    tdType td(*this);
+
+    Cloud<parcelType>::template autoMap<tdType>(td, mapper);
+}
 
 
 template<class CloudType>

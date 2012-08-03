@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -56,7 +56,6 @@ Usage
 
 #include "argList.H"
 #include "Time.H"
-#include "timeSelector.H"
 #include "fvMesh.H"
 #include "unitConversion.H"
 #include "polyTopoChange.H"
@@ -354,7 +353,6 @@ int main(int argc, char *argv[])
 {
 #   include "addOverwriteOption.H"
     argList::noParallel();
-    timeSelector::addOptions(true, false);
 
     argList::validArgs.append("featureAngle [0-180]");
     argList::addBoolOption
@@ -376,9 +374,6 @@ int main(int argc, char *argv[])
 
 #   include "setRootCase.H"
 #   include "createTime.H"
-
-    instantList timeDirs = timeSelector::select0(runTime, args);
-
 #   include "createMesh.H"
 
     const word oldInstance = mesh.pointsInstance();
