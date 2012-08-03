@@ -29,7 +29,7 @@ solvers
     {
         solver              GAMG;
         tolerance           1e-7;
-        relTol              0.01;
+        relTol              0.1;
         smoother            GaussSeidel;
         cacheAgglomeration  true;
         nCellsInCoarsestLevel   10;
@@ -57,7 +57,7 @@ solvers
     "(U|Yi|k|hs)Final"
     {
         $U;
-        tolerance       1e-8;
+        tolerance       1e-7;
         relTol          0;
     };
 
@@ -88,7 +88,7 @@ PIMPLE
 {
     momentumPredictor yes;
     nOuterCorrectors  1;
-    nCorrectors       1;
+    nCorrectors       2;
     nNonOrthogonalCorrectors 0;
 }
 
@@ -100,7 +100,7 @@ relaxationFactors
     equations
     {
         "(U|k).*"                   1;
-        "(CH4|O2|H2O|CO2|hs).*"    0.9;
+        "(CH4|O2|H2O|CO2|hs).*"     1;
     }
 }
 
