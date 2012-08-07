@@ -50,6 +50,27 @@ Foam::sampledPatch::sampleField
 
 template <class Type>
 Foam::tmp<Foam::Field<Type> >
+Foam::sampledPatch::sampleField
+(
+    const GeometricField<Type, fvsPatchField, surfaceMesh>& sField
+) const
+{
+    // One value per face
+    tmp<Field<Type> > tvalues(new Field<Type>(patchFaceLabels_.size()));
+    Field<Type>& values = tvalues();
+
+    forAll(patchFaceLabels_, i)
+    {
+        label patchI = patchIDs_[patchIndex_[i]];
+        values[i] = sField.boundaryField()[patchI][patchFaceLabels_[i]];
+    }
+
+    return tvalues;
+}
+
+
+template <class Type>
+Foam::tmp<Foam::Field<Type> >
 Foam::sampledPatch::interpolateField
 (
     const interpolation<Type>& interpolator

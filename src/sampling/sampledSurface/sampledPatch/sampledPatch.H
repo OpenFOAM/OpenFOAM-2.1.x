@@ -87,6 +87,15 @@ class sampledPatch
             const GeometricField<Type, fvPatchField, volMesh>& vField
         ) const;
 
+
+        //- sample surface field on faces
+        template <class Type>
+        tmp<Field<Type> > sampleField
+        (
+            const GeometricField<Type, fvsPatchField, surfaceMesh>& sField
+        ) const;
+
+
         template <class Type>
         tmp<Field<Type> >
         interpolateField(const interpolation<Type>&) const;
@@ -203,6 +212,35 @@ public:
             const volTensorField&
         ) const;
 
+        //- Surface sample field on surface
+        virtual tmp<scalarField> sample
+        (
+            const surfaceScalarField&
+        ) const;
+
+        //- Surface Sample field on surface
+        virtual tmp<vectorField> sample
+        (
+            const surfaceVectorField&
+        ) const;
+
+        //- Surface sample field on surface
+        virtual tmp<sphericalTensorField> sample
+        (
+            const surfaceSphericalTensorField&
+        ) const;
+
+        //- Surface sample field on surface
+        virtual tmp<symmTensorField> sample
+        (
+            const surfaceSymmTensorField&
+        ) const;
+
+        //- Surface sample field on surface
+        virtual tmp<tensorField> sample
+        (
+            const surfaceTensorField&
+        ) const;
 
         //- interpolate field on surface
         virtual tmp<scalarField> interpolate

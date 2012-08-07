@@ -40,7 +40,9 @@ SourceFiles
 #include "sampledSurface.H"
 #include "surfaceWriter.H"
 #include "volFieldsFwd.H"
+#include "surfaceFieldsFwd.H"
 #include "wordReList.H"
+#include "IOobjectList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -59,22 +61,6 @@ class sampledSurfaces
     public PtrList<sampledSurface>
 {
     // Private classes
-
-        //- Class used for grouping field types
-        template<class Type>
-        class fieldGroup
-        :
-            public DynamicList<word>
-        {
-        public:
-
-            //- Construct null
-            fieldGroup()
-            :
-                DynamicList<word>(0)
-            {}
-        };
-
 
         //- Class used for surface merging information
         class mergeInfo
@@ -137,35 +123,46 @@ class sampledSurfaces
             //- Surface formatter
             autoPtr<surfaceWriter> formatter_;
 
-            //- Categorized scalar/vector/tensor fields
-            fieldGroup<scalar> scalarFields_;
-            fieldGroup<vector> vectorFields_;
-            fieldGroup<sphericalTensor> sphericalTensorFields_;
-            fieldGroup<symmTensor> symmTensorFields_;
-            fieldGroup<tensor> tensorFields_;
-
 
     // Private Member Functions
 
-        //- Clear old field groups
-        void clearFieldGroups();
 
-        //- Append fieldName to the appropriate group
-        label appendFieldGroup(const word& fieldName, const word& fieldType);
-
-        //- Classify field types, returns the number of fields
+        // Return number of fields
         label classifyFields();
 
         //- Write geometry only
         void writeGeometry() const;
 
+        //- Write sampled fieldName on surface and on outputDir path
+        template<class Type>
+        void writeSurface
+        (
+            const Field<Type>& values,
+            const label surfI,
+            const word& fieldName,
+            const fileName& outputDir
+        );
+
         //- Sample and write a particular volume field
         template<class Type>
-        void sampleAndWrite(const GeometricField<Type, fvPatchField, volMesh>&);
+        void sampleAndWrite
+        (
+            const GeometricField<Type, fvPatchField, volMesh>&
+        );
+
+        //- Sample and write a particular surface field
+        template<class Type>
+        void sampleAndWrite
+        (
+            const GeometricField<Type, fvsPatchField, surfaceMesh>&
+        );
 
         //- Sample and write all the fields of the given type
         template<class Type>
-        void sampleAndWrite(fieldGroup<Type>&);
+        void sampleAndWrite
+        (
+            const IOobjectList& allObjects
+        );
 
         //- Disallow default bitwise copy construct and assignment
         sampledSurfaces(const sampledSurfaces&);

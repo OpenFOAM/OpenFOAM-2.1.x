@@ -30,57 +30,8 @@ License
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-void Foam::sampledSurfaces::clearFieldGroups()
-{
-    scalarFields_.clear();
-    vectorFields_.clear();
-    sphericalTensorFields_.clear();
-    symmTensorFields_.clear();
-    tensorFields_.clear();
-}
-
-
-Foam::label Foam::sampledSurfaces::appendFieldGroup
-(
-    const word& fieldName,
-    const word& fieldType
-)
-{
-    if (fieldType == volScalarField::typeName)
-    {
-        scalarFields_.append(fieldName);
-        return 1;
-    }
-    else if (fieldType == volVectorField::typeName)
-    {
-        vectorFields_.append(fieldName);
-        return 1;
-    }
-    else if (fieldType == volSphericalTensorField::typeName)
-    {
-        sphericalTensorFields_.append(fieldName);
-        return 1;
-    }
-    else if (fieldType == volSymmTensorField::typeName)
-    {
-        symmTensorFields_.append(fieldName);
-        return 1;
-    }
-    else if (fieldType == volTensorField::typeName)
-    {
-        tensorFields_.append(fieldName);
-        return 1;
-    }
-
-    return 0;
-}
-
-
 Foam::label Foam::sampledSurfaces::classifyFields()
 {
-    label nFields = 0;
-    clearFieldGroups();
-
     // check files for a particular time
     if (loadFromFiles_)
     {
@@ -89,35 +40,17 @@ Foam::label Foam::sampledSurfaces::classifyFields()
 
         labelList indices = findStrings(fieldSelection_, allFields);
 
-        forAll(indices, fieldI)
-        {
-            const word& fieldName = allFields[indices[fieldI]];
+        return indices.size();
 
-            nFields += appendFieldGroup
-            (
-                fieldName,
-                objects.find(fieldName)()->headerClassName()
-            );
-        }
     }
+
     else
     {
         wordList allFields = mesh_.sortedNames();
         labelList indices = findStrings(fieldSelection_, allFields);
 
-        forAll(indices, fieldI)
-        {
-            const word& fieldName = allFields[indices[fieldI]];
-
-            nFields += appendFieldGroup
-            (
-                fieldName,
-                mesh_.find(fieldName)()->type()
-            );
-        }
+        return indices.size();
     }
-
-    return nFields;
 }
 
 
