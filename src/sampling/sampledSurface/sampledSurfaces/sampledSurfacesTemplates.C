@@ -25,9 +25,85 @@ License
 
 #include "sampledSurfaces.H"
 #include "volFields.H"
+#include "surfaceFields.H"
 #include "ListListOps.H"
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+template<class Type>
+void Foam::sampledSurfaces::writeSurface
+(
+    const Field<Type>& values,
+    const label surfI,
+    const word& fieldName,
+    const fileName& outputDir
+)
+{
+    const sampledSurface& s = operator[](surfI);
+
+    if (Pstream::parRun())
+    {
+        // Collect values from all processors
+        List<Field<Type> > gatheredValues(Pstream::nProcs());
+        gatheredValues[Pstream::myProcNo()] = values;
+        Pstream::gatherList(gatheredValues);
+
+        if (Pstream::master())
+        {
+            // Combine values into single field
+            Field<Type> allValues
+            (
+                ListListOps::combine<Field<Type> >
+                (
+                    gatheredValues,
+                    accessOp<Field<Type> >()
+                )
+            );
+
+            // Renumber (point data) to correspond to merged points
+            if (mergeList_[surfI].pointsMap.size() == allValues.size())
+            {
+                inplaceReorder(mergeList_[surfI].pointsMap, allValues);
+                allValues.setSize(mergeList_[surfI].points.size());
+            }
+
+            // Write to time directory under outputPath_
+            // skip surface without faces (eg, a failed cut-plane)
+            if (mergeList_[surfI].faces.size())
+            {
+                formatter_->write
+                (
+                    outputDir,
+                    s.name(),
+                    mergeList_[surfI].points,
+                    mergeList_[surfI].faces,
+                    fieldName,
+                    allValues,
+                    s.interpolate()
+                );
+            }
+        }
+    }
+    else
+    {
+        // Write to time directory under outputPath_
+        // skip surface without faces (eg, a failed cut-plane)
+        if (s.faces().size())
+        {
+            formatter_->write
+            (
+                outputDir,
+                s.name(),
+                s.points(),
+                s.faces(),
+                fieldName,
+                values,
+                s.interpolate()
+            );
+        }
+    }
+}
+
 
 template<class Type>
 void Foam::sampledSurfaces::sampleAndWrite
@@ -65,67 +141,7 @@ void Foam::sampledSurfaces::sampleAndWrite
             values = s.sample(vField);
         }
 
-        if (Pstream::parRun())
-        {
-            // Collect values from all processors
-            List<Field<Type> > gatheredValues(Pstream::nProcs());
-            gatheredValues[Pstream::myProcNo()] = values;
-            Pstream::gatherList(gatheredValues);
-
-            if (Pstream::master())
-            {
-                // Combine values into single field
-                Field<Type> allValues
-                (
-                    ListListOps::combine<Field<Type> >
-                    (
-                        gatheredValues,
-                        accessOp<Field<Type> >()
-                    )
-                );
-
-                // Renumber (point data) to correspond to merged points
-                if (mergeList_[surfI].pointsMap.size() == allValues.size())
-                {
-                    inplaceReorder(mergeList_[surfI].pointsMap, allValues);
-                    allValues.setSize(mergeList_[surfI].points.size());
-                }
-
-                // Write to time directory under outputPath_
-                // skip surface without faces (eg, a failed cut-plane)
-                if (mergeList_[surfI].faces.size())
-                {
-                    formatter_->write
-                    (
-                        outputDir,
-                        s.name(),
-                        mergeList_[surfI].points,
-                        mergeList_[surfI].faces,
-                        fieldName,
-                        allValues,
-                        s.interpolate()
-                    );
-                }
-            }
-        }
-        else
-        {
-            // Write to time directory under outputPath_
-            // skip surface without faces (eg, a failed cut-plane)
-            if (s.faces().size())
-            {
-                formatter_->write
-                (
-                    outputDir,
-                    s.name(),
-                    s.points(),
-                    s.faces(),
-                    fieldName,
-                    values,
-                    s.interpolate()
-                );
-            }
-        }
+        writeSurface<Type>(values, surfI, fieldName, outputDir);
     }
 }
 
@@ -133,57 +149,58 @@ void Foam::sampledSurfaces::sampleAndWrite
 template<class Type>
 void Foam::sampledSurfaces::sampleAndWrite
 (
-    fieldGroup<Type>& fields
+    const GeometricField<Type, fvsPatchField, surfaceMesh>& sField
 )
 {
-    if (fields.size())
+    const word& fieldName   = sField.name();
+    const fileName outputDir = outputPath_/sField.time().timeName();
+
+    forAll(*this, surfI)
     {
-        forAll(fields, fieldI)
+        const sampledSurface& s = operator[](surfI);
+        Field<Type> values = s.sample(sField);
+        writeSurface<Type>(values, surfI, fieldName, outputDir);
+    }
+}
+
+
+template<class GeoField>
+void Foam::sampledSurfaces::sampleAndWrite
+(
+    const IOobjectList& allObjects
+)
+{
+    IOobjectList fields = allObjects.lookupClass(GeoField::typeName);
+    forAllConstIter(IOobjectList, fields, fieldIter)
+    {
+        forAll (fieldSelection_, fieldI)
         {
-            if (Pstream::master() && verbose_)
+            const wordRe field = fieldSelection_[fieldI];
+            if (field.match(fieldIter()->name()))
             {
-                Pout<< "sampleAndWrite: " << fields[fieldI] << endl;
-            }
-
-            if (loadFromFiles_)
-            {
-                sampleAndWrite
-                (
-                    GeometricField<Type, fvPatchField, volMesh>
-                    (
-                        IOobject
-                        (
-                            fields[fieldI],
-                            mesh_.time().timeName(),
-                            mesh_,
-                            IOobject::MUST_READ,
-                            IOobject::NO_WRITE,
-                            false
-                        ),
-                        mesh_
-                    )
-                );
-            }
-            else
-            {
-                objectRegistry::const_iterator iter =
-                    mesh_.find(fields[fieldI]);
-
-                if
-                (
-                    iter != objectRegistry::end()
-                 && iter()->type()
-                 == GeometricField<Type, fvPatchField, volMesh>::typeName
-                )
+                if (Pstream::master() && verbose_)
                 {
-                   sampleAndWrite
-                   (
-                       mesh_.lookupObject
-                       <GeometricField<Type, fvPatchField, volMesh> >
-                       (
-                           fields[fieldI]
-                       )
-                   );
+                    Pout<< "sampleAndWrite: " << field << endl;
+                }
+
+                if (loadFromFiles_)
+                {
+                    fieldIter()->readOpt() = IOobject::MUST_READ;
+                    sampleAndWrite
+                    (
+                        GeoField
+                        (
+                            *fieldIter(),
+                            mesh_
+                        )
+                    );
+                }
+                else
+                {
+                    sampleAndWrite
+                    (
+                        mesh_.lookupObject<GeoField>(fieldIter()->name())
+                    );
                 }
             }
         }

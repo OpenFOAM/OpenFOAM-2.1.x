@@ -238,6 +238,54 @@ Foam::scalar Foam::sampledSurface::area() const
     return area_;
 }
 
+Foam::tmp<Foam::scalarField> Foam::sampledSurface::sample
+(
+    const surfaceScalarField& sField
+) const
+{
+    notImplemented("tmp<Foam::scalarField> sampledSurface::sample");
+    return tmp<scalarField>(NULL);
+}
+
+
+Foam::tmp<Foam::vectorField> Foam::sampledSurface::sample
+(
+    const surfaceVectorField& sField
+) const
+{
+    notImplemented("tmp<Foam::vectorField> sampledSurface::sample");
+    return tmp<vectorField>(NULL);
+}
+
+Foam::tmp<Foam::sphericalTensorField> Foam::sampledSurface::sample
+(
+    const surfaceSphericalTensorField& sField
+) const
+{
+    notImplemented("tmp<Foam::sphericalTensorField> sampledSurface::sample");
+    return tmp<sphericalTensorField>(NULL);
+}
+
+
+Foam::tmp<Foam::symmTensorField> Foam::sampledSurface::sample
+(
+    const surfaceSymmTensorField& sField
+) const
+{
+    notImplemented("tmp<Foam::symmTensorField> sampledSurface::sample");
+    return tmp<symmTensorField>(NULL);
+}
+
+
+Foam::tmp<Foam::tensorField> Foam::sampledSurface::sample
+(
+    const surfaceTensorField& sField
+) const
+{
+    notImplemented("tmp<Foam::tensorField> sampledSurface::sample");
+    return tmp<tensorField>(NULL);
+}
+
 
 Foam::tmp<Foam::Field<Foam::scalar> >
 Foam::sampledSurface::project(const Field<scalar>& field) const

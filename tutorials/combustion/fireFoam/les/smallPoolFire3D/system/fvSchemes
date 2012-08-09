@@ -30,7 +30,7 @@ divSchemes
     default        none;
     div(phi,U)      Gauss linear;
     div(phi,K)      Gauss linear;
-    div(phi,k)      Gauss limitedLinear 0.1;
+    div(phi,k)      Gauss limitedLinear 1;
     div(phi,Yi_hs) Gauss multivariateSelection
     {
         O2              limitedLinear01 1;

@@ -27,7 +27,7 @@ disk1
     actuationDiskSourceCoeffs
     {
         fieldNames  (U);
-        diskDir     (-1 0 0);   // orientation of the disk
+        diskDir     (1 0 0);   // orientation of the disk
         Cp          0.386;      // Cp
         Ct          0.58;       // Ct
         diskArea    40;         // disk area
@@ -47,12 +47,13 @@ disk2
     actuationDiskSourceCoeffs
     {
         fieldNames  (U);
-        diskDir     (-1 0 0);
+        diskDir     (1 0 0);
         Cp          0.53;
         Ct          0.58;
         diskArea    40;
         upstreamPoint (581753 4785663 1070);
     }
 }
+
 
 // ************************************************************************* //

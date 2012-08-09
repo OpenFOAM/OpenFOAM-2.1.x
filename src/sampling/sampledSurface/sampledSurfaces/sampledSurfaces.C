@@ -124,12 +124,7 @@ Foam::sampledSurfaces::sampledSurfaces
     fieldSelection_(),
     interpolationScheme_(word::null),
     mergeList_(),
-    formatter_(NULL),
-    scalarFields_(),
-    vectorFields_(),
-    sphericalTensorFields_(),
-    symmTensorFields_(),
-    tensorFields_()
+    formatter_(NULL)
 {
     if (Pstream::parRun())
     {
@@ -183,16 +178,8 @@ void Foam::sampledSurfaces::write()
         {
             if (debug)
             {
-                Pout<< "timeName = " << mesh_.time().timeName() << nl
-                    << "scalarFields    " << scalarFields_ << nl
-                    << "vectorFields    " << vectorFields_ << nl
-                    << "sphTensorFields " << sphericalTensorFields_ << nl
-                    << "symTensorFields " << symmTensorFields_ <<nl
-                    << "tensorFields    " << tensorFields_ <<nl;
-
                 Pout<< "Creating directory "
                     << outputPath_/mesh_.time().timeName() << nl << endl;
-
             }
 
             mkDir(outputPath_/mesh_.time().timeName());
@@ -205,11 +192,19 @@ void Foam::sampledSurfaces::write()
             writeGeometry();
         }
 
-        sampleAndWrite(scalarFields_);
-        sampleAndWrite(vectorFields_);
-        sampleAndWrite(sphericalTensorFields_);
-        sampleAndWrite(symmTensorFields_);
-        sampleAndWrite(tensorFields_);
+        const IOobjectList objects(mesh_, mesh_.time().timeName());
+
+        sampleAndWrite<volScalarField>(objects);
+        sampleAndWrite<volVectorField>(objects);
+        sampleAndWrite<volSphericalTensorField>(objects);
+        sampleAndWrite<volSymmTensorField>(objects);
+        sampleAndWrite<volTensorField>(objects);
+
+        sampleAndWrite<surfaceScalarField>(objects);
+        sampleAndWrite<surfaceVectorField>(objects);
+        sampleAndWrite<surfaceSphericalTensorField>(objects);
+        sampleAndWrite<surfaceSymmTensorField>(objects);
+        sampleAndWrite<surfaceTensorField>(objects);
     }
 }
 
@@ -221,7 +216,6 @@ void Foam::sampledSurfaces::read(const dictionary& dict)
     if (surfacesFound)
     {
         dict.lookup("fields") >> fieldSelection_;
-        clearFieldGroups();
 
         dict.lookup("interpolationScheme") >> interpolationScheme_;
         const word writeType(dict.lookup("surfaceFormat"));

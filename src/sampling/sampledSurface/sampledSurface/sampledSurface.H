@@ -57,6 +57,8 @@ SourceFiles
 #include "runTimeSelectionTables.H"
 #include "autoPtr.H"
 #include "volFieldsFwd.H"
+#include "surfaceFieldsFwd.H"
+#include "surfaceMesh.H"
 #include "polyMesh.H"
 #include "coordinateSystems.H"
 #include "interpolation.H"
@@ -321,43 +323,71 @@ public:
             const GeometricField<Type, pointPatchField, pointMesh>& pfld
         ) const;
 
-        //- Sample field on surface
+        //- Vol sample field on surface
         virtual tmp<scalarField> sample
         (
             const volScalarField&
         ) const = 0;
 
-        //- Sample field on surface
+        //- Vol sample field on surface
         virtual tmp<vectorField> sample
         (
             const volVectorField&
         ) const = 0;
 
-        //- Sample field on surface
+        //- Vol sample field on surface
         virtual tmp<sphericalTensorField> sample
         (
             const volSphericalTensorField&
         ) const = 0;
 
-        //- Sample field on surface
+        //- Vol sample field on surface
         virtual tmp<symmTensorField> sample
         (
             const volSymmTensorField&
         ) const = 0;
 
-        //- Sample field on surface
+        //- Vol sample field on surface
         virtual tmp<tensorField> sample
         (
             const volTensorField&
         ) const = 0;
 
+         //- Surface sample field on surface
+        virtual tmp<scalarField> sample
+        (
+            const surfaceScalarField&
+        ) const;
+
+        //- Surface Sample field on surface
+        virtual tmp<vectorField> sample
+        (
+            const surfaceVectorField&
+        ) const;
+
+        //- Surface sample field on surface
+        virtual tmp<sphericalTensorField> sample
+        (
+            const surfaceSphericalTensorField&
+        ) const;
+
+        //- Surface sample field on surface
+        virtual tmp<symmTensorField> sample
+        (
+            const surfaceSymmTensorField&
+        ) const;
+
+        //- Surface sample field on surface
+        virtual tmp<tensorField> sample
+        (
+            const surfaceTensorField&
+        ) const;
 
         //- Interpolate field on surface
         virtual tmp<scalarField> interpolate
         (
             const interpolation<scalar>&
         ) const = 0;
-
 
         //- Interpolate field on surface
         virtual tmp<vectorField> interpolate
