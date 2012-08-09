@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -129,6 +129,10 @@ protected:
 
             //- Time at start of injection time step [s]
             scalar timeStep0_;
+
+            //- Volume that should have been injected, but would lead to
+            //  less than 1 particle per parcel
+            scalar delayedVolume_;
 
 
     // Protected Member Functions

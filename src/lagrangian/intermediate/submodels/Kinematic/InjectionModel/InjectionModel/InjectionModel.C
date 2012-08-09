@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -292,7 +292,8 @@ Foam::InjectionModel<CloudType>::InjectionModel(CloudType& owner)
     parcelBasis_(pbNumber),
     nParticleFixed_(0.0),
     time0_(0.0),
-    timeStep0_(this->template getBaseProperty<scalar>("timeStep0"))
+    timeStep0_(this->template getBaseProperty<scalar>("timeStep0")),
+    delayedVolume_(0.0)
 {}
 
 
@@ -317,7 +318,8 @@ Foam::InjectionModel<CloudType>::InjectionModel
     parcelBasis_(pbNumber),
     nParticleFixed_(0.0),
     time0_(owner.db().time().value()),
-    timeStep0_(this->template getBaseProperty<scalar>("timeStep0"))
+    timeStep0_(this->template getBaseProperty<scalar>("timeStep0")),
+    delayedVolume_(0.0)
 {
     // Provide some info
     // - also serves to initialise mesh dimensions - needed for parallel runs
@@ -388,7 +390,8 @@ Foam::InjectionModel<CloudType>::InjectionModel
     parcelBasis_(im.parcelBasis_),
     nParticleFixed_(im.nParticleFixed_),
     time0_(im.time0_),
-    timeStep0_(im.timeStep0_)
+    timeStep0_(im.timeStep0_),
+    delayedVolume_(im.delayedVolume_)
 {}
 
 
@@ -480,6 +483,9 @@ void Foam::InjectionModel<CloudType>::inject(TrackData& td)
 
     if (prepareForNextTimeStep(time, newParcels, newVolume))
     {
+        newVolume += delayedVolume_;
+        scalar delayedVolume = 0;
+
         const scalar trackTime = this->owner().solution().trackTime();
         const polyMesh& mesh = this->owner().mesh();
         typename TrackData::cloudType& cloud = td.cloud();
@@ -563,7 +569,7 @@ void Foam::InjectionModel<CloudType>::inject(TrackData& td)
                             pPtr->rho()
                         );
 
-                    if (pPtr->move(td, dt))
+                    if ((pPtr->nParticle() >= 1.0) && (pPtr->move(td, dt)))
                     {
                         td.cloud().addParticle(pPtr);
                         massAdded += pPtr->nParticle()*pPtr->mass();
@@ -571,11 +577,14 @@ void Foam::InjectionModel<CloudType>::inject(TrackData& td)
                     }
                     else
                     {
+                        delayedVolume += pPtr->nParticle()*pPtr->volume();
                         delete pPtr;
                     }
                 }
             }
         }
+
+        delayedVolume_ = delayedVolume;
     }
 
     postInjectCheck(parcelsAdded, massAdded);
