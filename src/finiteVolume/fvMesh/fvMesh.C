@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -481,6 +481,13 @@ void Foam::fvMesh::mapFields(const mapPolyMesh& meshMap)
     (mapper);
     MapGeometricFields<tensor, fvsPatchField, fvMeshMapper, surfaceMesh>
     (mapper);
+
+    // Map all the dimensionedFields in the objectRegistry
+    MapDimensionedFields<scalar, fvMeshMapper, volMesh>(mapper);
+    MapDimensionedFields<vector, fvMeshMapper, volMesh>(mapper);
+    MapDimensionedFields<sphericalTensor, fvMeshMapper, volMesh>(mapper);
+    MapDimensionedFields<symmTensor, fvMeshMapper, volMesh>(mapper);
+    MapDimensionedFields<tensor, fvMeshMapper, volMesh>(mapper);
 
     // Map all the clouds in the objectRegistry
     mapClouds(*this, meshMap);
