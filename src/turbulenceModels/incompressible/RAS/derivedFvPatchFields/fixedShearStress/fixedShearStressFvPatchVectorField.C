@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -106,11 +106,12 @@ void fixedShearStressFvPatchVectorField::updateCoeffs()
         return;
     }
 
-    const label patchI = patch().index();
+    const label patchi = patch().index();
 
-    const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
+    const turbulenceModel& turbModel =
+        db().lookupObject<turbulenceModel>("turbulenceModel");
 
-    const fvPatchVectorField& Uw = rasModel.U().boundaryField()[patchI];
+    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
 
     const vectorField Ui(Uw.patchInternalField());
 
@@ -118,9 +119,9 @@ void fixedShearStressFvPatchVectorField::updateCoeffs()
 
     const scalarField& ry = patch().deltaCoeffs();
 
-    tmp<volScalarField> tnuEff = rasModel.nuEff();
+    tmp<volScalarField> tnuEff = turbModel.nuEff();
     const volScalarField& nuEff = tnuEff();
-    const scalarField& nuEffw = nuEff.boundaryField()[patchI];
+    const scalarField& nuEffw = nuEff.boundaryField()[patchi];
 
     tmp<vectorField> UwUpdated =
         tauHat*(tauHat & (tau0_*(1.0/(ry*nuEffw)) + Ui));
@@ -130,8 +131,8 @@ void fixedShearStressFvPatchVectorField::updateCoeffs()
     if (debug)
     {
         tmp<vectorField> nHat = this->patch().nf();
-        volSymmTensorField Reff(rasModel.devReff());
-        Info << "tau : " << (nHat & Reff.boundaryField()[patchI])() << endl;
+        volSymmTensorField Reff(turbModel.devReff());
+        Info << "tau : " << (nHat & Reff.boundaryField()[patchi])() << endl;
     }
 
     fixedValueFvPatchVectorField::updateCoeffs();

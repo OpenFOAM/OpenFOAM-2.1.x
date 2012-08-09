@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -53,7 +53,6 @@ SourceFiles
 #include "fvc.H"
 #include "fvMatrices.H"
 #include "incompressible/transportModel/transportModel.H"
-#include "wallFvPatch.H"
 #include "bound.H"
 #include "autoPtr.H"
 #include "runTimeSelectionTables.H"
@@ -203,14 +202,6 @@ public:
         //- Return the sub-grid stress tensor.
         virtual tmp<volSymmTensorField> B() const = 0;
 
-        //- Return the deviatoric part of the effective sub-grid
-        //  turbulence stress tensor including the laminar stress
-        virtual tmp<volSymmTensorField> devBeff() const = 0;
-
-        //- Returns div(dev(Beff)).
-        //  This is the additional term due to the filtering of the NSE.
-        virtual tmp<fvVectorMatrix> divDevBeff(volVectorField& U) const = 0;
-
 
         // RAS compatibility functions for the turbulenceModel base class
 
@@ -224,18 +215,6 @@ public:
             virtual tmp<volSymmTensorField> R() const
             {
                 return B();
-            }
-
-            //- Return the effective stress tensor including the laminar stress
-            virtual tmp<volSymmTensorField> devReff() const
-            {
-                return devBeff();
-            }
-
-            //- Return the source term for the momentum equation
-            virtual tmp<fvVectorMatrix> divDevReff(volVectorField& U) const
-            {
-                return divDevBeff(U);
             }
 
 

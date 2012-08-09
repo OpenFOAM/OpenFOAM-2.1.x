@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -32,7 +32,11 @@ Description
 {
     const fvPatchList& patches = mesh_.boundary();
 
-    const scalar yPlusLam = this->yPlusLam(kappa_.value(), E_.value());
+    const scalar yPlusLam = nutkWallFunctionFvPatchScalarField::yPlusLam
+    (
+        kappa_.value(),
+        E_.value()
+    );
 
     const volScalarField nuLam(this->nu());
 

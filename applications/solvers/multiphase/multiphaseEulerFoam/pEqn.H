@@ -58,6 +58,8 @@
         dimensionedScalar("phiHbyA", dimArea*dimVelocity, 0)
     );
 
+    phi = dimensionedScalar("phi", phi.dimensions(), 0);
+
     phasei = 0;
     forAllIter(PtrDictionary<phaseModel>, fluid.phases(), iter)
     {
@@ -74,14 +76,17 @@
         (
             (fvc::interpolate(HbyAs[phasei]) & mesh.Sf())
           + fvc::ddtPhiCorr(rAUs[phasei], alpha, phase.U(), phase.phi())
-          + rAlphaAUfs[phasei]
+        );
+        mrfZones.relativeFlux(phiHbyAs[phasei]);
+
+        phi += alphafs[phasei]*phiHbyAs[phasei];
+
+        phiHbyAs[phasei] +=
+            rAlphaAUfs[phasei]
            *(
                fluid.surfaceTension(phase)*mesh.magSf()/phase.rho()
              + (g & mesh.Sf())
-            )
-        );
-
-        mrfZones.relativeFlux(phiHbyAs[phasei]);
+            );
 
         multiphaseSystem::dragModelTable::const_iterator dmIter =
             fluid.dragModels().begin();

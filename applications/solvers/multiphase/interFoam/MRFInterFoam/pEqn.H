@@ -11,9 +11,9 @@
         (fvc::interpolate(HbyA) & mesh.Sf())
       + fvc::ddtPhiCorr(rAU, rho, U, phi)
     );
-    mrfZones.relativeFlux(phiHbyA);
-
     adjustPhi(phiHbyA, U, p_rgh);
+    mrfZones.relativeFlux(phiHbyA);
+    phi = phiHbyA;
 
     surfaceScalarField phig
     (

@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
         (
             fvm::ddt(U)
           + fvm::div(phi, U)
-          + sgsModel->divDevBeff(U)
+          + sgsModel->divDevReff(U)
          ==
             flowDirection*gradP
         );

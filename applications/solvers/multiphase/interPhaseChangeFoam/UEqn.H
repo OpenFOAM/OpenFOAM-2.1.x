@@ -1,18 +1,9 @@
-    surfaceScalarField muEff
-    (
-        "muEff",
-        twoPhaseProperties->muf()
-      + fvc::interpolate(rho*turbulence->nut())
-    );
-
     fvVectorMatrix UEqn
     (
         fvm::ddt(rho, U)
       + fvm::div(rhoPhi, U)
       - fvm::Sp(fvc::ddt(rho) + fvc::div(rhoPhi), U)
-      - fvm::laplacian(muEff, U)
-      - (fvc::grad(U) & fvc::grad(muEff))
-    //- fvc::div(muEff*(fvc::interpolate(dev2(fvc::grad(U))) & mesh.Sf()))
+      + turbulence->divDevRhoReff(rho, U)
     );
 
     UEqn.relax();

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -115,7 +115,7 @@ GenSGSStress::GenSGSStress
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-tmp<volSymmTensorField> GenSGSStress::devBeff() const
+tmp<volSymmTensorField> GenSGSStress::devReff() const
 {
     return tmp<volSymmTensorField>
     (
@@ -135,7 +135,7 @@ tmp<volSymmTensorField> GenSGSStress::devBeff() const
 }
 
 
-tmp<fvVectorMatrix> GenSGSStress::divDevBeff
+tmp<fvVectorMatrix> GenSGSStress::divDevReff
 (
     volVectorField& U
 ) const
@@ -159,6 +159,38 @@ tmp<fvVectorMatrix> GenSGSStress::divDevBeff
             fvc::div(B_)
           + fvc::laplacian(nuSgs_, U, "laplacian(nuEff,U)")
           - fvm::laplacian(nuEff(), U)
+        );
+    }
+}
+
+
+tmp<fvVectorMatrix> GenSGSStress::divDevRhoReff
+(
+    const volScalarField& rho,
+    volVectorField& U
+) const
+{
+    volScalarField muEff("muEff", rho*nuEff());
+
+    if (couplingFactor_.value() > 0.0)
+    {
+        return
+        (
+            fvc::div(rho*B_ + couplingFactor_*rho*nuSgs_*fvc::grad(U))
+          + fvc::laplacian
+            (
+                (1.0 - couplingFactor_)*rho*nuSgs_, U, "laplacian(muEff,U)"
+            )
+          - fvm::laplacian(muEff, U)
+        );
+    }
+    else
+    {
+        return
+        (
+            fvc::div(rho*B_)
+          + fvc::laplacian(rho*nuSgs_, U, "laplacian(muEff,U)")
+          - fvm::laplacian(muEff, U)
         );
     }
 }

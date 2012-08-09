@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -48,6 +48,7 @@ SourceFiles
 #include "surfaceFieldsFwd.H"
 #include "fvMatricesFwd.H"
 #include "incompressible/transportModel/transportModel.H"
+#include "nearWallDist.H"
 #include "autoPtr.H"
 #include "runTimeSelectionTables.H"
 
@@ -82,6 +83,9 @@ protected:
         const surfaceScalarField& phi_;
 
         transportModel& transportModel_;
+
+        //- Near wall distance boundary field
+        nearWallDist y_;
 
 
 private:
@@ -167,6 +171,12 @@ public:
             return transportModel_;
         }
 
+        //- Return the near wall distances
+        const nearWallDist& y() const
+        {
+            return y_;
+        }
+
         //- Return the laminar viscosity
         inline tmp<volScalarField> nu() const
         {
@@ -193,6 +203,13 @@ public:
 
         //- Return the source term for the momentum equation
         virtual tmp<fvVectorMatrix> divDevReff(volVectorField& U) const = 0;
+
+        //- Return the source term for the momentum equation
+        virtual tmp<fvVectorMatrix> divDevRhoReff
+        (
+            const volScalarField& rho,
+            volVectorField& U
+        ) const = 0;
 
         //- Solve the turbulence equations and correct the turbulence viscosity
         virtual void correct() = 0;

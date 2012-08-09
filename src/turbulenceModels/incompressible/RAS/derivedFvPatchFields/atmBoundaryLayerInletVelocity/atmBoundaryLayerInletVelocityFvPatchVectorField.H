@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -180,23 +180,25 @@ public:
 
     // Member functions
 
-        //- Return Ustar
-        scalarField& Ustar()
-        {
-            return Ustar_;
-        }
+        // Access
 
-        //- Return flow direction
-        vector& n()
-        {
-            return n_;
-        }
+            //- Return Ustar
+            const scalarField& Ustar() const
+            {
+                return Ustar_;
+            }
 
-        //- Return z direction
-        vector& z()
-        {
-            return z_;
-        }
+            //- Return flow direction
+            const vector& n() const
+            {
+                return n_;
+            }
+
+            //- Return z direction
+            const vector& z() const
+            {
+                return z_;
+            }
 
 
         // Mapping functions
@@ -214,9 +216,6 @@ public:
                 const labelList&
             );
 
-
-        //- Update coefficients
-        virtual void updateCoeffs();
 
         //- Write
         virtual void write(Ostream&) const;

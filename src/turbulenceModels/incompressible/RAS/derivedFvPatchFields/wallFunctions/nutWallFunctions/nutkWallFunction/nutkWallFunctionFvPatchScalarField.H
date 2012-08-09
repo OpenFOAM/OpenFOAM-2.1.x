@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -37,7 +37,7 @@ SourceFiles
 #ifndef nutkWallFunctionFvPatchScalarField_H
 #define nutkWallFunctionFvPatchScalarField_H
 
-#include "fixedValueFvPatchFields.H"
+#include "nutWallFunctionFvPatchScalarField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -54,38 +54,14 @@ namespace RASModels
 
 class nutkWallFunctionFvPatchScalarField
 :
-    public fixedValueFvPatchScalarField
+    public nutWallFunctionFvPatchScalarField
 {
 protected:
 
-    // Protected data
-
-        //- Cmu coefficient
-        scalar Cmu_;
-
-        //- Von Karman constant
-        scalar kappa_;
-
-        //- E coefficient
-        scalar E_;
-
-        //- Y+ at the edge of the laminar sublayer
-        scalar yPlusLam_;
-
-
     // Protected Member Functions
-
-        //- Check the type of the patch
-        virtual void checkType();
-
-        //- Calculate the Y+ at the edge of the laminar sublayer
-        virtual scalar calcYPlusLam(const scalar kappa, const scalar E) const;
 
         //- Calculate the turbulence viscosity
         virtual tmp<scalarField> calcNut() const;
-
-        //- Write local wall function variables
-        virtual void writeLocalEntries(Ostream&) const;
 
 
 public:
@@ -159,19 +135,8 @@ public:
 
     // Member functions
 
-        // Evaluation functions
-
-            //- Calculate and return the yPlus at the boundary
-            virtual tmp<scalarField> yPlus() const;
-
-            //- Update the coefficients associated with the patch field
-            virtual void updateCoeffs();
-
-
-        // I-O
-
-            //- Write
-            virtual void write(Ostream&) const;
+        //- Calculate and return the yPlus at the boundary
+        virtual tmp<scalarField> yPlus() const;
 };
 
 

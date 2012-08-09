@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,20 +22,20 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::incompressible::LESModels::
-        nuSgsUSpaldingWallFunctionFvPatchScalarField
+    Foam::incompressible::RASModels::nutWallFunctionFvPatchScalarField
 
 Description
-    Wall function boundary condition for walls, based on velocity, using
-    Spaldings law to give a continuous nuSgs profile to the wall (y+ = 0)
+    Boundary condition for turbulent (kinematic) viscosity when using wall
+    functions, based on turbulence kinetic energy.
+    - replicates OpenFOAM v1.5 (and earlier) behaviour
 
 SourceFiles
-    nuSgsUSpaldingWallFunctionFvPatchScalarField.C
+    nutWallFunctionFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef nuSgsUSpaldingWallFunctionFvPatchScalarField_H
-#define nuSgsUSpaldingWallFunctionFvPatchScalarField_H
+#ifndef nutWallFunctionFvPatchScalarField_H
+#define nutWallFunctionFvPatchScalarField_H
 
 #include "fixedValueFvPatchFields.H"
 
@@ -45,43 +45,63 @@ namespace Foam
 {
 namespace incompressible
 {
-namespace LESModels
+namespace RASModels
 {
 
 /*---------------------------------------------------------------------------*\
-     Class nuSgsUSpaldingWallFunctionFvPatchScalarField Declaration
+             Class nutWallFunctionFvPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class nuSgsUSpaldingWallFunctionFvPatchScalarField
+class nutWallFunctionFvPatchScalarField
 :
     public fixedValueFvPatchScalarField
 {
-    // Private data
+protected:
+
+    // Protected data
+
+        //- Cmu coefficient
+        scalar Cmu_;
 
         //- Von Karman constant
         scalar kappa_;
 
-        //- E constant
+        //- E coefficient
         scalar E_;
+
+        //- Y+ at the edge of the laminar sublayer
+        scalar yPlusLam_;
+
+
+    // Protected Member Functions
+
+        //- Check the type of the patch
+        virtual void checkType();
+
+        //- Calculate the turbulence viscosity
+        virtual tmp<scalarField> calcNut() const = 0;
+
+        //- Write local wall function variables
+        virtual void writeLocalEntries(Ostream&) const;
 
 
 public:
 
     //- Runtime type information
-    TypeName("nuSgsUSpaldingWallFunction");
+    TypeName("nutWallFunction");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        nuSgsUSpaldingWallFunctionFvPatchScalarField
+        nutWallFunctionFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        nuSgsUSpaldingWallFunctionFvPatchScalarField
+        nutWallFunctionFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
@@ -89,72 +109,55 @@ public:
         );
 
         //- Construct by mapping given
-        //  nuSgsUSpaldingWallFunctionFvPatchScalarField
+        //  nutWallFunctionFvPatchScalarField
         //  onto a new patch
-        nuSgsUSpaldingWallFunctionFvPatchScalarField
+        nutWallFunctionFvPatchScalarField
         (
-            const nuSgsUSpaldingWallFunctionFvPatchScalarField&,
+            const nutWallFunctionFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct as copy
-        nuSgsUSpaldingWallFunctionFvPatchScalarField
+        nutWallFunctionFvPatchScalarField
         (
-            const nuSgsUSpaldingWallFunctionFvPatchScalarField&
+            const nutWallFunctionFvPatchScalarField&
         );
-
-        //- Construct and return a clone
-        virtual tmp<fvPatchScalarField> clone() const
-        {
-            return tmp<fvPatchScalarField>
-            (
-                new nuSgsUSpaldingWallFunctionFvPatchScalarField(*this)
-            );
-        }
 
         //- Construct as copy setting internal field reference
-        nuSgsUSpaldingWallFunctionFvPatchScalarField
+        nutWallFunctionFvPatchScalarField
         (
-            const nuSgsUSpaldingWallFunctionFvPatchScalarField&,
+            const nutWallFunctionFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
-
-        //- Construct and return a clone setting internal field reference
-        virtual tmp<fvPatchScalarField> clone
-        (
-            const DimensionedField<scalar, volMesh>& iF
-        ) const
-        {
-            return tmp<fvPatchScalarField>
-            (
-                new nuSgsUSpaldingWallFunctionFvPatchScalarField(*this, iF)
-            );
-        }
 
 
     // Member functions
 
+        //- Calculate the Y+ at the edge of the laminar sublayer
+        static scalar yPlusLam(const scalar kappa, const scalar E);
+
+        //- Calculate and return the yPlus at the boundary
+        virtual tmp<scalarField> yPlus() const = 0;
+
+
         // Evaluation functions
 
-            //- Evaluate the patchField
-            virtual void evaluate
-            (
-                const Pstream::commsTypes commsType=Pstream::blocking
-            );
+            //- Update the coefficients associated with the patch field
+            virtual void updateCoeffs();
 
 
         // I-O
 
             //- Write
-            void write(Ostream&) const;
+            virtual void write(Ostream&) const;
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-} // End namespace LESModels
+} // End namespace RASModels
 } // End namespace incompressible
 } // End namespace Foam
 

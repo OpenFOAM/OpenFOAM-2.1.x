@@ -33,7 +33,11 @@ Description
 {
     labelList cellBoundaryFaceCount(epsilon_.size(), 0);
 
-    scalar yPlusLam = this->yPlusLam(kappa_.value(), E_.value());
+    scalar yPlusLam = nutkWallFunctionFvPatchScalarField::yPlusLam
+    (
+        kappa_.value(),
+        E_.value()
+    );
 
     const fvPatchList& patches = mesh_.boundary();
 

@@ -36,18 +36,29 @@
         "phiHbyA1",
         (fvc::interpolate(HbyA1) & mesh.Sf())
       + fvc::ddtPhiCorr(rAU1, U1, phi1)
-      + fvc::interpolate(alpha2/rho1*K*rAU1)*phi2
-      + ppDrag
-      + rAU1f*(g & mesh.Sf())
     );
-    mrfZones.relativeFlux(phiHbyA1);
 
     surfaceScalarField phiHbyA2
     (
         "phiHbyA2",
         (fvc::interpolate(HbyA2) & mesh.Sf())
       + fvc::ddtPhiCorr(rAU2, U2, phi2)
-      + fvc::interpolate(alpha1/rho2*K*rAU2)*phi1
+    );
+
+    phi = alpha1f*phiHbyA1 + alpha2f*phiHbyA2;
+    mrfZones.relativeFlux(phi);
+
+    phiHbyA1 +=
+    (
+        fvc::interpolate(alpha2/rho1*K*rAU1)*phi2
+      + ppDrag
+      + rAU1f*(g & mesh.Sf())
+    );
+    mrfZones.relativeFlux(phiHbyA1);
+
+    phiHbyA2 +=
+    (
+        fvc::interpolate(alpha1/rho2*K*rAU2)*phi1
       + rAU2f*(g & mesh.Sf())
     );
     mrfZones.relativeFlux(phiHbyA2);

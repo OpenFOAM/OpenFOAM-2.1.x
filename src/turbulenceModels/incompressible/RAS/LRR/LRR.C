@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -254,6 +254,44 @@ tmp<fvVectorMatrix> LRR::divDevReff(volVectorField& U) const
             fvc::div(R_)
           + fvc::laplacian(nut_, U, "laplacian(nuEff,U)")
           - fvm::laplacian(nuEff(), U)
+        );
+    }
+}
+
+
+tmp<fvVectorMatrix> LRR::divDevRhoReff
+(
+    const volScalarField& rho,
+    volVectorField& U
+) const
+{
+    volScalarField muEff("muEff", rho*nuEff());
+
+    if (couplingFactor_.value() > 0.0)
+    {
+        return
+        (
+            fvc::div
+            (
+                rho*R_ + couplingFactor_*(rho*nut_)*fvc::grad(U),
+                "div((rho*R))"
+            )
+          + fvc::laplacian
+            (
+                (1.0 - couplingFactor_)*rho*nut_,
+                U,
+                "laplacian(muEff,U)"
+            )
+          - fvm::laplacian(muEff, U)
+        );
+    }
+    else
+    {
+        return
+        (
+            fvc::div(rho*R_)
+          + fvc::laplacian(rho*nut_, U, "laplacian(muEff,U)")
+          - fvm::laplacian(muEff, U)
         );
     }
 }

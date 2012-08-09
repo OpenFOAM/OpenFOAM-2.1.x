@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -42,16 +42,17 @@ namespace RASModels
 
 tmp<scalarField> nutUTabulatedWallFunctionFvPatchScalarField::calcNut() const
 {
-    const label patchI = patch().index();
+    const label patchi = patch().index();
 
-    const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
-    const scalarField& y = rasModel.y()[patchI];
-    const fvPatchVectorField& Uw = rasModel.U().boundaryField()[patchI];
+    const turbulenceModel& turbModel =
+        db().lookupObject<turbulenceModel>("turbulenceModel");
+    const scalarField& y = turbModel.y()[patchi];
+    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
     const scalarField magUp(mag(Uw.patchInternalField() - Uw));
     const scalarField magGradU(mag(Uw.snGrad()));
-    const tmp<volScalarField> tnu = rasModel.nu();
+    const tmp<volScalarField> tnu = turbModel.nu();
     const volScalarField& nu = tnu();
-    const scalarField& nuw = nu.boundaryField()[patchI];
+    const scalarField& nuw = nu.boundaryField()[patchi];
 
     return
         max
@@ -90,7 +91,7 @@ nutUTabulatedWallFunctionFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    nutkWallFunctionFvPatchScalarField(p, iF),
+    nutWallFunctionFvPatchScalarField(p, iF),
     uPlusTableName_("undefined-uPlusTableName"),
     uPlusTable_
     (
@@ -117,7 +118,7 @@ nutUTabulatedWallFunctionFvPatchScalarField
     const fvPatchFieldMapper& mapper
 )
 :
-    nutkWallFunctionFvPatchScalarField(ptf, p, iF, mapper),
+    nutWallFunctionFvPatchScalarField(ptf, p, iF, mapper),
     uPlusTableName_(ptf.uPlusTableName_),
     uPlusTable_(ptf.uPlusTable_)
 {}
@@ -131,7 +132,7 @@ nutUTabulatedWallFunctionFvPatchScalarField
     const dictionary& dict
 )
 :
-    nutkWallFunctionFvPatchScalarField(p, iF, dict),
+    nutWallFunctionFvPatchScalarField(p, iF, dict),
     uPlusTableName_(dict.lookup("uPlusTable")),
     uPlusTable_
     (
@@ -155,7 +156,7 @@ nutUTabulatedWallFunctionFvPatchScalarField
     const nutUTabulatedWallFunctionFvPatchScalarField& wfpsf
 )
 :
-    nutkWallFunctionFvPatchScalarField(wfpsf),
+    nutWallFunctionFvPatchScalarField(wfpsf),
     uPlusTableName_(wfpsf.uPlusTableName_),
     uPlusTable_(wfpsf.uPlusTable_)
 {}
@@ -168,7 +169,7 @@ nutUTabulatedWallFunctionFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    nutkWallFunctionFvPatchScalarField(wfpsf, iF),
+    nutWallFunctionFvPatchScalarField(wfpsf, iF),
     uPlusTableName_(wfpsf.uPlusTableName_),
     uPlusTable_(wfpsf.uPlusTable_)
 {}
@@ -178,15 +179,16 @@ nutUTabulatedWallFunctionFvPatchScalarField
 
 tmp<scalarField> nutUTabulatedWallFunctionFvPatchScalarField::yPlus() const
 {
-    const label patchI = patch().index();
+    const label patchi = patch().index();
 
-    const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
-    const scalarField& y = rasModel.y()[patchI];
-    const fvPatchVectorField& Uw = rasModel.U().boundaryField()[patchI];
+    const turbulenceModel& turbModel =
+        db().lookupObject<turbulenceModel>("turbulenceModel");
+    const scalarField& y = turbModel.y()[patchi];
+    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
     const scalarField magUp(mag(Uw.patchInternalField() - Uw));
-    const tmp<volScalarField> tnu = rasModel.nu();
+    const tmp<volScalarField> tnu = turbModel.nu();
     const volScalarField& nu = tnu();
-    const scalarField& nuw = nu.boundaryField()[patchI];
+    const scalarField& nuw = nu.boundaryField()[patchi];
     const scalarField Rey(magUp*y/nuw);
 
     return Rey/(calcUPlus(Rey) + ROOTVSMALL);

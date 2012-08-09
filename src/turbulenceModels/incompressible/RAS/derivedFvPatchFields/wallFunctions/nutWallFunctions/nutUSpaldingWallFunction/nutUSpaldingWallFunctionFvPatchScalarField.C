@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -42,14 +42,15 @@ namespace RASModels
 
 tmp<scalarField> nutUSpaldingWallFunctionFvPatchScalarField::calcNut() const
 {
-    const label patchI = patch().index();
+    const label patchi = patch().index();
 
-    const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
-    const fvPatchVectorField& Uw = rasModel.U().boundaryField()[patchI];
+    const turbulenceModel& turbModel =
+        db().lookupObject<turbulenceModel>("turbulenceModel");
+    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
     const scalarField magGradU(mag(Uw.snGrad()));
-    const tmp<volScalarField> tnu = rasModel.nu();
+    const tmp<volScalarField> tnu = turbModel.nu();
     const volScalarField& nu = tnu();
-    const scalarField& nuw = nu.boundaryField()[patchI];
+    const scalarField& nuw = nu.boundaryField()[patchi];
 
     return max
     (
@@ -64,14 +65,15 @@ tmp<scalarField> nutUSpaldingWallFunctionFvPatchScalarField::calcUTau
     const scalarField& magGradU
 ) const
 {
-    const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
-    const scalarField& y = rasModel.y()[patch().index()];
+    const turbulenceModel& turbModel =
+        db().lookupObject<turbulenceModel>("turbulenceModel");
+    const scalarField& y = turbModel.y()[patch().index()];
 
     const fvPatchVectorField& Uw =
-        rasModel.U().boundaryField()[patch().index()];
+        turbModel.U().boundaryField()[patch().index()];
     const scalarField magUp(mag(Uw.patchInternalField() - Uw));
 
-    const scalarField& nuw = rasModel.nu()().boundaryField()[patch().index()];
+    const scalarField& nuw = turbModel.nu()().boundaryField()[patch().index()];
     const scalarField& nutw = *this;
 
     tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
@@ -124,7 +126,7 @@ nutUSpaldingWallFunctionFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    nutkWallFunctionFvPatchScalarField(p, iF)
+    nutWallFunctionFvPatchScalarField(p, iF)
 {}
 
 
@@ -137,7 +139,7 @@ nutUSpaldingWallFunctionFvPatchScalarField
     const fvPatchFieldMapper& mapper
 )
 :
-    nutkWallFunctionFvPatchScalarField(ptf, p, iF, mapper)
+    nutWallFunctionFvPatchScalarField(ptf, p, iF, mapper)
 {}
 
 
@@ -149,7 +151,7 @@ nutUSpaldingWallFunctionFvPatchScalarField
     const dictionary& dict
 )
 :
-    nutkWallFunctionFvPatchScalarField(p, iF, dict)
+    nutWallFunctionFvPatchScalarField(p, iF, dict)
 {}
 
 
@@ -159,7 +161,7 @@ nutUSpaldingWallFunctionFvPatchScalarField
     const nutUSpaldingWallFunctionFvPatchScalarField& wfpsf
 )
 :
-    nutkWallFunctionFvPatchScalarField(wfpsf)
+    nutWallFunctionFvPatchScalarField(wfpsf)
 {}
 
 
@@ -170,7 +172,7 @@ nutUSpaldingWallFunctionFvPatchScalarField
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    nutkWallFunctionFvPatchScalarField(wfpsf, iF)
+    nutWallFunctionFvPatchScalarField(wfpsf, iF)
 {}
 
 
@@ -178,14 +180,15 @@ nutUSpaldingWallFunctionFvPatchScalarField
 
 tmp<scalarField> nutUSpaldingWallFunctionFvPatchScalarField::yPlus() const
 {
-    const label patchI = patch().index();
+    const label patchi = patch().index();
 
-    const RASModel& rasModel = db().lookupObject<RASModel>("RASProperties");
-    const scalarField& y = rasModel.y()[patchI];
-    const fvPatchVectorField& Uw = rasModel.U().boundaryField()[patchI];
-    const tmp<volScalarField> tnu = rasModel.nu();
+    const turbulenceModel& turbModel =
+        db().lookupObject<turbulenceModel>("turbulenceModel");
+    const scalarField& y = turbModel.y()[patchi];
+    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchi];
+    const tmp<volScalarField> tnu = turbModel.nu();
     const volScalarField& nu = tnu();
-    const scalarField& nuw = nu.boundaryField()[patchI];
+    const scalarField& nuw = nu.boundaryField()[patchi];
 
     return y*calcUTau(mag(Uw.snGrad()))/nuw;
 }

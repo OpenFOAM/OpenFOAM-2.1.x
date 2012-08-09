@@ -40,7 +40,7 @@ boundaryField
 
     lowerWall
     {
-        type            nuSgsUSpaldingWallFunction;
+        type            nutUSpaldingWallFunction;
         value           uniform 0.0544766;
     }
 
@@ -51,7 +51,7 @@ boundaryField
 
     "motorBike_.*"
     {
-        type            nuSgsUSpaldingWallFunction;
+        type            nutUSpaldingWallFunction;
         value           uniform 0.0544766;
     }
 

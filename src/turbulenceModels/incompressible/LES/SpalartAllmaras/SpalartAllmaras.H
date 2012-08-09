@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -172,11 +172,19 @@ public:
 
         //- Return the effective sub-grid turbulence stress tensor
         //  including the laminar stress
-        virtual tmp<volSymmTensorField> devBeff() const;
+        virtual tmp<volSymmTensorField> devReff() const;
 
-        //- Return the deviatoric part of the divergence of Beff
-        //  i.e. the additional term in the filtered NSE.
-        virtual tmp<fvVectorMatrix> divDevBeff(volVectorField& U) const;
+        //- Return the deviatoric part of the effective sub-grid
+        //  turbulence stress tensor including the laminar stress
+        virtual tmp<fvVectorMatrix> divDevReff(volVectorField& U) const;
+
+        //- Return the deviatoric part of the effective sub-grid
+        //  turbulence stress tensor including the laminar stress
+        virtual tmp<fvVectorMatrix> divDevRhoReff
+        (
+            const volScalarField& rho,
+            volVectorField& U
+        ) const;
 
         //- Correct nuTilda and related properties
         virtual void correct(const tmp<volTensorField>& gradU);
