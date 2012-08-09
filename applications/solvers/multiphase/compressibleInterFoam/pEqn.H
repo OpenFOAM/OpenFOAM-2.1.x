@@ -36,6 +36,7 @@
         (fvc::interpolate(HbyA) & mesh.Sf())
       + fvc::ddtPhiCorr(rAU, rho, U, phi)
     );
+    phi = phiHbyA;
 
     surfaceScalarField phig
     (

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -29,6 +29,8 @@ License
 #include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
 #include "wallFvPatch.H"
+#include "nutkWallFunctionFvPatchScalarField.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,23 +54,6 @@ void omegaWallFunctionFvPatchScalarField::checkType()
             << "    Current patch type is " << patch().type() << nl << endl
             << abort(FatalError);
     }
-}
-
-
-scalar omegaWallFunctionFvPatchScalarField::calcYPlusLam
-(
-    const scalar kappa,
-    const scalar E
-) const
-{
-    scalar ypl = 11.0;
-
-    for (int i=0; i<10; i++)
-    {
-        ypl = log(E*ypl)/kappa;
-    }
-
-    return ypl;
 }
 
 
@@ -96,7 +81,7 @@ omegaWallFunctionFvPatchScalarField::omegaWallFunctionFvPatchScalarField
     kappa_(0.41),
     E_(9.8),
     beta1_(0.075),
-    yPlusLam_(calcYPlusLam(kappa_, E_))
+    yPlusLam_(nutkWallFunctionFvPatchScalarField::yPlusLam(kappa_, E_))
 {
     checkType();
 }
@@ -135,7 +120,7 @@ omegaWallFunctionFvPatchScalarField::omegaWallFunctionFvPatchScalarField
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.41)),
     E_(dict.lookupOrDefault<scalar>("E", 9.8)),
     beta1_(dict.lookupOrDefault<scalar>("beta1", 0.075)),
-    yPlusLam_(calcYPlusLam(kappa_, E_))
+    yPlusLam_(nutkWallFunctionFvPatchScalarField::yPlusLam(kappa_, E_))
 {
     checkType();
 }

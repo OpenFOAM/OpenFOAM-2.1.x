@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -35,7 +35,7 @@ SourceFiles
 #ifndef nutURoughWallFunctionFvPatchScalarField_H
 #define nutURoughWallFunctionFvPatchScalarField_H
 
-#include "nutkWallFunctionFvPatchScalarField.H"
+#include "nutWallFunctionFvPatchScalarField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,7 +52,7 @@ namespace RASModels
 
 class nutURoughWallFunctionFvPatchScalarField
 :
-    public nutkWallFunctionFvPatchScalarField
+    public nutWallFunctionFvPatchScalarField
 {
     // Private data
 

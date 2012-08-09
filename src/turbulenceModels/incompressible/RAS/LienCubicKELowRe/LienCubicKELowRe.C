@@ -236,7 +236,10 @@ LienCubicKELowRe::LienCubicKELowRe
     C5viscosity_
     (
         -2.0*pow3(Cmu_)*pow4(k_)/pow3(epsilon_)
-       *(magSqr(fvc::grad(U) + T(fvc::grad(U))) - magSqr(fvc::grad(U) - T(fvc::grad(U))))
+       *(
+           magSqr(fvc::grad(U) + T(fvc::grad(U)))
+         - magSqr(fvc::grad(U) - T(fvc::grad(U)))
+        )
     ),
 
     yStar_(sqrt(k_)*y_/nu() + SMALL),
@@ -358,6 +361,23 @@ tmp<fvVectorMatrix> LienCubicKELowRe::divDevReff(volVectorField& U) const
         fvc::div(nonlinearStress_)
       - fvm::laplacian(nuEff(), U)
       - fvc::div(nuEff()*dev(T(fvc::grad(U))))
+    );
+}
+
+
+tmp<fvVectorMatrix> LienCubicKELowRe::divDevRhoReff
+(
+    const volScalarField& rho,
+    volVectorField& U
+) const
+{
+    volScalarField muEff("muEff", rho*nuEff());
+
+    return
+    (
+        fvc::div(rho*nonlinearStress_)
+      - fvm::laplacian(muEff, U)
+      - fvc::div(muEff*dev(T(fvc::grad(U))))
     );
 }
 

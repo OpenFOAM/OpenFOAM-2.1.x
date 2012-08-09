@@ -28,12 +28,4 @@ mixedSmagorinsky/mixedSmagorinsky.C
 
 kOmegaSSTSAS/kOmegaSSTSAS.C
 
-/* Wall functions */
-wallFunctions=derivedFvPatchFields/wallFunctions
-
-nuSgsWallFunctions=$(wallFunctions)/nuSgsWallFunctions
-$(nuSgsWallFunctions)/nuSgsUSpaldingWallFunction/nuSgsUSpaldingWallFunctionFvPatchScalarField.C
-$(nuSgsWallFunctions)/nuSgsURoughWallFunction/nuSgsURoughWallFunctionFvPatchScalarField.C
-
-
 LIB = $(FOAM_LIBBIN)/libincompressibleLESModels

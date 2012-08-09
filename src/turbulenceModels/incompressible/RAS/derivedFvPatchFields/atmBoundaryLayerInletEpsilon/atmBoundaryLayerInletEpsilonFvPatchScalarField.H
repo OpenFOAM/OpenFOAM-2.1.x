@@ -87,14 +87,8 @@ class atmBoundaryLayerInletEpsilonFvPatchScalarField
 {
     // Private data
 
-        //- Frictional velocity
-        scalarField Ustar_;
-
         //- Direction of the z-coordinate
         vector z_;
-
-        //- Surface roughness length
-        scalarField z0_;
 
         //- Von Karman constant
         const scalar kappa_;
@@ -105,8 +99,14 @@ class atmBoundaryLayerInletEpsilonFvPatchScalarField
         //- Reference hight
         const scalar Href_;
 
+        //- Surface roughness length
+        scalarField z0_;
+
         //- Minimum coordinate value in z direction
         scalarField zGround_;
+
+        //- Frictional velocity
+        scalarField Ustar_;
 
 
 public:
@@ -173,34 +173,36 @@ public:
 
     // Member functions
 
-        //- Return max value
-        scalarField Ustar() const
-        {
-            return Ustar_;
-        }
+        // Access
 
-        //- Return z direction
-        const vector& z() const
-        {
-            return z_;
-        }
+            //- Return max value
+            const scalarField& Ustar() const
+            {
+                return Ustar_;
+            }
+
+            //- Return z direction
+            const vector& z() const
+            {
+                return z_;
+            }
 
 
-        //- Map (and resize as needed) from self given a mapping object
-        virtual void autoMap
-        (
-            const fvPatchFieldMapper&
-        );
+        // Mapping functions
 
-        //- Reverse map the given fvPatchField onto this fvPatchField
-        virtual void rmap
-        (
-            const fvPatchScalarField&,
-            const labelList&
-        );
+            //- Map (and resize as needed) from self given a mapping object
+            virtual void autoMap
+            (
+                const fvPatchFieldMapper&
+            );
 
-        //- Update coefficients
-        virtual void updateCoeffs();
+            //- Reverse map the given fvPatchField onto this fvPatchField
+            virtual void rmap
+            (
+                const fvPatchScalarField&,
+                const labelList&
+            );
+
 
         //- Write
         virtual void write(Ostream&) const;

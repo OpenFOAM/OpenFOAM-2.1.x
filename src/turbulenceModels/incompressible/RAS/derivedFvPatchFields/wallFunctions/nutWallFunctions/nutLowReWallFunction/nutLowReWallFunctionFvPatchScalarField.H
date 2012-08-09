@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -38,7 +38,7 @@ SourceFiles
 #ifndef nutLowReWallFunctionFvPatchScalarField_H
 #define nutLowReWallFunctionFvPatchScalarField_H
 
-#include "nutkWallFunctionFvPatchScalarField.H"
+#include "nutWallFunctionFvPatchScalarField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,7 +55,7 @@ namespace RASModels
 
 class nutLowReWallFunctionFvPatchScalarField
 :
-    public nutkWallFunctionFvPatchScalarField
+    public nutWallFunctionFvPatchScalarField
 {
 protected:
 
@@ -132,6 +132,12 @@ public:
                 new nutLowReWallFunctionFvPatchScalarField(*this, iF)
             );
         }
+
+
+    // Member functions
+
+        //- Calculate and return the yPlus at the boundary
+        virtual tmp<scalarField> yPlus() const;
 };
 
 

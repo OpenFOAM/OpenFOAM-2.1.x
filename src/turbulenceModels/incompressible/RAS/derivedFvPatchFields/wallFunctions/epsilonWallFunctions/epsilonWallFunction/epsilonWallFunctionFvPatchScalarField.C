@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -29,6 +29,8 @@ License
 #include "volFields.H"
 #include "addToRunTimeSelectionTable.H"
 #include "wallFvPatch.H"
+#include "nutkWallFunctionFvPatchScalarField.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,23 +57,6 @@ void epsilonWallFunctionFvPatchScalarField::checkType()
 }
 
 
-scalar epsilonWallFunctionFvPatchScalarField::calcYPlusLam
-(
-    const scalar kappa,
-    const scalar E
-) const
-{
-    scalar ypl = 11.0;
-
-    for (int i=0; i<10; i++)
-    {
-        ypl = log(E*ypl)/kappa;
-    }
-
-    return ypl;
-}
-
-
 void epsilonWallFunctionFvPatchScalarField::writeLocalEntries(Ostream& os) const
 {
     writeEntryIfDifferent<word>(os, "G", "RASModel::G", GName_);
@@ -94,7 +79,7 @@ epsilonWallFunctionFvPatchScalarField::epsilonWallFunctionFvPatchScalarField
     Cmu_(0.09),
     kappa_(0.41),
     E_(9.8),
-    yPlusLam_(calcYPlusLam(kappa_, E_))
+    yPlusLam_(nutkWallFunctionFvPatchScalarField::yPlusLam(kappa_, E_))
 {
     checkType();
 }
@@ -131,7 +116,7 @@ epsilonWallFunctionFvPatchScalarField::epsilonWallFunctionFvPatchScalarField
     Cmu_(dict.lookupOrDefault<scalar>("Cmu", 0.09)),
     kappa_(dict.lookupOrDefault<scalar>("kappa", 0.41)),
     E_(dict.lookupOrDefault<scalar>("E", 9.8)),
-    yPlusLam_(calcYPlusLam(kappa_, E_))
+    yPlusLam_(nutkWallFunctionFvPatchScalarField::yPlusLam(kappa_, E_))
 {
     checkType();
 }

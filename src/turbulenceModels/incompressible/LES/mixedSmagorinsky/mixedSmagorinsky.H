@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -129,11 +129,19 @@ public:
 
         //- Return the effective sub-grid turbulence stress tensor
         //  including the laminar stress
-        virtual tmp<volSymmTensorField> devBeff() const;
+        virtual tmp<volSymmTensorField> devReff() const;
 
-        //- Implementation of div(B). This is necessary to override
-        // (and include) the div(B) terms from both the parent classes.
-        virtual tmp<fvVectorMatrix> divDevBeff(volVectorField& U) const;
+        //- Return the deviatoric part of the effective sub-grid
+        //  turbulence stress tensor including the laminar stress
+        virtual tmp<fvVectorMatrix> divDevReff(volVectorField& U) const;
+
+        //- Return the deviatoric part of the effective sub-grid
+        //  turbulence stress tensor including the laminar stress
+        virtual tmp<fvVectorMatrix> divDevRhoReff
+        (
+            const volScalarField& rho,
+            volVectorField& U
+        ) const;
 
         //- Correct Eddy-Viscosity and related properties
         virtual void correct(const tmp<volTensorField>& gradU);

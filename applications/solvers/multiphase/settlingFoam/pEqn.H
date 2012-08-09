@@ -15,6 +15,7 @@
          + fvc::ddtPhiCorr(rAU, rho, U, phi)
         )
     );
+    phi = phiHbyA;
 
     surfaceScalarField phig
     (

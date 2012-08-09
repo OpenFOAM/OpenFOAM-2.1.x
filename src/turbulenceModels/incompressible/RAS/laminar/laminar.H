@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -104,6 +104,13 @@ public:
 
         //- Return the source term for the momentum equation
         virtual tmp<fvVectorMatrix> divDevReff(volVectorField& U) const;
+
+        //- Return the source term for the momentum equation
+        virtual tmp<fvVectorMatrix> divDevRhoReff
+        (
+            const volScalarField& rho,
+            volVectorField& U
+        ) const;
 
         //- Correct the laminar viscosity
         virtual void correct();

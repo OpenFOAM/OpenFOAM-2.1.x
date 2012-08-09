@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -24,7 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "RASModel.H"
-#include "wallFvPatch.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -82,9 +81,7 @@ RASModel::RASModel
 
     kMin_("kMin", sqr(dimVelocity), SMALL),
     epsilonMin_("epsilonMin", kMin_.dimensions()/dimTime, SMALL),
-    omegaMin_("omegaMin", dimless/dimTime, SMALL),
-
-    y_(mesh_)
+    omegaMin_("omegaMin", dimless/dimTime, SMALL)
 {
     kMin_.readIfPresent(*this);
     epsilonMin_.readIfPresent(*this);
@@ -156,57 +153,9 @@ autoPtr<RASModel> RASModel::New
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-
-scalar RASModel::yPlusLam(const scalar kappa, const scalar E) const
-{
-    scalar ypl = 11.0;
-
-    for (int i=0; i<10; i++)
-    {
-        ypl = log(max(E*ypl, 1))/kappa;
-    }
-
-    return ypl;
-}
-
-
-tmp<scalarField> RASModel::yPlus(const label patchNo, const scalar Cmu) const
-{
-    const fvPatch& curPatch = mesh_.boundary()[patchNo];
-
-    tmp<scalarField> tYp(new scalarField(curPatch.size()));
-    scalarField& Yp = tYp();
-
-    if (isA<wallFvPatch>(curPatch))
-    {
-        Yp = pow025(Cmu)
-            *y_[patchNo]
-            *sqrt(k()().boundaryField()[patchNo].patchInternalField())
-            /nu()().boundaryField()[patchNo];
-    }
-    else
-    {
-        WarningIn
-        (
-            "tmp<scalarField> RASModel::yPlus(const label patchNo) const"
-        )   << "Patch " << patchNo << " is not a wall. Returning null field"
-            << nl << endl;
-
-        Yp.setSize(0);
-    }
-
-    return tYp;
-}
-
-
 void RASModel::correct()
 {
     turbulenceModel::correct();
-
-    if (turbulence_ && mesh_.changing())
-    {
-        y_.correct();
-    }
 }
 
 

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -85,7 +85,7 @@ LESModel::LESModel
 
     // Force the construction of the mesh deltaCoeffs which may be needed
     // for the construction of the derived models and BCs
-    mesh_.nonOrthDeltaCoeffs();
+    mesh_.deltaCoeffs();
 }
 
 

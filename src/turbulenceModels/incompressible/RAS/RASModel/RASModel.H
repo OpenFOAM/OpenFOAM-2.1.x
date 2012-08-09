@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -44,7 +44,6 @@ SourceFiles
 #include "incompressible/turbulenceModel/turbulenceModel.H"
 #include "volFields.H"
 #include "surfaceFields.H"
-#include "nearWallDist.H"
 #include "fvm.H"
 #include "fvc.H"
 #include "fvMatrices.H"
@@ -93,9 +92,6 @@ protected:
 
         //- Lower limit for omega
         dimensionedScalar omegaMin_;
-
-        //- Near wall distance boundary field
-        nearWallDist y_;
 
 
     // Protected Member Functions
@@ -208,15 +204,6 @@ public:
                 return omegaMin_;
             }
 
-            //- Return the near wall distances
-            const nearWallDist& y() const
-            {
-                return y_;
-            }
-
-            //- Calculate y+ at the edge of the laminar sublayer
-            scalar yPlusLam(const scalar kappa, const scalar E) const;
-
             //- Const access to the coefficients dictionary
             const dictionary& coeffDict() const
             {
@@ -232,13 +219,6 @@ public:
                 new volScalarField("nuEff", nut() + nu())
             );
         }
-
-        //- Return yPlus for the given patch
-        virtual tmp<scalarField> yPlus
-        (
-            const label patchI,
-            const scalar Cmu
-        ) const;
 
         //- Solve the turbulence equations and correct the turbulence viscosity
         virtual void correct();

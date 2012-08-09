@@ -38,16 +38,18 @@
     (
         (fvc::interpolate(HbyA1) & mesh.Sf())
       + fvc::ddtPhiCorr(rAU1, U1, phi1)
-      + phiDrag1
     );
 
     surfaceScalarField phiHbyA2
     (
         (fvc::interpolate(HbyA2) & mesh.Sf())
       + fvc::ddtPhiCorr(rAU2, U2, phi2)
-      + phiDrag2
     );
 
+    phi = alpha1f*phiHbyA1 + alpha2f*phiHbyA2;
+
+    phiHbyA1 += phiDrag1;
+    phiHbyA2 += phiDrag2;
     surfaceScalarField phiHbyA("phiHbyA", alpha1f*phiHbyA1 + alpha2f*phiHbyA2);
 
     surfaceScalarField Dp

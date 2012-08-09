@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -68,14 +68,14 @@ atmBoundaryLayerInletVelocityFvPatchVectorField
 )
 :
     fixedValueFvPatchVectorField(ptf, p, iF, mapper),
-    Ustar_(ptf.Ustar_),
+    Ustar_(ptf.Ustar_, mapper),
     n_(ptf.n_),
     z_(ptf.z_),
-    z0_(ptf.z0_),
+    z0_(ptf.z0_, mapper),
     kappa_(ptf.kappa_),
     Uref_(ptf.Uref_),
     Href_(ptf.Href_),
-    zGround_(ptf.zGround_)
+    zGround_(ptf.zGround_, mapper)
 {}
 
 
@@ -108,7 +108,7 @@ atmBoundaryLayerInletVelocityFvPatchVectorField
                 "onst dictionary&"
             ")"
         )
-            << "magnitude of n, z and z0 vectors must be greater than zero"
+            << "magnitude of n or z must be greater than zero"
             << abort(FatalError);
     }
 
@@ -120,7 +120,25 @@ atmBoundaryLayerInletVelocityFvPatchVectorField
         Ustar_[i] = kappa_*Uref_/(log((Href_  + z0_[i])/max(z0_[i] , 0.001)));
     }
 
-    evaluate();
+    const vectorField& c = patch().Cf();
+    const scalarField coord(c & z_);
+    scalarField Un(coord.size());
+
+    forAll(coord, i)
+    {
+        if ((coord[i] - zGround_[i]) < Href_)
+        {
+            Un[i] =
+                (Ustar_[i]/kappa_)
+              * log((coord[i] - zGround_[i] + z0_[i])/max(z0_[i], 0.001));
+        }
+        else
+        {
+            Un[i] = Uref_;
+        }
+    }
+
+    vectorField::operator=(n_*Un);
 }
 
 
@@ -171,37 +189,6 @@ void atmBoundaryLayerInletVelocityFvPatchVectorField::rmap
     z0_.rmap(blptf.z0_, addr);
     zGround_.rmap(blptf.zGround_, addr);
     Ustar_.rmap(blptf.Ustar_, addr);
-}
-
-
-void atmBoundaryLayerInletVelocityFvPatchVectorField::updateCoeffs()
-{
-    if (updated())
-    {
-        return;
-    }
-
-    const vectorField& c = patch().Cf();
-    const scalarField coord(c & z_);
-    scalarField Un(coord.size());
-
-    forAll(coord, i)
-    {
-        if ((coord[i] - zGround_[i]) < Href_)
-        {
-            Un[i] =
-                (Ustar_[i]/kappa_)
-              * log((coord[i] - zGround_[i] + z0_[i])/max(z0_[i], 0.001));
-        }
-        else
-        {
-            Un[i] = Uref_;
-        }
-    }
-
-    vectorField::operator=(n_*Un);
-
-    fixedValueFvPatchVectorField::updateCoeffs();
 }
 
 

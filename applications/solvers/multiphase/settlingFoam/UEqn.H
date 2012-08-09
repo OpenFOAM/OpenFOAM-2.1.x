@@ -11,7 +11,6 @@
         )
       - fvm::laplacian(muEff, U, "laplacian(muEff,U)")
       - (fvc::grad(U) & fvc::grad(muEff))
-    //- fvc::div(muEff*dev2(T(fvc::grad(U))))
     );
 
     UEqn.relax();

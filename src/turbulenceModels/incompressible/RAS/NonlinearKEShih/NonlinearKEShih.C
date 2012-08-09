@@ -26,6 +26,7 @@ License
 #include "NonlinearKEShih.H"
 #include "addToRunTimeSelectionTable.H"
 #include "wallFvPatch.H"
+#include "nutkWallFunctionFvPatchScalarField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -282,6 +283,23 @@ tmp<fvVectorMatrix> NonlinearKEShih::divDevReff(volVectorField& U) const
         fvc::div(nonlinearStress_)
       - fvm::laplacian(nuEff(), U)
       - fvc::div(nuEff()*dev(T(fvc::grad(U))))
+    );
+}
+
+
+tmp<fvVectorMatrix> NonlinearKEShih::divDevRhoReff
+(
+    const volScalarField& rho,
+    volVectorField& U
+) const
+{
+    volScalarField muEff("muEff", rho*nuEff());
+
+    return
+    (
+        fvc::div(rho*nonlinearStress_)
+      - fvm::laplacian(muEff, U)
+      - fvc::div(muEff*dev(T(fvc::grad(U))))
     );
 }
 

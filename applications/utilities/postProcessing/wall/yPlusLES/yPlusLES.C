@@ -34,6 +34,7 @@ Description
 #include "LESModel.H"
 #include "nearWallDist.H"
 #include "wallDist.H"
+#include "wallFvPatch.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

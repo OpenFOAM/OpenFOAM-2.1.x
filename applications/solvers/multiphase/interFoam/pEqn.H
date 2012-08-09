@@ -13,6 +13,7 @@
     );
 
     adjustPhi(phiHbyA, U, p_rgh);
+    phi = phiHbyA;
 
     surfaceScalarField phig
     (
