@@ -85,6 +85,7 @@ do
         ;;
     -builtin)
         extension=foam
+        requirePV=0
         shift
         ;;
     -case)
