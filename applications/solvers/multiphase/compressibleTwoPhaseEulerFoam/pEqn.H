@@ -178,7 +178,7 @@
     rho2 = rho20 + psi2*p;
 
     K1 = 0.5*magSqr(U1);
-    K2 = 0.5*magSqr(U1);
+    K2 = 0.5*magSqr(U2);
 
     dpdt = fvc::ddt(p);
 }
