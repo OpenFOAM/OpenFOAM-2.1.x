@@ -20,4 +20,5 @@ EXE_LIBS = \
     -lincompressibleTransportModels \
     -lcompressibleMultiphaseEulerianInterfacialModels \
     -lincompressibleLESModels \
+    -lincompressibleRASModels \
     -lfiniteVolume
