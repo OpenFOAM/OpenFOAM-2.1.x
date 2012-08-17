@@ -1,12 +1,12 @@
 #!/bin/sh
 cd ${0%/*} || exit 1    # run from this directory
 
-                                                                                                                                                                                                                                                                                                                          
-(                                                                                                                                                                                                                                                                                                                         
-    cd flange || exit                                                                                                                                                                                                                                                                                                   
-    ./Allrun                                                                                                                                                                                                                                                                                                              
-)                                                                                                                                                                                                                                                                                                                         
-                                                                                                                                                                                                                                                                                                                          
+
+(
+    cd flange || exit
+    ./Allrun
+)
+
 exit 0
 
 # These cases are links to solver test cases and are run when the Allrun
