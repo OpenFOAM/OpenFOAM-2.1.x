@@ -25,7 +25,7 @@ dictionaryReplacement
             startFace       1756182;
             neighbourPatch  AMI2;
             transform       noOrdering;
-            surface         
+            surface
             {
             }
         }
@@ -36,7 +36,7 @@ dictionaryReplacement
             startFace       1756182;
             neighbourPatch  AMI1;
             transform       noOrdering;
-            surface         
+            surface
             {
             }
         }
