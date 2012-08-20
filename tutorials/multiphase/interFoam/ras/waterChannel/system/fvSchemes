@@ -33,6 +33,7 @@ divSchemes
 
     div(phi,k)      Gauss upwind;
     div(phi,omega)  $div(phi,k);
+    div((muEff*dev(T(grad(U))))) Gauss linear;
 }
 
 laplacianSchemes
