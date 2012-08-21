@@ -104,7 +104,7 @@ class codedFixedValueFvPatchField
     // Private data
 
         //- Dictionary contents for the boundary condition
-        mutable dictionary dict_;
+        const dictionary dict_;
 
         const word redirectType_;
 
