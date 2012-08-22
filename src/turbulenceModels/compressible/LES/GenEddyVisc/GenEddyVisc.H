@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -108,7 +108,21 @@ public:
         //- Return sub-grid disipation rate
         virtual tmp<volScalarField> epsilon() const
         {
-            return ce_*k()*sqrt(k())/delta();
+            return tmp<volScalarField>
+            (
+                new volScalarField
+                (
+                    IOobject
+                    (   
+                        "epsilon",
+                        runTime_.timeName(),
+                        mesh_,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
+                    ),
+                    ce_*k()*sqrt(k())/delta()
+                )
+            );
         }
 
         //- Return viscosity
