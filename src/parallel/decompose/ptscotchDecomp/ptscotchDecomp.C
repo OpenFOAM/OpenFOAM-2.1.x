@@ -129,17 +129,9 @@ extern "C"
 
 // Hack: scotch generates floating point errors so need to switch of error
 //       trapping!
-#if defined(linux) || defined(linuxAMD64) || defined(linuxIA64)
-#    define LINUX
-#endif
-
-#if defined(LINUX) && defined(__GNUC__)
-#    define LINUX_GNUC
-#endif
-
-#ifdef LINUX_GNUC
-#   ifndef __USE_GNU
-#       define __USE_GNU
+#ifdef __GLIBC__
+#   ifndef _GNU_SOURCE
+#       define _GNU_SOURCE
 #   endif
 #   include <fenv.h>
 #endif
@@ -651,7 +643,7 @@ Foam::label Foam::ptscotchDecomp::decompose
 
 
     // Hack:switch off fpu error trapping
-#   ifdef LINUX_GNUC
+#   ifdef  FE_NOMASK_ENV
     int oldExcepts = fedisableexcept
     (
         FE_DIVBYZERO
@@ -681,7 +673,7 @@ Foam::label Foam::ptscotchDecomp::decompose
         "SCOTCH_graphMap"
     );
 
-#   ifdef LINUX_GNUC
+#   ifdef  FE_NOMASK_ENV
     feenableexcept(oldExcepts);
 #   endif
 
