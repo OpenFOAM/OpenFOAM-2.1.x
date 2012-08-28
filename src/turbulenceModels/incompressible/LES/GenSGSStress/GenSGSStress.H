@@ -104,14 +104,43 @@ public:
         //- Return the SGS turbulent kinetic energy.
         virtual tmp<volScalarField> k() const
         {
-            return 0.5*tr(B_);
+            return tmp<volScalarField>
+            (
+                new volScalarField
+                (
+                    IOobject
+                    (   
+                        "k",
+                        runTime_.timeName(),
+                        mesh_,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
+                    ),
+                    0.5*tr(B_)
+                )
+            );
         }
 
         //- Return the SGS turbulent dissipation.
         virtual tmp<volScalarField> epsilon() const
         {
             const volScalarField K(k());
-            return ce_*K*sqrt(K)/delta();
+            
+            return tmp<volScalarField>
+            (
+                new volScalarField
+                (
+                    IOobject
+                    (   
+                        "epsilon",
+                        runTime_.timeName(),
+                        mesh_,
+                        IOobject::NO_READ,
+                        IOobject::NO_WRITE
+                    ),
+                    ce_*K*sqrt(K)/delta()
+                )
+            );
         }
 
         //- Return the SGS viscosity.

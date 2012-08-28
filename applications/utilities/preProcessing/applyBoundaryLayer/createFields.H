@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -41,9 +41,9 @@ License
 
     singlePhaseTransportModel laminarTransport(U, phi);
 
-    autoPtr<incompressible::RASModel> turbulence
+    autoPtr<incompressible::turbulenceModel> turbulence
     (
-        incompressible::RASModel::New(U, phi, laminarTransport)
+        incompressible::turbulenceModel::New(U, phi, laminarTransport)
     );
 
     Info<< "Calculating wall distance field" << endl;
@@ -61,13 +61,6 @@ License
     {
         // Calculate boundary layer thickness as Cbl * mean distance to wall
         ybl.value() = gAverage(y) * args.optionRead<scalar>("Cbl");
-    }
-    else
-    {
-        FatalErrorIn(args.executable())
-            << "Neither option 'ybl' or 'Cbl' have been provided to calculate "
-            << "the boundary-layer thickness"
-            << exit(FatalError);
     }
 
     Info<< "\nCreating boundary-layer for U of thickness "

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -52,7 +52,8 @@ sixDoFRigidBodyDisplacementPointPatchVectorField
     rhoInf_(1.0),
     rhoName_("rho"),
     lookupGravity_(-1),
-    g_(vector::zero)
+    g_(vector::zero),
+    relaxationFactor_(1)
 {}
 
 
@@ -69,7 +70,8 @@ sixDoFRigidBodyDisplacementPointPatchVectorField
     rhoInf_(1.0),
     rhoName_(dict.lookupOrDefault<word>("rhoName", "rho")),
     lookupGravity_(-1),
-    g_(vector::zero)
+    g_(vector::zero),
+    relaxationFactor_(dict.lookupOrDefault<scalar>("relaxationFactor", 1))
 {
     if (rhoName_ == "rhoInf")
     {
@@ -112,7 +114,8 @@ sixDoFRigidBodyDisplacementPointPatchVectorField
     rhoInf_(ptf.rhoInf_),
     rhoName_(ptf.rhoName_),
     lookupGravity_(ptf.lookupGravity_),
-    g_(ptf.g_)
+    g_(ptf.g_),
+    relaxationFactor_(ptf.relaxationFactor_)
 {}
 
 
@@ -129,7 +132,8 @@ sixDoFRigidBodyDisplacementPointPatchVectorField
     rhoInf_(ptf.rhoInf_),
     rhoName_(ptf.rhoName_),
     lookupGravity_(ptf.lookupGravity_),
-    g_(ptf.g_)
+    g_(ptf.g_),
+    relaxationFactor_(ptf.relaxationFactor_)
 {}
 
 
@@ -235,7 +239,11 @@ void sixDoFRigidBodyDisplacementPointPatchVectorField::updateCoeffs()
 
     Field<vector>::operator=
     (
-        motion_.currentPosition(initialPoints_) - initialPoints_
+        relaxationFactor_
+       *(
+           motion_.currentPosition(initialPoints_)
+         - initialPoints_
+       )
     );
 
     fixedValuePointPatchField<vector>::updateCoeffs();
@@ -257,6 +265,9 @@ void sixDoFRigidBodyDisplacementPointPatchVectorField::write(Ostream& os) const
     {
         os.writeKeyword("g") << g_ << token::END_STATEMENT << nl;
     }
+
+    os.writeKeyword("relaxationFactor")
+        << relaxationFactor_ << token::END_STATEMENT << nl;
 
     motion_.write(os);
 

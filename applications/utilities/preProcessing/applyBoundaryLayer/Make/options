@@ -9,6 +9,7 @@ EXE_INC = \
 EXE_LIBS = \
     -lfiniteVolume \
     -lincompressibleRASModels \
+    -lincompressibleLESModels \
     -lincompressibleTransportModels \
     -lgenericPatchFields \
     -lmeshTools
