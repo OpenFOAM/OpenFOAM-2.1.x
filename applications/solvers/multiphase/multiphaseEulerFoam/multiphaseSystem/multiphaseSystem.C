@@ -403,11 +403,6 @@ Foam::multiphaseSystem::multiphaseSystem
     calcAlphas();
     alphas_.write();
 
-    forAllIter(PtrDictionary<phaseModel>, phases_, iter)
-    {
-        phaseModelTable_.add(iter());
-    }
-
     interfaceDictTable dragModelsDict(lookup("drag"));
 
     forAllConstIter(interfaceDictTable, dragModelsDict, iter)
@@ -418,8 +413,8 @@ Foam::multiphaseSystem::multiphaseSystem
             dragModel::New
             (
                 iter(),
-                *phaseModelTable_.find(iter.key().first())(),
-                *phaseModelTable_.find(iter.key().second())()
+                *phases_.lookup(iter.key().first()),
+                *phases_.lookup(iter.key().second())
             ).ptr()
         );
     }
