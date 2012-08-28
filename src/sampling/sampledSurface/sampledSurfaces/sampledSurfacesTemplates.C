@@ -165,43 +165,33 @@ void Foam::sampledSurfaces::sampleAndWrite
 
 
 template<class GeoField>
-void Foam::sampledSurfaces::sampleAndWrite
-(
-    const IOobjectList& allObjects
-)
+void Foam::sampledSurfaces::sampleAndWrite(const fvMesh& mesh)
 {
-    IOobjectList fields = allObjects.lookupClass(GeoField::typeName);
-    forAllConstIter(IOobjectList, fields, fieldIter)
+    forAll (fieldSelection_, fieldI)
     {
-        forAll (fieldSelection_, fieldI)
-        {
-            const wordRe field = fieldSelection_[fieldI];
-            if (field.match(fieldIter()->name()))
-            {
-                if (Pstream::master() && verbose_)
-                {
-                    Pout<< "sampleAndWrite: " << field << endl;
-                }
+        const wordRe field = fieldSelection_[fieldI];
 
-                if (loadFromFiles_)
-                {
-                    fieldIter()->readOpt() = IOobject::MUST_READ;
-                    sampleAndWrite
-                    (
-                        GeoField
-                        (
-                            *fieldIter(),
-                            mesh_
-                        )
-                    );
-                }
-                else
-                {
-                    sampleAndWrite
-                    (
-                        mesh_.lookupObject<GeoField>(fieldIter()->name())
-                    );
-                }
+        if (mesh.thisDb().foundObject<GeoField>(field))
+        {
+            if (Pstream::master() && verbose_)
+            {
+                Pout<< "sampleAndWrite: " << field << endl;
+            }
+
+            if (loadFromFiles_)
+            {
+                const GeoField& geoField =
+                    mesh.thisDb().lookupObject<GeoField>(field);
+
+                const_cast<GeoField&>(geoField).readOpt() = IOobject::MUST_READ;
+                sampleAndWrite(geoField);
+            }
+            else
+            {
+                sampleAndWrite
+                (
+                    mesh.thisDb().lookupObject<GeoField>(field)
+                );
             }
         }
     }

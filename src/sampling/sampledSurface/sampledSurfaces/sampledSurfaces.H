@@ -157,12 +157,9 @@ class sampledSurfaces
             const GeometricField<Type, fvsPatchField, surfaceMesh>&
         );
 
-        //- Sample and write all the fields of the given type
+        //- Sample and write all sampled fields
         template<class Type>
-        void sampleAndWrite
-        (
-            const IOobjectList& allObjects
-        );
+        void sampleAndWrite(const fvMesh&);
 
         //- Disallow default bitwise copy construct and assignment
         sampledSurfaces(const sampledSurfaces&);
