@@ -159,25 +159,6 @@ private:
         //- Dictionary of phases
         PtrDictionary<phaseModel> phases_;
 
-        //- phaseModelTable
-        class phaseModelTable
-        :
-            public HashTable<const phaseModel*>
-        {
-        public:
-
-            phaseModelTable()
-            {}
-
-            void add(const phaseModel& pm)
-            {
-                this->insert(pm.name(), &pm);
-            }
-        };
-
-        //- Phase model table for quick lookup
-        phaseModelTable phaseModelTable_;
-
         const fvMesh& mesh_;
         const surfaceScalarField& phi_;
 
