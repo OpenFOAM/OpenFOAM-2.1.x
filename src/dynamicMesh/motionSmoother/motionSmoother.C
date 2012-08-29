@@ -844,7 +844,8 @@ Foam::tmp<Foam::scalarField> Foam::motionSmoother::movePoints
 
     // Move actual mesh points. Make sure to delete tetBasePtIs so it
     // gets rebuilt.
-    tmp<scalarField> tsweptVol = mesh_.movePoints(newPoints, true);
+    mesh_.clearAdditionalGeom();
+    tmp<scalarField> tsweptVol = mesh_.movePoints(newPoints);
 
     pp_.movePoints(mesh_.points());
 

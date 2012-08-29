@@ -442,11 +442,7 @@ public:
             }
 
             //- Move points, returns volumes swept by faces in motion
-            virtual tmp<scalarField> movePoints
-            (
-                const pointField&,
-                const bool deleteDemandDrivenData = false
-            );
+            virtual tmp<scalarField> movePoints(const pointField&);
 
             //- Reset motion
             void resetMotion() const;
@@ -525,6 +521,9 @@ public:
 
             //- Clear primitive data (points, faces and cells)
             void clearPrimitives();
+
+            //- Clear geometry not used for CFD (cellTree, tetBasePtIs)
+            void clearAdditionalGeom();
 
             //- Clear cell tree data
             void clearCellTree();
