@@ -31,6 +31,7 @@ divSchemes
     div(phiv,rho)   Gauss limitedLinear 0.2;
     div(phi,U)      Gauss filteredLinear2V 0.2 0;
     div(phiv,k)     Gauss filteredLinear2 0.2 0;
+    div((muEff*dev(T(grad(U))))) Gauss linear;
 }
 
 gradSchemes
