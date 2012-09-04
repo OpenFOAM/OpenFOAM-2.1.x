@@ -33,7 +33,7 @@ divSchemes
     div(rho*phi,U)  Gauss linear;
     div(phi,alpha1) Gauss vanLeer;
     div(phi,k)      Gauss limitedLinear 1;
-    div(((rho*nuEff)*dev(grad(U).T()))) Gauss linear;
+    div((muEff*dev(T(grad(U))))) Gauss linear;
 }
 
 laplacianSchemes

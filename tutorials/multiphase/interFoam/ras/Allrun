@@ -46,9 +46,6 @@ cloneCase damBreak damBreakFine
     runApplication reconstructPar
 )
 
-# Do damBreakPorousBaffle
-(cd damBreakPorousBaffle && foamRunTutorials)
-
 # Do waterChannel
 (cd waterChannel && foamRunTutorials)
 
