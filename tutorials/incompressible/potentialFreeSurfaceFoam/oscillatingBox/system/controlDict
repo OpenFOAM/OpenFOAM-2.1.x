@@ -55,17 +55,16 @@ functions
 {
     forces
     {
-	type 		forces;
-	functionObjectLibs ("libforces.so");
-	outputControl	outputTime;
-	outputInterval	1;
-	patches 	(floatingObject);
-	pName		p;
-	UName		U;
-	rhoName		rhoInf;
-	log		true;
-	rhoInf		1000;
-	CofR		(0 0 0);
+        type            forces;
+        functionObjectLibs ("libforces.so");
+        outputControl   outputTime;
+        patches         (floatingObject);
+        pName           p;
+        UName           U;
+        rhoName         rhoInf;
+        log             true;
+        rhoInf          1000;
+        CofR            (0 0 0);
     }
 
     poolHeight
@@ -74,7 +73,7 @@ functions
         functionObjectLibs ("libfieldFunctionObjects.so");
         enabled         true;
         outputControl   timeStep;
-        timeInteval     1;
+        outputInterval  1;
         log             true;
         valueOutput     false;
         source          faceZone;
@@ -84,7 +83,7 @@ functions
         (
             zeta
         );
-        
+
     }
 };
 
