@@ -30,10 +30,26 @@ License
 #include "MapGeometricFields.H"
 #include "MapPointField.H"
 
+
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
+
+namespace Foam
+{
+
+defineTypeNameAndDebug(pointMesh, 0);
+
+}
+
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 void Foam::pointMesh::mapFields(const mapPolyMesh& mpm)
 {
+    if (debug)
+    {
+        Pout<< "void pointMesh::mapFields(const mapPolyMesh&): "
+            << "Mapping all registered pointFields."
+            << endl;
+    }
     // Create a mapper
     const pointMeshMapper m(*this, mpm);
 
@@ -60,6 +76,13 @@ Foam::pointMesh::pointMesh(const polyMesh& pMesh)
     GeoMesh<polyMesh>(pMesh),
     boundary_(*this, pMesh.boundaryMesh())
 {
+    if (debug)
+    {
+        Pout<< "pointMesh::pointMesh(const polyMesh&): "
+            << "Constructing from polyMesh " << pMesh.name()
+            << endl;
+    }
+
     // Calculate the geometry for the patches (transformation tensors etc.)
     boundary_.calcGeometry();
 }
@@ -67,12 +90,24 @@ Foam::pointMesh::pointMesh(const polyMesh& pMesh)
 
 void Foam::pointMesh::movePoints(const pointField& newPoints)
 {
+    if (debug)
+    {
+        Pout<< "pointMesh::movePoints(const pointField&): "
+            << "Moving points." << endl;
+    }
+
     boundary_.movePoints(newPoints);
 }
 
 
 void Foam::pointMesh::updateMesh(const mapPolyMesh& mpm)
 {
+    if (debug)
+    {
+        Pout<< "pointMesh::updateMesh(const mapPolyMesh&): "
+            << "Updating for topology changes." << endl;
+        Pout<< endl;
+    }
     boundary_.updateMesh();
 
     // Map all registered point fields

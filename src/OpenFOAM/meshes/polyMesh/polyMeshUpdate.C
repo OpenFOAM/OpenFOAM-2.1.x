@@ -38,6 +38,13 @@ Description
 
 void Foam::polyMesh::updateMesh(const mapPolyMesh& mpm)
 {
+    if (debug)
+    {
+        Info<< "void polyMesh::updateMesh(const mapPolyMesh&) : "
+            << "updating addressing and (optional) pointMesh/pointFields"
+            << endl;
+    }
+
     // Update boundaryMesh (note that patches themselves already ok)
     boundary_.updateMesh();
 

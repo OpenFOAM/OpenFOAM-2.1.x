@@ -76,8 +76,6 @@ void Foam::polyMesh::clearGeom()
     tetBasePtIsPtr_.clear();
     // Remove the cell tree
     cellTreePtr_.clear();
-
-    pointMesh::Delete(*this);
 }
 
 
@@ -125,8 +123,6 @@ void Foam::polyMesh::clearAddressing()
     tetBasePtIsPtr_.clear();
     // Remove the cell tree
     cellTreePtr_.clear();
-
-    pointMesh::Delete(*this);
 }
 
 
@@ -139,6 +135,8 @@ void Foam::polyMesh::clearPrimitives()
     owner_.setSize(0);
     neighbour_.setSize(0);
 
+    pointMesh::Delete(*this);
+
     clearedPrimitives_ = true;
 }
 
@@ -147,11 +145,20 @@ void Foam::polyMesh::clearOut()
 {
     clearGeom();
     clearAddressing();
+
+    pointMesh::Delete(*this);
 }
 
 
 void Foam::polyMesh::clearCellTree()
 {
+    if (debug)
+    {
+        Info<< "void polyMesh::clearCellTree() : "
+            << "clearing cell tree"
+            << endl;
+    }
+
     cellTreePtr_.clear();
 }
 
