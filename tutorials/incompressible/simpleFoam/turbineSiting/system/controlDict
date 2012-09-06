@@ -14,6 +14,8 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+libs            ("libincompressibleRASModels.so");
+
 application     simpleFoam;
 
 startFrom       latestTime;

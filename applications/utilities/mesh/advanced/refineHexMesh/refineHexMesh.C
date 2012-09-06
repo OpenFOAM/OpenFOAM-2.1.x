@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -60,8 +60,6 @@ int main(int argc, char *argv[])
 #   include "createMesh.H"
     const word oldInstance = mesh.pointsInstance();
 
-    pointMesh pMesh(mesh);
-
     word cellSetName(args.args()[1]);
     const bool overwrite = args.optionFound("overwrite");
 
@@ -114,11 +112,10 @@ int main(int argc, char *argv[])
 
     // Read point fields
     PtrList<pointScalarField> psFlds;
-    ReadFields(pMesh, objects, psFlds);
+    ReadFields(pointMesh::New(mesh), objects, psFlds);
 
     PtrList<pointVectorField> pvFlds;
-    ReadFields(pMesh, objects, pvFlds);
-
+    ReadFields(pointMesh::New(mesh), objects, pvFlds);
 
 
     // Construct refiner without unrefinement. Read existing point/cell level.
@@ -164,7 +161,6 @@ int main(int argc, char *argv[])
 
     // Update fields
     mesh.updateMesh(map);
-    pMesh.updateMesh(map);
 
     // Update numbering of cells/vertices.
     meshCutter.updateMesh(map);
@@ -173,7 +169,6 @@ int main(int argc, char *argv[])
     if (map().hasMotionPoints())
     {
         mesh.movePoints(map().preMotionPoints());
-        pMesh.movePoints(map().preMotionPoints());
     }
 
     Pout<< "Refined from " << returnReduce(map().nOldCells(), sumOp<label>())

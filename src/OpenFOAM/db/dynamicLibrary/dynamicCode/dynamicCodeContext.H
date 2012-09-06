@@ -123,7 +123,7 @@ public:
             return sha1_;
         }
 
-        //- Helper: add #line directive
+        //- Helper: add \#line directive
         static void addLineDirective
         (
             string&,

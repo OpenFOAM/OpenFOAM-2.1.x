@@ -195,7 +195,7 @@ void Foam::vtkPV3Foam::convertPointFields
     }
 
     // Construct interpolation on the raw mesh
-    pointMesh pMesh(mesh);
+    const pointMesh& pMesh = pointMesh::New(mesh);
 
 
     convertPointFields<scalar>
