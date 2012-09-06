@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
         laminarTransport.correct();
 
-        mu = nu*rhoInfValue;
+        mu = laminarTransport.nu()*rhoInfValue;
 
         kinematicCloud.evolve();
 

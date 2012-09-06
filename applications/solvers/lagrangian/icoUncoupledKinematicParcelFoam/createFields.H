@@ -54,8 +54,6 @@
         incompressible::turbulenceModel::New(U, phi, laminarTransport)
     );
 
-    const volScalarField nu(laminarTransport.nu());
-
     volScalarField mu
     (
         IOobject
@@ -66,7 +64,7 @@
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        nu*rhoInfValue
+        laminarTransport.nu()*rhoInfValue
     );
 
     word kinematicCloudName("kinematicCloud");
