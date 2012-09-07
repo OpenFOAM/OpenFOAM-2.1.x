@@ -199,7 +199,8 @@ void Foam::externalWallHeatFluxTemperatureFvPatchScalarField::updateCoeffs()
     }
 
     scalarField q(size(), 0.0);
-    scalarField KDelta(K(*this)*patch().deltaCoeffs());
+    scalarField KWall(K(*this));
+    scalarField KDelta(KWall*patch().deltaCoeffs());
 
     if (oldMode_ == fixedHeatFlux)
     {
@@ -223,7 +224,7 @@ void Foam::externalWallHeatFluxTemperatureFvPatchScalarField::updateCoeffs()
     {
         if (q[i] > 0) //in
         {
-            this->refGrad()[i] = q[i]/K(*this)()[i];
+            this->refGrad()[i] = q[i]/KWall[i];
             this->refValue()[i] = 0.0;
             this->valueFraction()[i] = 0.0;
         }
@@ -239,7 +240,7 @@ void Foam::externalWallHeatFluxTemperatureFvPatchScalarField::updateCoeffs()
 
     if (debug)
     {
-        scalar Q = gSum(K(*this)*patch().magSf()*snGrad());
+        scalar Q = gSum(KWall*patch().magSf()*snGrad());
 
         Info<< patch().boundaryMesh().mesh().name() << ':'
             << patch().name() << ':'
