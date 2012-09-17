@@ -29,6 +29,8 @@ Description
     heat source either specified in terms of an absolute power [W], or as a
     flux [W/m2].
 
+    Radiative heat flux can be included in thermal equilibrium.
+
     Example usage:
 
         hotWall
@@ -37,6 +39,8 @@ Description
             heatSource      flux;        // power [W]; flux [W/m2]
             q               uniform 10;  // heat power or flux
             K               basicThermo; // calculate K by alphaEff*thermo.Cp
+            KName           none;        // name of the K field
+            Qr              none;        // name of the radiative flux
             value           uniform 300; // initial temperature value
         }
 
@@ -92,6 +96,9 @@ private:
 
         //- Heat power [W] or flux [W/m2]
         scalarField q_;
+
+         //- Name of radiative in flux field
+        word QrName_;
 
 
 public:
