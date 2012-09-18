@@ -69,11 +69,23 @@ flowRateInletVelocityFvPatchVectorField
     const dictionary& dict
 )
 :
-    fixedValueFvPatchField<vector>(p, iF, dict),
+    fixedValueFvPatchField<vector>(p, iF),
     flowRate_(DataEntry<scalar>::New("flowRate", dict)),
     phiName_(dict.lookupOrDefault<word>("phi", "phi")),
     rhoName_(dict.lookupOrDefault<word>("rho", "rho"))
-{}
+{
+    if (dict.found("value") || (phiName_ != "none"))
+    {
+        fvPatchField<vector>::operator=
+        (
+            vectorField("value", dict, p.size())
+        );
+    }
+    else 
+    {
+        evaluate(Pstream::blocking);
+    }
+}
 
 
 Foam::flowRateInletVelocityFvPatchVectorField::
@@ -119,40 +131,49 @@ void Foam::flowRateInletVelocityFvPatchVectorField::updateCoeffs()
 
     tmp<vectorField> n = patch().nf();
 
-    const surfaceScalarField& phi =
-        db().lookupObject<surfaceScalarField>(phiName_);
 
-    if (phi.dimensions() == dimVelocity*dimArea)
+    if (phiName_ == "none")
     {
         // volumetric flow-rate
         operator==(n*avgU);
     }
-    else if (phi.dimensions() == dimDensity*dimVelocity*dimArea)
+    else
     {
-        if (rhoName_ == "none")
+        const surfaceScalarField& phi =
+            db().lookupObject<surfaceScalarField>(phiName_);
+
+        if (phi.dimensions() == dimVelocity*dimArea)
         {
             // volumetric flow-rate
             operator==(n*avgU);
         }
+        else if (phi.dimensions() == dimDensity*dimVelocity*dimArea)
+        {
+            if (rhoName_ == "none")
+            {
+                // volumetric flow-rate
+                operator==(n*avgU);
+            }
+            else
+            {
+                // mass flow-rate
+                const fvPatchField<scalar>& rhop =
+                    patch().lookupPatchField<volScalarField, scalar>(rhoName_);
+
+                operator==(n*avgU/rhop);
+            }
+        }
         else
         {
-            // mass flow-rate
-            const fvPatchField<scalar>& rhop =
-                patch().lookupPatchField<volScalarField, scalar>(rhoName_);
-
-            operator==(n*avgU/rhop);
+            FatalErrorIn
+            (
+                "flowRateInletVelocityFvPatchVectorField::updateCoeffs()"
+            )   << "dimensions of " << phiName_ << " are incorrect" << nl
+                << "    on patch " << this->patch().name()
+                << " of field " << this->dimensionedInternalField().name()
+                << " in file " << this->dimensionedInternalField().objectPath()
+                << nl << exit(FatalError);
         }
-    }
-    else
-    {
-        FatalErrorIn
-        (
-            "flowRateInletVelocityFvPatchVectorField::updateCoeffs()"
-        )   << "dimensions of " << phiName_ << " are incorrect" << nl
-            << "    on patch " << this->patch().name()
-            << " of field " << this->dimensionedInternalField().name()
-            << " in file " << this->dimensionedInternalField().objectPath()
-            << nl << exit(FatalError);
     }
 
     fixedValueFvPatchField<vector>::updateCoeffs();
