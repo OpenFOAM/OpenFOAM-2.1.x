@@ -45,9 +45,6 @@ inline bool Foam::patchEdgeFaceRegion::update
 
     if (w2.region_ == -2 || region_ == -2)
     {
-
-Pout<< "update : " << *this << "   w2:" << w2 << " return FALSE" << endl;
-
         // Blocked edge/face
         return false;
     }
@@ -55,27 +52,18 @@ Pout<< "update : " << *this << "   w2:" << w2 << " return FALSE" << endl;
     if (!valid(td))
     {
         // current not yet set so use any value
-        label oldRegion = region_;
         operator=(w2);
-Pout<< "update : " << *this << " was:" << oldRegion
-    << "   w2:" << w2 << " return TRUE" << endl;
         return true;
     }
     else
     {
         if (w2.region_ < region_)
         {
-            label oldRegion = region_;
             operator=(w2);
-Pout<< "update : " << *this << " was:" << oldRegion
-    << "   w2:" << w2 << " return TRUE" << endl;
-        return true;
-            return true;        
+            return true;
         }
         else
         {
-Pout<< "update : " << *this
-    << "   w2:" << w2 << " return FALSE" << endl;
             return false;
         }
     }
