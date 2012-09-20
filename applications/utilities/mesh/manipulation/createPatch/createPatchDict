@@ -92,8 +92,10 @@ patches
             // Optional: explicitly set transformation tensor.
             // Used when matching and synchronising points.
             transform rotational;
-            rotationAxis    ( 0 0 1 );
-            rotationCentre  ( 0.3 0 0 );
+            rotationAxis (1 0 0);
+            rotationCentre (0 0 0);
+            // transform translational;
+            // separationVector (1 0 0);
         }
 
         // How to construct: either from 'patches' or 'set'
