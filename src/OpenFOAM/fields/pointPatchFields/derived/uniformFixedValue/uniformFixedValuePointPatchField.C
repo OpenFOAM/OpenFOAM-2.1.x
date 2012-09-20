@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -41,7 +41,7 @@ uniformFixedValuePointPatchField
 )
 :
     fixedValuePointPatchField<Type>(p, iF),
-    uniformValue_(pTraits<Type>::zero)
+    uniformValue_()
 {}
 
 
@@ -54,10 +54,21 @@ uniformFixedValuePointPatchField
     const dictionary& dict
 )
 :
-    fixedValuePointPatchField<Type>(p, iF, dict),
-    uniformValue_(pTraits<Type>(dict.lookup("uniformValue")))
+    fixedValuePointPatchField<Type>(p, iF, dict, false),
+    uniformValue_(DataEntry<Type>::New("uniformValue", dict))
 {
-    Field<Type>::operator=(uniformValue_);
+    if (dict.found("value"))
+    {
+        fixedValuePointPatchField<Type>::operator==
+        (
+            Field<Type>("value", dict, p.size())
+        );
+    }
+    else
+    {
+        const scalar t = this->db().time().timeOutputValue();
+        fixedValuePointPatchField<Type>::operator=(uniformValue_->value(t));
+    }
 }
 
 
@@ -72,8 +83,12 @@ uniformFixedValuePointPatchField
 )
 :
     fixedValuePointPatchField<Type>(ptf, p, iF, mapper),
-    uniformValue_(ptf.uniformValue_)
-{}
+    uniformValue_(ptf.uniformValue_().clone().ptr())
+{
+    // For safety re-evaluate
+    const scalar t = this->db().time().timeOutputValue();
+    fixedValuePointPatchField<Type>::operator=(uniformValue_->value(t));
+}
 
 
 template<class Type>
@@ -84,7 +99,7 @@ uniformFixedValuePointPatchField
 )
 :
     fixedValuePointPatchField<Type>(ptf),
-    uniformValue_(ptf.uniformValue_)
+    uniformValue_(ptf.uniformValue_().clone().ptr())
 {}
 
 
@@ -97,19 +112,38 @@ uniformFixedValuePointPatchField
 )
 :
     fixedValuePointPatchField<Type>(ptf, iF),
-    uniformValue_(ptf.uniformValue_)
-{}
+    uniformValue_(ptf.uniformValue_().clone().ptr())
+{
+    // For safety re-evaluate
+    const scalar t = this->db().time().timeOutputValue();
+    fixedValuePointPatchField<Type>::operator==(uniformValue_->value(t));
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 template<class Type>
+void uniformFixedValuePointPatchField<Type>::updateCoeffs()
+{
+    if (this->updated())
+    {
+        return;
+    }
+
+    const scalar t = this->db().time().timeOutputValue();
+    fixedValuePointPatchField<Type>::operator==(uniformValue_->value(t));
+
+    fixedValuePointPatchField<Type>::updateCoeffs();
+}
+
+
+template<class Type>
 void uniformFixedValuePointPatchField<Type>::
 write(Ostream& os) const
 {
-    pointPatchField<Type>::write(os);
-    os.writeKeyword("uniformValue")
-        << uniformValue_ << token::END_STATEMENT << nl;
+    // Note: write value
+    fixedValuePointPatchField<Type>::write(os);
+    uniformValue_->writeData(os);
 }
 
 
