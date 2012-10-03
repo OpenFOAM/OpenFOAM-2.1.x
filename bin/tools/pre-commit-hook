@@ -3,7 +3,7 @@
 # =========                 |
 # \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
 #  \\    /   O peration     |
-#   \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+#   \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
 #    \\/     M anipulation  |
 #------------------------------------------------------------------------------
 # License
@@ -268,22 +268,44 @@ checkLineLengthNonDirective()
 
 
 #
-# check that OpenFOAM Foundation copyright is currents
+# check that OpenFOAM Foundation copyright is current
 #
 checkCopyright()
 {
     year=$(date +%Y)
     echo "$hookName: check copyright ..." 1>&2
 
+    badFiles=$(
     for f in $fileList
     do
-        sYear=`grep "Copyright.*OpenFOAM" $f | sed 's/[^0-9]//g'`
-        if [ "$sYear" != "" ] && [ "$year" != "$sYear" ]; then
-            echo "Updated copyright for: $f"
-            sed -i "s/$sYear OpenFOAM/$year OpenFOAM/g" $f
+        startYear=`grep "Copyright.*OpenFOAM" $f | sed 's/[^0-9]*\([0-9]*\).*/\1/g'`
+        endYear=`grep "Copyright.*-.*OpenFOAM" $f | sed 's/[^-]*-\([0-9]*\).*/\1/g'`
+        #echo "startYear=$startYear endYear=$endYear"
+        if [ "$startYear" != "" ]
+        then
+            if [ "$endYear" != "" ]
+            then
+                # Date is of type 2011-2012 OpenFOAM Foundation
+                if [ "$year" != "$endYear" ]
+                then
+                    echo "Updated copyright for: $f" 1>&2
+                    echo "$f"
+                    sed -i "s/$startYear-$endYear OpenFOAM/$startYear-$year OpenFOAM/g" $f
+                fi
+            else
+                # Date is of type 2011 OpenFOAM Foundation
+                if [ "$year" != "$startYear" ]
+                then
+                    echo "$f"
+                    echo "Updated copyright for: $f" 1>&2
+                    sed -i "s/$startYear OpenFOAM/$startYear-$year OpenFOAM/g" $f
+                fi
+            fi
         fi
-
     done
+    )
+
+    dieOnBadFiles "Some copyright dates were automatically updated; Please check these before pushing"
 }
 
 

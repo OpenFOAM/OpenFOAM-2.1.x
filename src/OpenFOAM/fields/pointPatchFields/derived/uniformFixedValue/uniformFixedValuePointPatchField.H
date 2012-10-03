@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,7 +25,20 @@ Class
     Foam::uniformFixedValuePointPatchField
 
 Description
-    Foam::uniformFixedValuePointPatchField
+    Enables the specification of a uniform fixed value boundary condition.
+
+    Example of the boundary condition specification:
+    \verbatim
+    inlet
+    {
+        type            uniformFixedValue;
+        uniformValue    constant 0.2;
+    }
+    \endverbatim
+
+    The uniformValue entry is a DataEntry type, able to describe time
+    varying functions.  The example above gives the usage for supplying a
+    constant value.
 
 SourceFiles
     uniformFixedValuePointPatchField.C
@@ -36,6 +49,7 @@ SourceFiles
 #define uniformFixedValuePointPatchField_H
 
 #include "fixedValuePointPatchField.H"
+#include "DataEntry.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,7 +67,7 @@ class uniformFixedValuePointPatchField
 {
     // Private data
 
-        Type uniformValue_;
+        autoPtr<DataEntry<Type> > uniformValue_;
 
 
 public:
@@ -136,16 +150,15 @@ public:
         // Access
 
             //- Return the fluctuation scale
-            const Type& uniformValue() const
+            const DataEntry<Type>& uniformValue() const
             {
                 return uniformValue_;
             }
 
-            //- Return reference to the fluctuation scale to allow adjustment
-            Type& uniformValue()
-            {
-                return uniformValue_;
-            }
+        // Evaluation functions
+
+            //- Update the coefficients associated with the patch field
+            virtual void updateCoeffs();
 
 
         //- Write

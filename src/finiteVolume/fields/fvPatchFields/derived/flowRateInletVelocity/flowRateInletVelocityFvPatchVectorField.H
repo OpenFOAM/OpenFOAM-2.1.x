@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -43,10 +43,13 @@ Description
     }
     \endverbatim
 
+    Both phi and rho names can be specified. Default is 'phi' and 'rho'.
+
 Note
     - The value is positive inwards
     - May not work correctly for transonic inlets
     - Strange behaviour with potentialFoam since the U equation is not solved
+    - rho 'none' assumes incompressible flow
 
 SourceFiles
     flowRateInletVelocityFvPatchVectorField.C

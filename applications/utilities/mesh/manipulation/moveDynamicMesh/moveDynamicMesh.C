@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -32,18 +32,93 @@ Description
 #include "argList.H"
 #include "Time.H"
 #include "dynamicFvMesh.H"
+#include "vtkSurfaceWriter.H"
+#include "cyclicAMIPolyPatch.H"
 
 using namespace Foam;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Dump patch + weights to vtk file
+void writeWeights
+(
+    const scalarField& wghtSum,
+    const primitivePatch& patch,
+    const fileName& folder,
+    const fileName& prefix,
+    const word& timeName
+)
+{
+    vtkSurfaceWriter writer;
+
+    writer.write
+    (
+        folder,
+        prefix + "_proc" + Foam::name(Pstream::myProcNo()) + "_" + timeName,
+        patch.localPoints(),
+        patch.localFaces(),
+        "weightsSum",
+        wghtSum,
+        false
+    );
+}
+
+
+void writeWeights(const polyMesh& mesh)
+{
+    const polyBoundaryMesh& pbm = mesh.boundaryMesh();
+
+    const word tmName(mesh.time().timeName());
+
+    forAll(pbm, patchI)
+    {
+        if (isA<cyclicAMIPolyPatch>(pbm[patchI]))
+        {
+            const cyclicAMIPolyPatch& cpp =
+                refCast<const cyclicAMIPolyPatch>(pbm[patchI]);
+
+            if (cpp.owner())
+            {
+                const AMIPatchToPatchInterpolation& ami =
+                    cpp.AMI();
+                writeWeights
+                (
+                    ami.tgtWeightsSum(),
+                    cpp.neighbPatch(),
+                    "output",
+                    "tgt",
+                    tmName
+                );
+                writeWeights
+                (
+                    ami.srcWeightsSum(),
+                    cpp,
+                    "output",
+                    "src",
+                    tmName
+                );
+            }
+        }
+    }
+}
+
+
 // Main program:
 
 int main(int argc, char *argv[])
 {
+#   include "addRegionOption.H"
+    argList::addBoolOption
+    (
+        "checkAMI",
+        "check AMI weights"
+    );
 
 #   include "setRootCase.H"
 #   include "createTime.H"
-#   include "createDynamicFvMesh.H"
+#   include "createNamedDynamicFvMesh.H"
+
+    const bool checkAMI  = args.optionFound("checkAMI");
 
     while (runTime.loop())
     {
@@ -51,6 +126,11 @@ int main(int argc, char *argv[])
 
         mesh.update();
         mesh.checkMesh(true);
+
+        if (checkAMI)
+        {
+            writeWeights(mesh);
+        }
 
         runTime.write();
 
