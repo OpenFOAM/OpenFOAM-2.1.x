@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -30,34 +30,27 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-namespace Foam
+inline Foam::label Foam::Kmesh::index
+(
+    const label i,
+    const label j,
+    const label k,
+    const labelList& nn
+)
 {
-   //! \cond fileScope
-   inline label rep
-   (
-       const label i,
-       const label j,
-       const label k,
-       const labelList& nn
-   )
-   {
-       return (k + j*nn[2] + i*nn[1]*nn[2]);
-   }
-   //! \endcond
-
-} // End namespace Foam
+    return (k + j*nn[2] + i*nn[1]*nn[2]);
+}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-// from fvMesh
 Foam::Kmesh::Kmesh(const fvMesh& mesh)
 :
     vectorField(mesh.V().size()),
-    NN(vector::dim)
+    nn_(vector::dim)
 {
     boundBox box = mesh.bounds();
-    L = box.span();
+    l_ = box.span();
 
     vector cornerCellCentre = ::Foam::max(mesh.C().internalField());
     vector cellL = 2*(box.max() - cornerCellCentre);
@@ -65,18 +58,17 @@ Foam::Kmesh::Kmesh(const fvMesh& mesh)
     vector rdeltaByL;
     label nTot = 1;
 
-    label i;
-    forAll(NN, i)
+    forAll(nn_, i)
     {
-        NN[i] = label(L[i]/cellL[i] + 0.5);
-        nTot *= NN[i];
+        nn_[i] = label(l_[i]/cellL[i] + 0.5);
+        nTot *= nn_[i];
 
-        if (NN[i] > 1)
+        if (nn_[i] > 1)
         {
-            L[i] -= cellL[i];
+            l_[i] -= cellL[i];
         }
 
-        rdeltaByL[i] = NN[i]/(L[i]*L[i]);
+        rdeltaByL[i] = nn_[i]/(l_[i]*l_[i]);
     }
 
     if (nTot != mesh.nCells())
@@ -86,24 +78,31 @@ Foam::Kmesh::Kmesh(const fvMesh& mesh)
             << abort(FatalError);
     }
 
-    for (i=0; i<NN[0]; i++)
+    for (label i=0; i<nn_[0]; i++)
     {
-        scalar k1 = (i - NN[0]/2)*constant::mathematical::twoPi/L[0];
+        scalar k1 = (i - nn_[0]/2)*constant::mathematical::twoPi/l_[0];
 
-        for (label j=0; j<NN[1]; j++)
+        for (label j=0; j<nn_[1]; j++)
         {
-            scalar k2 = (j - NN[1]/2)*constant::mathematical::twoPi/L[1];
+            scalar k2 = (j - nn_[1]/2)*constant::mathematical::twoPi/l_[1];
 
-            for (label k=0; k<NN[2]; k++)
+            for (label k=0; k<nn_[2]; k++)
             {
-                scalar k3 = (k - NN[2]/2)*constant::mathematical::twoPi/L[2];
+                scalar k3 = (k - nn_[2]/2)*constant::mathematical::twoPi/l_[2];
 
-                (*this)[rep(i, j, k, NN)] = vector(k1, k2, k3);
+                (*this)[index(i, j, k, nn_)] = vector(k1, k2, k3);
             }
         }
     }
 
-    Kmax = mag((*this)[rep(NN[0]-1, NN[1]-1, NN[2]-1, NN)]);
+    kmax_ = mag
+    (
+        Foam::max
+        (
+            cmptMag((*this)[index(nn_[0]-1, nn_[1]-1, nn_[2]-1, nn_)]),
+            cmptMag((*this)[index(0, 0, 0, nn_)])
+        )
+    );
 }
 
 
