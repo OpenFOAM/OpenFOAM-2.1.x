@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -386,6 +386,40 @@ void reorderPatches
     trimPatchFields<surfaceSphericalTensorField>(mesh, nNewPatches);
     trimPatchFields<surfaceSymmTensorField>(mesh, nNewPatches);
     trimPatchFields<surfaceTensorField>(mesh, nNewPatches);
+}
+
+
+// Prepend prefix to selected patches.
+void renamePatches
+(
+    fvMesh& mesh,
+    const word& prefix,
+    const labelList& patchesToRename
+)
+{
+    polyBoundaryMesh& polyPatches =
+        const_cast<polyBoundaryMesh&>(mesh.boundaryMesh());
+    forAll(patchesToRename, i)
+    {
+        label patchI = patchesToRename[i];
+        polyPatch& pp = polyPatches[patchI];
+
+        if (isA<coupledPolyPatch>(pp))
+        {
+            WarningIn
+            (
+                "renamePatches(fvMesh&, const word&, const labelList&"
+            )   << "Encountered coupled patch " << pp.name()
+                << ". Will only rename the patch itself,"
+                << " not any referred patches."
+                << " This might have to be done by hand."
+                << endl;
+        }
+
+        pp.name() = prefix + '_' + pp.name();
+    }
+    // Recalculate any demand driven data (e.g. group to name lookup)
+    polyPatches.updateMesh();
 }
 
 
@@ -987,6 +1021,7 @@ void createAndWriteRegion
     const fvMesh& mesh,
     const labelList& cellRegion,
     const wordList& regionNames,
+    const bool prefixRegion,
     const labelList& faceToInterface,
     const labelList& interfacePatches,
     const label regionI,
@@ -1016,6 +1051,7 @@ void createAndWriteRegion
         addedPatches.insert(interfacePatches[interfaceI]);
         addedPatches.insert(interfacePatches[interfaceI]+1);
     }
+
 
     Info<< "Mapping fields" << endl;
 
@@ -1109,6 +1145,7 @@ void createAndWriteRegion
 
     // Create reordering list to move patches-to-be-deleted to end
     labelList oldToNew(newPatches.size(), -1);
+    DynamicList<label> sharedPatches(newPatches.size());
     label newI = 0;
 
     Info<< "Deleting empty patches" << endl;
@@ -1122,7 +1159,12 @@ void createAndWriteRegion
         {
             if (returnReduce(pp.size(), sumOp<label>()) > 0)
             {
-                oldToNew[patchI] = newI++;
+                oldToNew[patchI] = newI;
+                if (!addedPatches.found(patchI))
+                {
+                    sharedPatches.append(newI);
+                }
+                newI++;
             }
         }
     }
@@ -1150,6 +1192,15 @@ void createAndWriteRegion
     }
 
     reorderPatches(newMesh(), oldToNew, nNewPatches);
+
+
+    // Rename shared patches with region name
+    if (prefixRegion)
+    {
+        Info<< "Prefixing patches with region name" << endl;
+
+        renamePatches(newMesh(), regionNames[regionI], sharedPatches);
+    }
 
 
     Info<< "Writing new mesh" << endl;
@@ -1672,6 +1723,11 @@ int main(int argc, char *argv[])
         "useFaceZones",
         "use faceZones to patch inter-region faces instead of single patch"
     );
+    argList::addBoolOption
+    (
+        "prefixRegion",
+        "prefix region name to all patches, not just coupling patches"
+    );
 
     #include "setRootCase.H"
     #include "createTime.H"
@@ -1696,6 +1752,8 @@ int main(int argc, char *argv[])
     const bool detectOnly       = args.optionFound("detectOnly");
     const bool sloppyCellZones  = args.optionFound("sloppyCellZones");
     const bool useFaceZones     = args.optionFound("useFaceZones");
+    const bool prefixRegion     = args.optionFound("prefixRegion");
+
 
     if
     (
@@ -2194,6 +2252,8 @@ int main(int argc, char *argv[])
 
             label regionI = -1;
 
+            (void)mesh.tetBasePtIs();
+
             label cellI = mesh.findCell(insidePoint);
 
             Info<< nl << "Found point " << insidePoint << " in cell " << cellI
@@ -2224,6 +2284,7 @@ int main(int argc, char *argv[])
                 mesh,
                 cellRegion,
                 regionNames,
+                prefixRegion,
                 faceToInterface,
                 interfacePatches,
                 regionI,
@@ -2244,6 +2305,7 @@ int main(int argc, char *argv[])
                 mesh,
                 cellRegion,
                 regionNames,
+                prefixRegion,
                 faceToInterface,
                 interfacePatches,
                 regionI,
@@ -2264,6 +2326,7 @@ int main(int argc, char *argv[])
                     mesh,
                     cellRegion,
                     regionNames,
+                    prefixRegion,
                     faceToInterface,
                     interfacePatches,
                     regionI,
