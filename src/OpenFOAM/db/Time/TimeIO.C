@@ -78,8 +78,8 @@ void Foam::Time::readDict()
         {
             if
             (
-                secondaryWriteControl_
-             == wcTimeStep && label(secondaryWriteInterval_) < 1
+                secondaryWriteControl_ == wcTimeStep
+             && label(secondaryWriteInterval_) < 1
             )
             {
                 FatalIOErrorIn("Time::readDict()", controlDict_)
