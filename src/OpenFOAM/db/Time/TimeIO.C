@@ -44,6 +44,8 @@ void Foam::Time::readDict()
     }
 
     scalar oldWriteInterval = writeInterval_;
+    scalar oldSecondaryWriteInterval = secondaryWriteInterval_;
+
     if (controlDict_.readIfPresent("writeInterval", writeInterval_))
     {
         if (writeControl_ == wcTimeStep && label(writeInterval_) < 1)
@@ -110,6 +112,26 @@ void Foam::Time::readDict()
                     outputTimeIndex_
                   * oldWriteInterval
                   / writeInterval_
+                );
+            break;
+
+            default:
+            break;
+        }
+    }
+    if (oldSecondaryWriteInterval != secondaryWriteInterval_)
+    {
+        switch (secondaryWriteControl_)
+        {
+            case wcRunTime:
+            case wcAdjustableRunTime:
+                // Recalculate secondaryOutputTimeIndex_ to be in units of
+                // current writeInterval.
+                secondaryOutputTimeIndex_ = label
+                (
+                    secondaryOutputTimeIndex_
+                  * oldSecondaryWriteInterval
+                  / secondaryWriteInterval_
                 );
             break;
 

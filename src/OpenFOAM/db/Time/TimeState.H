@@ -61,8 +61,8 @@ protected:
         bool deltaTchanged_;
 
         label outputTimeIndex_;
+        label secondaryOutputTimeIndex_;
         bool  outputTime_;
-
 
 public:
 

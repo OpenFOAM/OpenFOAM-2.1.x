@@ -37,6 +37,7 @@ Foam::TimeState::TimeState()
     deltaT0_(0),
     deltaTchanged_(false),
     outputTimeIndex_(0),
+    secondaryOutputTimeIndex_(0),
     outputTime_(false)
 {}
 
