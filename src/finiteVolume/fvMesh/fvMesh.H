@@ -177,6 +177,20 @@ public:
         //- Construct from IOobject
         explicit fvMesh(const IOobject& io);
 
+        //- Construct from cellShapes with boundary.
+        fvMesh
+        (
+            const IOobject& io,
+            const Xfer<pointField>& points,
+            const cellShapeList& shapes,
+            const faceListList& boundaryFaces,
+            const wordList& boundaryPatchNames,
+            const PtrList<dictionary>& boundaryDicts,
+            const word& defaultBoundaryPatchName,
+            const word& defaultBoundaryPatchType,
+            const bool syncPar = true
+        );
+
         //- Construct from components without boundary.
         //  Boundary is added using addFvPatches() member function
         fvMesh
