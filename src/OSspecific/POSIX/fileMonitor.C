@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -168,7 +168,7 @@ namespace Foam
                     FatalErrorIn("fileMonitorWatcher(const bool, const label)")
                         << "You selected inotify but this file was compiled"
                         << " without FOAM_USE_INOTIFY"
-                        << "Please select another fileModification test method"
+                        << " Please select another fileModification test method"
                         << exit(FatalError);
                 #endif
             }

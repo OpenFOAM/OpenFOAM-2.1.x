@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -51,17 +51,29 @@ class Kmesh
 :
     public vectorField
 {
-
     // Private data
 
         //- Dimensions of box
-        vector L;
+        vector l_;
 
         //- Multi-dimensional addressing array
-        labelList NN;
+        labelList nn_;
 
         //- Maximum wavenumber
-        scalar Kmax;
+        scalar kmax_;
+
+
+    // Private functions
+
+        //- Return the linear index from the i-j-k indices
+        static inline label index
+        (
+            const label i,
+            const label j,
+            const label k,
+            const labelList& nn
+        );
+
 
 public:
 
@@ -77,17 +89,17 @@ public:
 
         const vector& sizeOfBox() const
         {
-            return L;
+            return l_;
         }
 
         const labelList& nn() const
         {
-            return NN;
+            return nn_;
         }
 
         scalar max() const
         {
-            return Kmax;
+            return kmax_;
         }
 };
 

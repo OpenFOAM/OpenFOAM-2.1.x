@@ -79,21 +79,35 @@ Foam::word Foam::Time::controlDictName("controlDict");
 
 void Foam::Time::adjustDeltaT()
 {
+    bool adjustTime = false;
+    scalar timeToNextWrite = VGREAT;
+
     if (writeControl_ == wcAdjustableRunTime)
     {
-        scalar interval = writeInterval_;
-        if (secondaryWriteControl_ == wcAdjustableRunTime)
-        {
-            interval = min(interval, secondaryWriteInterval_);
-        }
-
-
-        scalar timeToNextWrite = max
+        adjustTime = true;
+        timeToNextWrite = max
         (
             0.0,
-            (outputTimeIndex_ + 1)*interval - (value() - startTime_)
+            (outputTimeIndex_ + 1)*writeInterval_ - (value() - startTime_)
         );
+    }
+    if (secondaryWriteControl_ == wcAdjustableRunTime)
+    {
+        adjustTime = true;
+        timeToNextWrite = max
+        (
+            0.0,
+            min
+            (
+                timeToNextWrite,
+                (secondaryOutputTimeIndex_ + 1)*secondaryWriteInterval_
+              - (value() - startTime_)
+            )
+        );
+    }
 
+    if (adjustTime)
+    {
         scalar nSteps = timeToNextWrite/deltaT_ - SMALL;
 
         // For tiny deltaT the label can overflow!
@@ -1130,10 +1144,10 @@ Foam::Time& Foam::Time::operator++()
                   / secondaryWriteInterval_
                 );
 
-                if (outputIndex > outputTimeIndex_)
+                if (outputIndex > secondaryOutputTimeIndex_)
                 {
                     outputTime_ = true;
-                    outputTimeIndex_ = outputIndex;
+                    secondaryOutputTimeIndex_ = outputIndex;
                 }
             }
             break;
@@ -1145,10 +1159,10 @@ Foam::Time& Foam::Time::operator++()
                     returnReduce(elapsedCpuTime(), maxOp<double>())
                   / secondaryWriteInterval_
                 );
-                if (outputIndex > outputTimeIndex_)
+                if (outputIndex > secondaryOutputTimeIndex_)
                 {
                     outputTime_ = true;
-                    outputTimeIndex_ = outputIndex;
+                    secondaryOutputTimeIndex_ = outputIndex;
                 }
             }
             break;
@@ -1160,10 +1174,10 @@ Foam::Time& Foam::Time::operator++()
                     returnReduce(label(elapsedClockTime()), maxOp<label>())
                   / secondaryWriteInterval_
                 );
-                if (outputIndex > outputTimeIndex_)
+                if (outputIndex > secondaryOutputTimeIndex_)
                 {
                     outputTime_ = true;
-                    outputTimeIndex_ = outputIndex;
+                    secondaryOutputTimeIndex_ = outputIndex;
                 }
             }
             break;
