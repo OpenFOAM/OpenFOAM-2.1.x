@@ -56,14 +56,16 @@ void Foam::arraySet::calcSamples
 
     label nTotalSamples
     (
-        pointsDensity_.x()*pointsDensity_.y()*pointsDensity_.z()
+        pointsDensity_.x()
+       *pointsDensity_.y()
+       *pointsDensity_.z()
     );
 
     List<point> sampleCoords(nTotalSamples);
 
-    const scalar deltax = 0.5*spanBox_.x()/pointsDensity_.x();
-    const scalar deltay = 0.5*spanBox_.y()/pointsDensity_.y();
-    const scalar deltaz = 0.5*spanBox_.z()/pointsDensity_.z();
+    const scalar deltax = spanBox_.x()/(pointsDensity_.x() + 1);
+    const scalar deltay = spanBox_.y()/(pointsDensity_.y() + 1);
+    const scalar deltaz = spanBox_.z()/(pointsDensity_.z() + 1);
 
     label p(0);
     for (label k=1; k<=pointsDensity_.z(); k++)
