@@ -21,7 +21,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        GaussSeidel;
-        tolerance       1e-7;
+        tolerance       1e-9;
         relTol          0;
         nSweeps         1;
     }
@@ -66,6 +66,8 @@ PIMPLE
     nOuterCorrectors    1;
     nCorrectors         2;
     nNonOrthogonalCorrectors 0;
+    nAlphaSubCycles     2;
+    nAlphaCorr          1;
     pRefValue           0;
     pRefPoint           (0.1 0.1 1);
 }
