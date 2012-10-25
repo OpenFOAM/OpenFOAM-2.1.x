@@ -1056,6 +1056,15 @@ void Foam::autoLayerDriver::shrinkMeshMedialDistance
         patchNLayers
     );
 
+    // Update thickess for changed extrusion
+    forAll(thickness, patchPointI)
+    {
+        if (extrudeStatus[patchPointI] == NOEXTRUDE)
+        {
+            thickness[patchPointI] = 0.0;
+        }
+    }
+
     // smooth layer thickness on moving patch
     smoothField
     (
@@ -1151,6 +1160,9 @@ void Foam::autoLayerDriver::shrinkMeshMedialDistance
             debug,
             mesh.time().path()/meshRefiner_.timeName()
         );
+        dispVec.write();
+        medialDist.write();
+        medialRatio.write();
         meshMover.movePoints(oldPoints);
     }
 

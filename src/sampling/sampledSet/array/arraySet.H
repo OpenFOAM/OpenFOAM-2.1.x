@@ -22,98 +22,99 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::TimeState
+    Foam::arraySet
 
 Description
-    The time value with time-stepping information, user-defined remapping, etc.
 
 SourceFiles
-    TimeState.C
+    arraySet.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef TimeState_H
-#define TimeState_H
+#ifndef arraySet_H
+#define arraySet_H
 
-#include "dimensionedScalar.H"
+#include "sampledSet.H"
+#include "DynamicList.H"
+#include "coordinateSystem.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
+// Forward declaration of classes
+class passiveParticle;
+template<class Type> class particle;
+
 /*---------------------------------------------------------------------------*\
-                           Class TimeState Declaration
+                           Class arraySet Declaration
 \*---------------------------------------------------------------------------*/
 
-
-class TimeState
+class arraySet
 :
-    public dimensionedScalar
+    public sampledSet
 {
+    // Private data
 
-protected:
+        //- Coordinate syste
+        coordinateSystem coordSys_;
 
-        label timeIndex_;
-        scalar deltaT_;
-        scalar deltaTSave_;
-        scalar deltaT0_;
-        bool deltaTchanged_;
+        //- Point density vector
+        Vector<label> pointsDensity_;
 
-        label outputTimeIndex_;
-        label secondaryOutputTimeIndex_;
-        bool  outputTime_;
+        //- Span box
+        Vector<scalar> spanBox_;
+
+
+    // Private Member Functions
+
+        //- Samples all points in sampleCoords.
+        void calcSamples
+        (
+            DynamicList<point>& samplingPts,
+            DynamicList<label>& samplingCells,
+            DynamicList<label>& samplingFaces,
+            DynamicList<label>& samplingSegments,
+            DynamicList<scalar>& samplingCurveDist
+        ) const;
+
+        //- Uses calcSamples to obtain samples. Copies them into *this.
+        void genSamples();
+
 
 public:
 
+    //- Runtime type information
+    TypeName("array");
+
+
     // Constructors
 
-        TimeState();
+        //- Construct from components
+        arraySet
+        (
+            const word& name,
+            const polyMesh& mesh,
+            meshSearch& searchEngine,
+            const word& axis,
+            const coordinateSystem& coordSys,
+            const Vector<label>& pointsDensity,
+            const Vector<scalar>& spanBox
+        );
+
+        //- Construct from dictionary
+        arraySet
+        (
+            const word& name,
+            const polyMesh& mesh,
+            meshSearch& searchEngine,
+            const dictionary& dict
+        );
 
 
     //- Destructor
-    virtual ~TimeState();
-
-
-    // Member functions
-
-        // Access
-
-            //- Convert the user-time (e.g. CA deg) to real-time (s).
-            virtual scalar userTimeToTime(const scalar theta) const;
-
-            //- Convert the real-time (s) into user-time (e.g. CA deg)
-            virtual scalar timeToUserTime(const scalar t) const;
-
-            //- Return current time value
-            scalar timeOutputValue() const;
-
-            //- Return current time index
-            label timeIndex() const;
-
-            //- Return time step value
-            inline scalar deltaTValue() const
-            {
-                return deltaT_;
-            }
-
-            //- Return old time step value
-            inline scalar deltaT0Value() const
-            {
-                return deltaT0_;
-            }
-
-            //- Return time step
-            dimensionedScalar deltaT() const;
-
-            //- Return old time step
-            dimensionedScalar deltaT0() const;
-
-
-        // Check
-
-            //- Return true if this is an output time
-            bool outputTime() const;
+    virtual ~arraySet();
 };
 
 

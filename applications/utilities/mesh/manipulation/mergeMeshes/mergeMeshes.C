@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
             runTimeMaster
         )
     );
+    const word oldInstance = masterMesh.pointsInstance();
 
 
     Info<< "Reading mesh to add for time = " << runTimeToAdd.timeName() << nl;
@@ -139,7 +140,13 @@ int main(int argc, char *argv[])
 
     masterMesh.addMesh(meshToAdd);
     masterMesh.merge();
-    masterMesh.polyMesh::write();
+
+    if (overwrite)
+    {
+        masterMesh.setInstance(oldInstance);
+    }
+
+    masterMesh.write();
 
     Info<< "\nEnd\n" << endl;
 
