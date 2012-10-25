@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -32,6 +32,8 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "MULES.H"
+#include "subCycle.H"
 #include "twoPhaseMixture.H"
 #include "turbulenceModel.H"
 #include "pimpleControl.H"
@@ -60,19 +62,21 @@ int main(int argc, char *argv[])
     {
         #include "readTimeControls.H"
         #include "CourantNo.H"
+        #include "alphaCourantNo.H"
         #include "setDeltaT.H"
 
         runTime++;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
+        twoPhaseProperties.correct();
+
+        #include "alphaEqnSubCycle.H"
+        #include "alphaDiffusionEqn.H"
+
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-            twoPhaseProperties.correct();
-
-            #include "alphaEqn.H"
-
             #include "UEqn.H"
 
             // --- Pressure corrector loop
