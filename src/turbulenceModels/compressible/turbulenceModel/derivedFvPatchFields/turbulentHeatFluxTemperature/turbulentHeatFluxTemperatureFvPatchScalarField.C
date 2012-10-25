@@ -221,7 +221,7 @@ void turbulentHeatFluxTemperatureFvPatchScalarField::updateCoeffs()
 
     fixedGradientFvPatchScalarField::updateCoeffs();
 
-    if (1)
+    if (debug)
     {
         scalar Q = gSum(K(*this)*patch().magSf()*snGrad());
         scalar Qr = gSum(qr*patch().magSf());

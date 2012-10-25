@@ -132,6 +132,23 @@ sets
         maxDistance 0.1;    // maximum distance to search
         patches     (".*Wall.*");
     }
+
+    arrayA1
+    {
+        // Sample 'pointsDensity' points in a box with origin at 'origin'
+        // plus the vector 'spanBox'
+        type    array;
+        axis    xyz;
+        coordinateSystem
+        {
+            e1      (1 0 0);
+            e2      (0 1 0);
+            origin  ( -5 -1 -1 );
+        }
+        pointsDensity   (2 2 2);
+        spanBox         (10 2 2);
+
+    }
 );
 
 
