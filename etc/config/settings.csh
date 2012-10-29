@@ -380,21 +380,11 @@ case SYSTEMOPENMPI:
     # Use the system installed openmpi, get library directory via mpicc
     setenv FOAM_MPI openmpi-system
 
-    # Set compilation flags here instead of in wmake/rules/../mplibSYSTEMOPENMPI
-    setenv PINC "`mpicc --showme:compile`"
-    setenv PLIBS "`mpicc --showme:link`"
-    set libDir=`echo "$PLIBS" | sed -e 's/.*-L\([^ ]*\).*/\1/'`
+    set libDir=`mpicc --showme:link | sed -e 's/.*-L\([^ ]*\).*/\1/'`
 
     # Bit of a hack: strip off 'lib' and hope this is the path to openmpi
     # include files and libraries.
     setenv MPI_ARCH_PATH "${libDir:h}"
-
-    if ($?FOAM_VERBOSE && $?prompt) then
-        echo "Using system installed MPI:"
-        echo "    compile flags : $PINC"
-        echo "    link flags    : $PLIBS"
-        echo "    libmpi dir    : $libDir"
-    endif
 
     _foamAddLib     $libDir
     unset libDir

@@ -52,11 +52,11 @@ USAGE
 case "$1" in
 (-s | -source | source)
     shift
-    $WM_PROJECT_DIR/etc/codeTemplates/source/foamNewSource $*
+    $WM_PROJECT_DIR/etc/codeTemplates/source/foamNewSource "$@"
     ;;
 (-t | -template | template)
     shift
-    $WM_PROJECT_DIR/etc/codeTemplates/template/foamNewTemplate $*
+    $WM_PROJECT_DIR/etc/codeTemplates/template/foamNewTemplate "$@"
     ;;
 (*)
     usage "unknown type '$1'"

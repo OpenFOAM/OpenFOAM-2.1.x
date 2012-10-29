@@ -2,7 +2,7 @@
 # =========                 |
 # \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
 #  \\    /   O peration     |
-#   \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+#   \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
 #    \\/     M anipulation  |
 #------------------------------------------------------------------------------
 # License
@@ -44,7 +44,7 @@ runApplication()
         echo "$APP_NAME already run on $PWD: remove log file to re-run"
     else
         echo "Running $APP_RUN on $PWD"
-        $APP_RUN $* > log.$APP_NAME 2>&1
+        $APP_RUN "$@" > log.$APP_NAME 2>&1
     fi
 }
 
@@ -65,9 +65,9 @@ runParallel()
         #if [ "$WM_SCHEDULER" ]
         #then
         #    echo "$PWD: $WM_SCHEDULER -np $nProcs" 1>&2
-        #    $WM_SCHEDULER -np $nProcs "( mpirun -np $nProcs $APP_RUN -parallel $* < /dev/null > log.$APP_NAME 2>&1 )"
+        #    $WM_SCHEDULER -np $nProcs "( mpirun -np $nProcs $APP_RUN -parallel "$@" < /dev/null > log.$APP_NAME 2>&1 )"
         #else
-            ( mpirun -np $nProcs $APP_RUN -parallel $* < /dev/null > log.$APP_NAME 2>&1 )
+            ( mpirun -np $nProcs $APP_RUN -parallel "$@" < /dev/null > log.$APP_NAME 2>&1 )
         #fi
     fi
 }
