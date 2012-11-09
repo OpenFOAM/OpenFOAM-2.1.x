@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -36,6 +36,9 @@ Foam::hConstThermo<equationOfState>::hConstThermo(Istream& is)
     Hf_(readScalar(is))
 {
     is.check("hConstThermo::hConstThermo(Istream& is)");
+
+    Cp_ *= this->W();
+    Hf_ *= this->W();
 }
 
 
@@ -45,7 +48,10 @@ Foam::hConstThermo<equationOfState>::hConstThermo(const dictionary& dict)
     equationOfState(dict),
     Cp_(readScalar(dict.subDict("thermodynamics").lookup("Cp"))),
     Hf_(readScalar(dict.subDict("thermodynamics").lookup("Hf")))
-{}
+{
+    Cp_ *= this->W();
+    Hf_ *= this->W();
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -56,8 +62,8 @@ void Foam::hConstThermo<equationOfState>::write(Ostream& os) const
     equationOfState::write(os);
 
     dictionary dict("thermodynamics");
-    dict.add("Cp", Cp_);
-    dict.add("Hf", Hf_);
+    dict.add("Cp", Cp_/this->W());
+    dict.add("Hf", Hf_/this->W());
     os  << indent << dict.dictName() << dict;
 }
 
@@ -72,7 +78,7 @@ Foam::Ostream& Foam::operator<<
 )
 {
     os  << static_cast<const equationOfState&>(ct) << tab
-        << ct.Cp_ << tab << ct.Hf_;
+        << ct.Cp_/ct.W() << tab << ct.Hf_/ct.W();
 
     os.check("Ostream& operator<<(Ostream& os, const hConstThermo& ct)");
     return os;

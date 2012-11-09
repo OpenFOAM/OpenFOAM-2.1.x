@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -95,7 +95,12 @@ class eConstThermo
 {
     // Private data
 
+        //- Heat capacity at constant volume
+        //  Note: input in [J/(kg K)], but internally uses [J/(kmol K)]
         scalar Cv_;
+
+        //- Heat of formation
+        //  Note: input in [J/kg], but internally uses [J/kmol]
         scalar Hf_;
 
 

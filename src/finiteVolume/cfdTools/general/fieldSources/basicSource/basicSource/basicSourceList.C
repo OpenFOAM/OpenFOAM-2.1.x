@@ -63,6 +63,22 @@ Foam::basicSourceList::basicSourceList
     mesh_(mesh),
     checkTimeIndex_(mesh_.time().startTimeIndex() + 2)
 {
+    reset(dict);
+}
+
+
+Foam::basicSourceList::basicSourceList(const fvMesh& mesh)
+:
+    PtrList<basicSource>(),
+    mesh_(mesh),
+    checkTimeIndex_(mesh_.time().startTimeIndex() + 2)
+{}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+void Foam::basicSourceList::reset(const dictionary& dict)
+{
     label count = 0;
     forAllConstIter(dictionary, dict, iter)
     {
@@ -85,14 +101,12 @@ Foam::basicSourceList::basicSourceList
             this->set
             (
                 i++,
-                basicSource::New(name, sourceDict, mesh)
+                basicSource::New(name, sourceDict, mesh_)
             );
         }
     }
 }
 
-
-// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 bool Foam::basicSourceList::read(const dictionary& dict)
 {

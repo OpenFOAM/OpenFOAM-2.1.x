@@ -10,38 +10,47 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    location    "0";
-    object      Ydefault;
+    object      Alpha;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 dimensions      [0 0 0 0 0 0 0];
 
-internalField   uniform 0;
+internalField   uniform 0.001;
 
 boundaryField
 {
+    inlet
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
 
-    ".*"
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      $internalField;
+    }
+
+    bottomWall
     {
         type            zeroGradient;
     }
 
-    fRight_zone_side
-    {
-        type            wedge;
-    }
-
-    fLeft_zone_side
-    {
-        type            wedge;
-    }
-
-    "(region0_to.*)"
+    endWall
     {
         type            zeroGradient;
+    }
+
+    top
+    {
+        type            zeroGradient;
+    }
+
+    frontAndBack
+    {
+        type            empty;
     }
 }
-
 
 // ************************************************************************* //

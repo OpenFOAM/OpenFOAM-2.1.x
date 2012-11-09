@@ -12,12 +12,12 @@
         mesh
     );
 
-    Info<< "Reading field alpha\n" << endl;
-    volScalarField alpha
+    Info<< "Reading field Alpha\n" << endl;
+    volScalarField Alpha
     (
         IOobject
         (
-            "alpha",
+            "Alpha",
             runTime.timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -100,21 +100,20 @@
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        (scalar(1) - alpha)*rhoc + alpha*rhod
+        rhoc/(scalar(1) + (rhoc/rhod - 1.0)*Alpha)
     );
 
-    volScalarField Alpha
+    volScalarField alpha
     (
         IOobject
         (
-            "Alpha",
+            "alpha",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        alpha*rhod/rho,
-        alpha.boundaryField().types()
+        rho*Alpha/rhod
     );
 
     #include "compressibleCreatePhi.H"

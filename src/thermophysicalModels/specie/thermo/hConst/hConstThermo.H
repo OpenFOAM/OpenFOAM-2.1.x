@@ -93,7 +93,12 @@ class hConstThermo
 {
     // Private data
 
+        //- Heat capacity at constant pressure
+        //  Note: input in [J/(kg K)], but internally uses [J/(kmol K)]
         scalar Cp_;
+
+        //- Heat of formation
+        //  Note: input in [J/kg], but internally uses [J/kmol]
         scalar Hf_;
 
 
