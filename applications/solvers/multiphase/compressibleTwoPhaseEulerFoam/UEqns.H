@@ -1,3 +1,7 @@
+mrfZones.correctBoundaryVelocity(U1);
+mrfZones.correctBoundaryVelocity(U2);
+mrfZones.correctBoundaryVelocity(U);
+
 fvVectorMatrix U1Eqn(U1, U1.dimensions()*dimVol/dimTime);
 fvVectorMatrix U2Eqn(U2, U2.dimensions()*dimVol/dimTime);
 

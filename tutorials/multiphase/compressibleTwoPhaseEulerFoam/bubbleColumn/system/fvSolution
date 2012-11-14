@@ -93,8 +93,8 @@ PIMPLE
     nOuterCorrectors 1;
     nCorrectors     2;
     nNonOrthogonalCorrectors 0;
-    nAlphaCorr      2;
-    correctAlpha    no;
+    nAlphaCorr      1;
+    nAlphaSubCycles 2;
 }
 
 relaxationFactors
