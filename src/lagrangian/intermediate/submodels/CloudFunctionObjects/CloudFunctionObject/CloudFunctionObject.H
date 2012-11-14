@@ -46,6 +46,9 @@ SourceFiles
 namespace Foam
 {
 
+class polyPatch;
+class tetIndices;
+
 /*---------------------------------------------------------------------------*\
                     Class CloudFunctionObject Declaration
 \*---------------------------------------------------------------------------*/
