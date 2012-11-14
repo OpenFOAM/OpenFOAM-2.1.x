@@ -85,6 +85,18 @@ tmp<volScalarField> kOmegaSST::F2() const
 }
 
 
+tmp<volScalarField> kOmegaSST::F3() const
+{
+    tmp<volScalarField> arg3 = min
+    (
+        150*nu()/(omega_*sqr(y_)),
+        scalar(10)
+    );
+
+    return 1 - tanh(pow4(arg3));
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 kOmegaSST::kOmegaSST
@@ -188,6 +200,15 @@ kOmegaSST::kOmegaSST
             0.31
         )
     ),
+    b1_
+    (
+        dimensioned<scalar>::lookupOrAddToDict
+        (
+            "b1",
+            coeffDict_,
+            1.0
+        )
+    ),
     c1_
     (
         dimensioned<scalar>::lookupOrAddToDict
@@ -246,7 +267,7 @@ kOmegaSST::kOmegaSST
       / max
         (
             a1_*omega_,
-            F2()*sqrt(2.0)*mag(symm(fvc::grad(U_)))
+            b1_*F2()*F3()*sqrt(2.0)*mag(symm(fvc::grad(U_)))
         )
     );
     nut_.correctBoundaryConditions();
@@ -418,7 +439,7 @@ void kOmegaSST::correct()
 
 
     // Re-calculate viscosity
-    nut_ = a1_*k_/max(a1_*omega_, F2()*sqrt(S2));
+    nut_ = a1_*k_/max(a1_*omega_, b1_*F2()*F3()*sqrt(S2));
     nut_.correctBoundaryConditions();
 }
 
