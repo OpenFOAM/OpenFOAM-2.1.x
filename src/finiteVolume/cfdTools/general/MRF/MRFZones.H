@@ -115,10 +115,12 @@ public:
         //- Correct the boundary velocity for the roation of the MRF region
         void correctBoundaryVelocity(volVectorField& U) const;
 
+
     // I-O
 
         //- Read from Istream
         virtual bool readData(Istream&);
+
 };
 
 
