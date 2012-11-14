@@ -1,7 +1,4 @@
 {
-    label nAlphaCorr(readLabel(pimple.dict().lookup("nAlphaCorr")));
-    label nAlphaSubCycles(readLabel(pimple.dict().lookup("nAlphaSubCycles")));
-
     word alphaScheme("div(phi,alpha1)");
     word alpharScheme("div(phir,alpha1)");
 
@@ -13,7 +10,7 @@
         surfaceScalarField alpha1f(fvc::interpolate(alpha1));
         surfaceScalarField phipp(ppMagf*fvc::snGrad(alpha1)*mesh.magSf());
         phir += phipp;
-        phic += fvc::interpolate(alpha1)*phipp;
+        phic += alpha1f*phipp;
     }
 
     for (int acorr=0; acorr<nAlphaCorr; acorr++)
@@ -24,7 +21,7 @@
             !(++alphaSubCycle).end();
         )
         {
-            surfaceScalarField phiAlpha
+            surfaceScalarField alphaPhic1
             (
                 fvc::flux
                 (
@@ -44,7 +41,7 @@
             (
                 alpha1,
                 phi,
-                phiAlpha,
+                alphaPhic1,
                 (g0.value() > 0 ? alphaMax : 1),
                 0
             );
@@ -52,18 +49,18 @@
 
         if (g0.value() > 0)
         {
-            ppMagf = rAU1f*fvc::interpolate
-            (
-                (1.0/(rho1*(alpha1 + scalar(0.0001))))
-               *g0*min(exp(preAlphaExp*(alpha1 - alphaMax)), expMax)
-            );
+            surfaceScalarField alpha1f(fvc::interpolate(alpha1));
+
+            ppMagf =
+                rAU1f/(alpha1f + scalar(0.0001))
+               *(g0/rho1)*min(exp(preAlphaExp*(alpha1f - alphaMax)), expMax);
 
             fvScalarMatrix alpha1Eqn
             (
                 fvm::ddt(alpha1) - fvc::ddt(alpha1)
               - fvm::laplacian
                 (
-                    (fvc::interpolate(alpha1) + scalar(0.0001))*ppMagf,
+                    alpha1f*ppMagf,
                     alpha1,
                     "laplacian(alpha1PpMag,alpha1)"
                 )
