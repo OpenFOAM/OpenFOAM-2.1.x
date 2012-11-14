@@ -325,9 +325,15 @@ Type Foam::TableBase<Type>::value(const scalar x) const
 
     // Find i such that x(i) < xDash < x(i+1)
     label i = 0;
-    while ((table_[i+1].first() < xDash) && (i+1 < table_.size()))
+    while ((i+1 < table_.size()) && (table_[i+1].first() < xDash))
     {
         i++;
+    }
+
+    if (i+1 == table_.size())
+    {
+        // Reached end of table. This can happen for tables of size 1.
+        return table_[i].second();
     }
 
     // Linear interpolation to find value

@@ -47,7 +47,9 @@ SourceFiles
 #include "volFieldsFwd.H"
 #include "surfaceFieldsFwd.H"
 #include "fvMatricesFwd.H"
-#include "fvMatrices.H"
+#include "mapPolyMesh.H"
+#include "DataEntry.H"
+#include "autoPtr.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -85,10 +87,14 @@ class MRFZone
         //- Excluded faces (per patch) that do not move with the MRF
         labelListList excludedFaces_;
 
-        const dimensionedVector origin_;
-        dimensionedVector axis_;
-        const dimensionedScalar omega_;
-        dimensionedVector Omega_;
+        //- Origin of the axis
+        const vector origin_;
+
+        //- Axis vector
+        vector axis_;
+
+        //- Angular velocty (rad/sec)
+        autoPtr<DataEntry<scalar> > omega_;
 
 
     // Private Member Functions
@@ -157,7 +163,15 @@ public:
         };
 
 
+    //- Destructor
+    virtual ~MRFZone()
+    {}
+
+
     // Member Functions
+
+        //- Return the current Omega vector
+        vector Omega() const;
 
         //- Update the mesh corresponding to given map
         void updateMesh(const mapPolyMesh& mpm)
@@ -205,7 +219,7 @@ public:
         void correctBoundaryVelocity(volVectorField& U) const;
 
 
-    // Ostream Operator
+    // IOstream operator
 
         friend Ostream& operator<<(Ostream& os, const MRFZone& MRF);
 };

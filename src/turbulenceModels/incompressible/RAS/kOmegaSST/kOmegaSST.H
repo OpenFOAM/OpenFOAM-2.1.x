@@ -30,10 +30,19 @@ Description
 
     Turbulence model described in:
     \verbatim
-        Menter, F., Esch, T.
-        "Elements of Industrial Heat Transfer Prediction"
+        Menter, F., Esch, T.,
+        "Elements of Industrial Heat Transfer Prediction",
         16th Brazilian Congress of Mechanical Engineering (COBEM),
-        Nov. 2001
+        Nov. 2001.
+    \endverbatim
+
+    with the addition of the F3 term for rough walls from
+    \verbatim
+        Hellsten, A.
+        "Some Improvements in Menter’s k-omega-SST turbulence model"
+        29th AIAA Fluid Dynamics Conference,
+        AIAA-98-2554,
+        June 1998.
     \endverbatim
 
     Note that this implementation is written in terms of alpha diffusion
@@ -66,6 +75,7 @@ Description
             gamma1      0.5532;
             gamma2      0.4403;
             a1          0.31;
+            b1          1.0;
             c1          10.0;
         }
     \endverbatim
@@ -119,6 +129,7 @@ protected:
             dimensionedScalar betaStar_;
 
             dimensionedScalar a1_;
+            dimensionedScalar b1_;
             dimensionedScalar c1_;
 
         //- Wall distance field
@@ -136,6 +147,7 @@ protected:
 
         tmp<volScalarField> F1(const volScalarField& CDkOmega) const;
         tmp<volScalarField> F2() const;
+        tmp<volScalarField> F3() const;
 
         tmp<volScalarField> blend
         (

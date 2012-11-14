@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -98,24 +98,10 @@ int main(int argc, char *argv[])
 
     if (args.optionFound("patches"))
     {
-        const wordList patchNames
+        includePatches = bMesh.patchSet
         (
-            args.optionLookup("patches")()
+            wordReList(args.optionLookup("patches")())
         );
-
-        forAll(patchNames, patchNameI)
-        {
-            const word& patchName = patchNames[patchNameI];
-            const label patchI = bMesh.findPatchID(patchName);
-
-            if (patchI == -1)
-            {
-                FatalErrorIn(args.executable()) << "No such patch "
-                    << patchName << endl << "Patches are " << bMesh.names()
-                    << exit(FatalError);
-            }
-            includePatches.insert(patchI);
-        }
     }
     else
     {
@@ -127,13 +113,12 @@ int main(int argc, char *argv[])
             {
                 includePatches.insert(patchI);
             }
-            else
-            {
-                Pout<< patch.name() << " : skipped since processorPatch"
-                    << endl;
-            }
         }
     }
+
+
+    Info<< "Triangulating patches " << includePatches.sortedToc() << nl
+        << endl;
 
     triSurface localSurface
     (

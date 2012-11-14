@@ -32,6 +32,7 @@ License
 #include "faceSet.H"
 #include "geometricOneField.H"
 
+
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 defineTypeNameAndDebug(Foam::MRFZone, 0);
@@ -239,8 +240,7 @@ Foam::MRFZone::MRFZone(const fvMesh& mesh, Istream& is)
     ),
     origin_(dict_.lookup("origin")),
     axis_(dict_.lookup("axis")),
-    omega_(dict_.lookup("omega")),
-    Omega_("Omega", omega_*axis_)
+    omega_(DataEntry<scalar>::New("omega", dict_))
 {
     if (dict_.found("patches"))
     {
@@ -255,7 +255,6 @@ Foam::MRFZone::MRFZone(const fvMesh& mesh, Istream& is)
     const polyBoundaryMesh& patches = mesh_.boundaryMesh();
 
     axis_ = axis_/mag(axis_);
-    Omega_ = omega_*axis_;
 
     excludedPatchLabels_.setSize(excludedPatchNames_.size());
 
@@ -273,8 +272,8 @@ Foam::MRFZone::MRFZone(const fvMesh& mesh, Istream& is)
         }
     }
 
-
     bool cellZoneFound = (cellZoneID_ != -1);
+
     reduce(cellZoneFound, orOp<bool>());
 
     if (!cellZoneFound)
@@ -292,6 +291,12 @@ Foam::MRFZone::MRFZone(const fvMesh& mesh, Istream& is)
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+Foam::vector Foam::MRFZone::Omega() const
+{
+    return omega_->value(mesh_.time().timeOutputValue())*axis_;
+}
+
+
 void Foam::MRFZone::addCoriolis
 (
     const volVectorField& U,
@@ -307,7 +312,8 @@ void Foam::MRFZone::addCoriolis
     const scalarField& V = mesh_.V();
     vectorField& ddtUc = ddtU.internalField();
     const vectorField& Uc = U.internalField();
-    const vector& Omega = Omega_.value();
+
+    const vector Omega = this->Omega();
 
     forAll(cells, i)
     {
@@ -328,7 +334,8 @@ void Foam::MRFZone::addCoriolis(fvVectorMatrix& UEqn) const
     const scalarField& V = mesh_.V();
     vectorField& Usource = UEqn.source();
     const vectorField& U = UEqn.psi();
-    const vector& Omega = Omega_.value();
+
+    const vector Omega = this->Omega();
 
     forAll(cells, i)
     {
@@ -353,7 +360,8 @@ void Foam::MRFZone::addCoriolis
     const scalarField& V = mesh_.V();
     vectorField& Usource = UEqn.source();
     const vectorField& U = UEqn.psi();
-    const vector& Omega = Omega_.value();
+
+    const vector Omega = this->Omega();
 
     forAll(cells, i)
     {
@@ -367,15 +375,14 @@ void Foam::MRFZone::relativeVelocity(volVectorField& U) const
 {
     const volVectorField& C = mesh_.C();
 
-    const vector& origin = origin_.value();
-    const vector& Omega = Omega_.value();
+    const vector Omega = this->Omega();
 
     const labelList& cells = mesh_.cellZones()[cellZoneID_];
 
     forAll(cells, i)
     {
         label celli = cells[i];
-        U[celli] -= (Omega ^ (C[celli] - origin));
+        U[celli] -= (Omega ^ (C[celli] - origin_));
     }
 
     // Included patches
@@ -395,7 +402,8 @@ void Foam::MRFZone::relativeVelocity(volVectorField& U) const
         {
             label patchFacei = excludedFaces_[patchi][i];
             U.boundaryField()[patchi][patchFacei] -=
-                (Omega ^ (C.boundaryField()[patchi][patchFacei] - origin));
+                (Omega
+              ^ (C.boundaryField()[patchi][patchFacei] - origin_));
         }
     }
 }
@@ -405,15 +413,14 @@ void Foam::MRFZone::absoluteVelocity(volVectorField& U) const
 {
     const volVectorField& C = mesh_.C();
 
-    const vector& origin = origin_.value();
-    const vector& Omega = Omega_.value();
+    const vector Omega = this->Omega();
 
     const labelList& cells = mesh_.cellZones()[cellZoneID_];
 
     forAll(cells, i)
     {
         label celli = cells[i];
-        U[celli] += (Omega ^ (C[celli] - origin));
+        U[celli] += (Omega ^ (C[celli] - origin_));
     }
 
     // Included patches
@@ -423,7 +430,7 @@ void Foam::MRFZone::absoluteVelocity(volVectorField& U) const
         {
             label patchFacei = includedFaces_[patchi][i];
             U.boundaryField()[patchi][patchFacei] =
-                (Omega ^ (C.boundaryField()[patchi][patchFacei] - origin));
+                (Omega ^ (C.boundaryField()[patchi][patchFacei] - origin_));
         }
     }
 
@@ -434,7 +441,7 @@ void Foam::MRFZone::absoluteVelocity(volVectorField& U) const
         {
             label patchFacei = excludedFaces_[patchi][i];
             U.boundaryField()[patchi][patchFacei] +=
-                (Omega ^ (C.boundaryField()[patchi][patchFacei] - origin));
+                (Omega ^ (C.boundaryField()[patchi][patchFacei] - origin_));
         }
     }
 }
@@ -474,8 +481,7 @@ void Foam::MRFZone::absoluteFlux
 
 void Foam::MRFZone::correctBoundaryVelocity(volVectorField& U) const
 {
-    const vector& origin = origin_.value();
-    const vector& Omega = Omega_.value();
+    const vector Omega = this->Omega();
 
     // Included patches
     forAll(includedFaces_, patchi)
@@ -488,7 +494,7 @@ void Foam::MRFZone::correctBoundaryVelocity(volVectorField& U) const
         {
             label patchFacei = includedFaces_[patchi][i];
 
-            pfld[patchFacei] = (Omega ^ (patchC[patchFacei] - origin));
+            pfld[patchFacei] = (Omega ^ (patchC[patchFacei] - origin_));
         }
 
         U.boundaryField()[patchi] == pfld;
@@ -503,7 +509,7 @@ Foam::Ostream& Foam::operator<<(Ostream& os, const MRFZone& MRF)
     os  << token::BEGIN_BLOCK << incrIndent << nl;
     os.writeKeyword("origin") << MRF.origin_ << token::END_STATEMENT << nl;
     os.writeKeyword("axis") << MRF.axis_ << token::END_STATEMENT << nl;
-    os.writeKeyword("omega") << MRF.omega_ << token::END_STATEMENT << nl;
+    MRF.omega_->writeData(os);
 
     if (MRF.excludedPatchNames_.size())
     {
