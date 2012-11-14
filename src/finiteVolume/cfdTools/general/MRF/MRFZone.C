@@ -291,6 +291,12 @@ Foam::MRFZone::MRFZone(const fvMesh& mesh, Istream& is)
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+Foam::vector Foam::MRFZone::Omega() const
+{
+    return omega_->value(mesh_.time().timeOutputValue())*axis_;
+}
+
+
 void Foam::MRFZone::addCoriolis
 (
     const volVectorField& U,
@@ -307,7 +313,7 @@ void Foam::MRFZone::addCoriolis
     vectorField& ddtUc = ddtU.internalField();
     const vectorField& Uc = U.internalField();
 
-    const vector Omega = omega_->value(mesh_.time().timeOutputValue())*axis_;
+    const vector Omega = this->Omega();
 
     forAll(cells, i)
     {
@@ -329,7 +335,7 @@ void Foam::MRFZone::addCoriolis(fvVectorMatrix& UEqn) const
     vectorField& Usource = UEqn.source();
     const vectorField& U = UEqn.psi();
 
-    const vector Omega = omega_->value(mesh_.time().timeOutputValue())*axis_;
+    const vector Omega = this->Omega();
 
     forAll(cells, i)
     {
@@ -355,7 +361,7 @@ void Foam::MRFZone::addCoriolis
     vectorField& Usource = UEqn.source();
     const vectorField& U = UEqn.psi();
 
-    const vector Omega = omega_->value(mesh_.time().timeOutputValue())*axis_;
+    const vector Omega = this->Omega();
 
     forAll(cells, i)
     {
@@ -369,7 +375,7 @@ void Foam::MRFZone::relativeVelocity(volVectorField& U) const
 {
     const volVectorField& C = mesh_.C();
 
-    const vector Omega = omega_->value(mesh_.time().timeOutputValue())*axis_;
+    const vector Omega = this->Omega();
 
     const labelList& cells = mesh_.cellZones()[cellZoneID_];
 
@@ -407,7 +413,7 @@ void Foam::MRFZone::absoluteVelocity(volVectorField& U) const
 {
     const volVectorField& C = mesh_.C();
 
-    const vector Omega = omega_->value(mesh_.time().timeOutputValue())*axis_;
+    const vector Omega = this->Omega();
 
     const labelList& cells = mesh_.cellZones()[cellZoneID_];
 
@@ -475,8 +481,7 @@ void Foam::MRFZone::absoluteFlux
 
 void Foam::MRFZone::correctBoundaryVelocity(volVectorField& U) const
 {
-    const vector Omega = omega_->value(mesh_.time().timeOutputValue())*axis_;
-
+    const vector Omega = this->Omega();
 
     // Included patches
     forAll(includedFaces_, patchi)

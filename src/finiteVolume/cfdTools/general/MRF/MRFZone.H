@@ -47,7 +47,7 @@ SourceFiles
 #include "volFieldsFwd.H"
 #include "surfaceFieldsFwd.H"
 #include "fvMatricesFwd.H"
-#include "fvMatrices.H"
+#include "mapPolyMesh.H"
 #include "DataEntry.H"
 #include "autoPtr.H"
 
@@ -170,6 +170,9 @@ public:
 
     // Member Functions
 
+        //- Return the current Omega vector
+        vector Omega() const;
+
         //- Update the mesh corresponding to given map
         void updateMesh(const mapPolyMesh& mpm)
         {
@@ -219,8 +222,6 @@ public:
     // IOstream operator
 
         friend Ostream& operator<<(Ostream& os, const MRFZone& MRF);
-
-
 };
 
 
