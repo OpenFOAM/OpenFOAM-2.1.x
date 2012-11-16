@@ -1,3 +1,5 @@
+#include "mrfZonesCorrectBCs.H"
+
 PtrList<fvVectorMatrix> UEqns(fluid.phases().size());
 autoPtr<multiphaseSystem::dragCoeffFields> dragCoeffs(fluid.dragCoeffs());
 
