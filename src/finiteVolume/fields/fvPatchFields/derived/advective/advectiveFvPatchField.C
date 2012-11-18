@@ -28,7 +28,7 @@ License
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
 #include "EulerDdtScheme.H"
-#include "CrankNicholsonDdtScheme.H"
+#include "CrankNicolsonDdtScheme.H"
 #include "backwardDdtScheme.H"
 
 
@@ -225,7 +225,7 @@ void Foam::advectiveFvPatchField<Type>::updateCoeffs()
         if
         (
             ddtScheme == fv::EulerDdtScheme<scalar>::typeName
-         || ddtScheme == fv::CrankNicholsonDdtScheme<scalar>::typeName
+         || ddtScheme == fv::CrankNicolsonDdtScheme<scalar>::typeName
         )
         {
             this->refValue() =
@@ -264,7 +264,7 @@ void Foam::advectiveFvPatchField<Type>::updateCoeffs()
         if
         (
             ddtScheme == fv::EulerDdtScheme<scalar>::typeName
-         || ddtScheme == fv::CrankNicholsonDdtScheme<scalar>::typeName
+         || ddtScheme == fv::CrankNicolsonDdtScheme<scalar>::typeName
         )
         {
             this->refValue() = field.oldTime().boundaryField()[patchi];

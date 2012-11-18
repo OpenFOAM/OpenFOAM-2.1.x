@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "CrankNicholsonDdtScheme.H"
+#include "CrankNicolsonDdtScheme.H"
 #include "surfaceInterpolate.H"
 #include "fvcDiv.H"
 #include "fvMatrices.H"
@@ -42,7 +42,7 @@ namespace fv
 
 template<class Type>
 template<class GeoField>
-CrankNicholsonDdtScheme<Type>::DDt0Field<GeoField>::DDt0Field
+CrankNicolsonDdtScheme<Type>::DDt0Field<GeoField>::DDt0Field
 (
     const IOobject& io,
     const fvMesh& mesh
@@ -60,7 +60,7 @@ CrankNicholsonDdtScheme<Type>::DDt0Field<GeoField>::DDt0Field
 
 template<class Type>
 template<class GeoField>
-CrankNicholsonDdtScheme<Type>::DDt0Field<GeoField>::DDt0Field
+CrankNicolsonDdtScheme<Type>::DDt0Field<GeoField>::DDt0Field
 (
     const IOobject& io,
     const fvMesh& mesh,
@@ -74,7 +74,7 @@ CrankNicholsonDdtScheme<Type>::DDt0Field<GeoField>::DDt0Field
 
 template<class Type>
 template<class GeoField>
-label CrankNicholsonDdtScheme<Type>::DDt0Field<GeoField>::
+label CrankNicolsonDdtScheme<Type>::DDt0Field<GeoField>::
 startTimeIndex() const
 {
     return startTimeIndex_;
@@ -83,7 +83,7 @@ startTimeIndex() const
 
 template<class Type>
 template<class GeoField>
-GeoField& CrankNicholsonDdtScheme<Type>::DDt0Field<GeoField>::
+GeoField& CrankNicolsonDdtScheme<Type>::DDt0Field<GeoField>::
 operator()()
 {
     return *this;
@@ -92,7 +92,7 @@ operator()()
 
 template<class Type>
 template<class GeoField>
-void CrankNicholsonDdtScheme<Type>::DDt0Field<GeoField>::
+void CrankNicolsonDdtScheme<Type>::DDt0Field<GeoField>::
 operator=(const GeoField& gf)
 {
     GeoField::operator=(gf);
@@ -101,8 +101,8 @@ operator=(const GeoField& gf)
 
 template<class Type>
 template<class GeoField>
-CrankNicholsonDdtScheme<Type>::DDt0Field<GeoField>&
-CrankNicholsonDdtScheme<Type>::ddt0_
+CrankNicolsonDdtScheme<Type>::DDt0Field<GeoField>&
+CrankNicolsonDdtScheme<Type>::ddt0_
 (
     const word& name,
     const dimensionSet& dims
@@ -183,7 +183,7 @@ CrankNicholsonDdtScheme<Type>::ddt0_
 
 template<class Type>
 template<class GeoField>
-bool CrankNicholsonDdtScheme<Type>::evaluate
+bool CrankNicolsonDdtScheme<Type>::evaluate
 (
     const DDt0Field<GeoField>& ddt0
 ) const
@@ -193,7 +193,7 @@ bool CrankNicholsonDdtScheme<Type>::evaluate
 
 template<class Type>
 template<class GeoField>
-scalar CrankNicholsonDdtScheme<Type>::coef_
+scalar CrankNicolsonDdtScheme<Type>::coef_
 (
     const DDt0Field<GeoField>& ddt0
 ) const
@@ -211,7 +211,7 @@ scalar CrankNicholsonDdtScheme<Type>::coef_
 
 template<class Type>
 template<class GeoField>
-scalar CrankNicholsonDdtScheme<Type>::coef0_
+scalar CrankNicolsonDdtScheme<Type>::coef0_
 (
     const DDt0Field<GeoField>& ddt0
 ) const
@@ -229,7 +229,7 @@ scalar CrankNicholsonDdtScheme<Type>::coef0_
 
 template<class Type>
 template<class GeoField>
-dimensionedScalar CrankNicholsonDdtScheme<Type>::rDtCoef_
+dimensionedScalar CrankNicolsonDdtScheme<Type>::rDtCoef_
 (
     const DDt0Field<GeoField>& ddt0
 ) const
@@ -240,7 +240,7 @@ dimensionedScalar CrankNicholsonDdtScheme<Type>::rDtCoef_
 
 template<class Type>
 template<class GeoField>
-dimensionedScalar CrankNicholsonDdtScheme<Type>::rDtCoef0_
+dimensionedScalar CrankNicolsonDdtScheme<Type>::rDtCoef0_
 (
     const DDt0Field<GeoField>& ddt0
 ) const
@@ -251,7 +251,7 @@ dimensionedScalar CrankNicholsonDdtScheme<Type>::rDtCoef0_
 
 template<class Type>
 template<class GeoField>
-tmp<GeoField> CrankNicholsonDdtScheme<Type>::offCentre_
+tmp<GeoField> CrankNicolsonDdtScheme<Type>::offCentre_
 (
     const GeoField& ddt0
 ) const
@@ -281,7 +281,7 @@ const FieldField<fvPatchField, Type>& ff
 
 template<class Type>
 tmp<GeometricField<Type, fvPatchField, volMesh> >
-CrankNicholsonDdtScheme<Type>::fvcDdt
+CrankNicolsonDdtScheme<Type>::fvcDdt
 (
     const dimensioned<Type>& dt
 )
@@ -343,7 +343,7 @@ CrankNicholsonDdtScheme<Type>::fvcDdt
 
 template<class Type>
 tmp<GeometricField<Type, fvPatchField, volMesh> >
-CrankNicholsonDdtScheme<Type>::fvcDdt
+CrankNicolsonDdtScheme<Type>::fvcDdt
 (
     const GeometricField<Type, fvPatchField, volMesh>& vf
 )
@@ -432,7 +432,7 @@ CrankNicholsonDdtScheme<Type>::fvcDdt
 
 template<class Type>
 tmp<GeometricField<Type, fvPatchField, volMesh> >
-CrankNicholsonDdtScheme<Type>::fvcDdt
+CrankNicolsonDdtScheme<Type>::fvcDdt
 (
     const dimensionedScalar& rho,
     const GeometricField<Type, fvPatchField, volMesh>& vf
@@ -522,7 +522,7 @@ CrankNicholsonDdtScheme<Type>::fvcDdt
 
 template<class Type>
 tmp<GeometricField<Type, fvPatchField, volMesh> >
-CrankNicholsonDdtScheme<Type>::fvcDdt
+CrankNicolsonDdtScheme<Type>::fvcDdt
 (
     const volScalarField& rho,
     const GeometricField<Type, fvPatchField, volMesh>& vf
@@ -622,7 +622,7 @@ CrankNicholsonDdtScheme<Type>::fvcDdt
 
 template<class Type>
 tmp<fvMatrix<Type> >
-CrankNicholsonDdtScheme<Type>::fvmDdt
+CrankNicolsonDdtScheme<Type>::fvmDdt
 (
     const GeometricField<Type, fvPatchField, volMesh>& vf
 )
@@ -705,7 +705,7 @@ CrankNicholsonDdtScheme<Type>::fvmDdt
 
 template<class Type>
 tmp<fvMatrix<Type> >
-CrankNicholsonDdtScheme<Type>::fvmDdt
+CrankNicolsonDdtScheme<Type>::fvmDdt
 (
     const dimensionedScalar& rho,
     const GeometricField<Type, fvPatchField, volMesh>& vf
@@ -787,7 +787,7 @@ CrankNicholsonDdtScheme<Type>::fvmDdt
 
 template<class Type>
 tmp<fvMatrix<Type> >
-CrankNicholsonDdtScheme<Type>::fvmDdt
+CrankNicolsonDdtScheme<Type>::fvmDdt
 (
     const volScalarField& rho,
     const GeometricField<Type, fvPatchField, volMesh>& vf
@@ -877,8 +877,8 @@ CrankNicholsonDdtScheme<Type>::fvmDdt
 
 
 template<class Type>
-tmp<typename CrankNicholsonDdtScheme<Type>::fluxFieldType>
-CrankNicholsonDdtScheme<Type>::fvcDdtPhiCorr
+tmp<typename CrankNicolsonDdtScheme<Type>::fluxFieldType>
+CrankNicolsonDdtScheme<Type>::fvcDdtPhiCorr
 (
     const volScalarField& rA,
     const GeometricField<Type, fvPatchField, volMesh>& U,
@@ -964,8 +964,8 @@ CrankNicholsonDdtScheme<Type>::fvcDdtPhiCorr
 
 
 template<class Type>
-tmp<typename CrankNicholsonDdtScheme<Type>::fluxFieldType>
-CrankNicholsonDdtScheme<Type>::fvcDdtPhiCorr
+tmp<typename CrankNicolsonDdtScheme<Type>::fluxFieldType>
+CrankNicolsonDdtScheme<Type>::fvcDdtPhiCorr
 (
     const volScalarField& rA,
     const volScalarField& rho,
@@ -1158,7 +1158,7 @@ CrankNicholsonDdtScheme<Type>::fvcDdtPhiCorr
         {
             FatalErrorIn
             (
-                "CrankNicholsonDdtScheme<Type>::fvcDdtPhiCorr"
+                "CrankNicolsonDdtScheme<Type>::fvcDdtPhiCorr"
             )   << "dimensions of phi are not correct"
                 << abort(FatalError);
 
@@ -1169,7 +1169,7 @@ CrankNicholsonDdtScheme<Type>::fvcDdtPhiCorr
 
 
 template<class Type>
-tmp<surfaceScalarField> CrankNicholsonDdtScheme<Type>::meshPhi
+tmp<surfaceScalarField> CrankNicolsonDdtScheme<Type>::meshPhi
 (
     const GeometricField<Type, fvPatchField, volMesh>& vf
 )
