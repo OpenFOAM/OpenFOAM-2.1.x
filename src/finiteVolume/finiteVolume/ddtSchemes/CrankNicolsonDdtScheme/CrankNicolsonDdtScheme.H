@@ -22,19 +22,19 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::fv::CrankNicholsonDdtScheme
+    Foam::fv::CrankNicolsonDdtScheme
 
 Description
-    Second-oder CrankNicholson implicit ddt using the current and
+    Second-oder CrankNicolson implicit ddt using the current and
     previous time-step fields as well as the previous time-step ddt.
 
 SourceFiles
-    CrankNicholsonDdtScheme.C
+    CrankNicolsonDdtScheme.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef CrankNicholsonDdtScheme_H
-#define CrankNicholsonDdtScheme_H
+#ifndef CrankNicolsonDdtScheme_H
+#define CrankNicolsonDdtScheme_H
 
 #include "ddtScheme.H"
 
@@ -49,11 +49,11 @@ namespace fv
 {
 
 /*---------------------------------------------------------------------------*\
-                       Class CrankNicholsonDdtScheme Declaration
+                       Class CrankNicolsonDdtScheme Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class Type>
-class CrankNicholsonDdtScheme
+class CrankNicolsonDdtScheme
 :
     public fv::ddtScheme<Type>
 {
@@ -105,10 +105,10 @@ class CrankNicholsonDdtScheme
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
-        CrankNicholsonDdtScheme(const CrankNicholsonDdtScheme&);
+        CrankNicolsonDdtScheme(const CrankNicolsonDdtScheme&);
 
         //- Disallow default bitwise assignment
-        void operator=(const CrankNicholsonDdtScheme&);
+        void operator=(const CrankNicolsonDdtScheme&);
 
         template<class GeoField>
         DDt0Field<GeoField>& ddt0_
@@ -149,20 +149,20 @@ class CrankNicholsonDdtScheme
 public:
 
     //- Runtime type information
-    TypeName("CrankNicholson");
+    TypeName("CrankNicolson");
 
 
     // Constructors
 
         //- Construct from mesh
-        CrankNicholsonDdtScheme(const fvMesh& mesh)
+        CrankNicolsonDdtScheme(const fvMesh& mesh)
         :
             ddtScheme<Type>(mesh),
             ocCoeff_(1.0)
         {}
 
         //- Construct from mesh and Istream
-        CrankNicholsonDdtScheme(const fvMesh& mesh, Istream& is)
+        CrankNicolsonDdtScheme(const fvMesh& mesh, Istream& is)
         :
             ddtScheme<Type>(mesh, is),
             ocCoeff_(readScalar(is))
@@ -171,7 +171,7 @@ public:
             {
                 FatalIOErrorIn
                 (
-                    "CrankNicholsonDdtScheme(const fvMesh& mesh, Istream& is)",
+                    "CrankNicolsonDdtScheme(const fvMesh& mesh, Istream& is)",
                     is
                 )   << "coefficient = " << ocCoeff_
                     << " should be >= 0 and <= 1"
@@ -253,7 +253,7 @@ public:
 
 
 template<>
-tmp<surfaceScalarField> CrankNicholsonDdtScheme<scalar>::fvcDdtPhiCorr
+tmp<surfaceScalarField> CrankNicolsonDdtScheme<scalar>::fvcDdtPhiCorr
 (
     const volScalarField& rA,
     const volScalarField& U,
@@ -262,7 +262,7 @@ tmp<surfaceScalarField> CrankNicholsonDdtScheme<scalar>::fvcDdtPhiCorr
 
 
 template<>
-tmp<surfaceScalarField> CrankNicholsonDdtScheme<scalar>::fvcDdtPhiCorr
+tmp<surfaceScalarField> CrankNicolsonDdtScheme<scalar>::fvcDdtPhiCorr
 (
     const volScalarField& rA,
     const volScalarField& rho,
@@ -282,7 +282,7 @@ tmp<surfaceScalarField> CrankNicholsonDdtScheme<scalar>::fvcDdtPhiCorr
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "CrankNicholsonDdtScheme.C"
+#   include "CrankNicolsonDdtScheme.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

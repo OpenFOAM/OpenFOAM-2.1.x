@@ -29,7 +29,7 @@ Description
     matrix.
 
     Temporal derivatives are calculated using Euler-implicit, backward
-    differencing or Crank-Nicholson. Spatial derivatives are calculated
+    differencing or Crank-Nicolson. Spatial derivatives are calculated
     using Gauss' Theorem.
 
 

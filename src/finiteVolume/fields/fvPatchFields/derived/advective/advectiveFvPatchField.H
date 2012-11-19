@@ -28,7 +28,7 @@ Description
     Advective outflow boundary condition based on solving DDt(psi, U) = 0
     at the boundary.
 
-    The standard (Euler, backward, CrankNicholson) time schemes are
+    The standard (Euler, backward, CrankNicolson) time schemes are
     supported.  Additionally an optional mechanism to relax the value at
     the boundary to a specified far-field value is provided which is
     switched on by specifying the relaxation length-scale lInf and the

@@ -112,7 +112,7 @@ DebugSwitches
     ConeInjection       0;
     Constant            0;
     ConstantRateDevolatilisation    0;
-    CrankNicholson      0;
+    CrankNicolson      0;
     CrossPowerLaw       0;
     Cs                  0;
     DIC                 0;
