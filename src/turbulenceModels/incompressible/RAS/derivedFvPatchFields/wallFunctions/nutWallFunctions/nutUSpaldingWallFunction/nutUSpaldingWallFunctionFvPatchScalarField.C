@@ -65,15 +65,19 @@ tmp<scalarField> nutUSpaldingWallFunctionFvPatchScalarField::calcUTau
     const scalarField& magGradU
 ) const
 {
+    const label patchI = patch().index();
+
     const turbulenceModel& turbModel =
         db().lookupObject<turbulenceModel>("turbulenceModel");
-    const scalarField& y = turbModel.y()[patch().index()];
+    const scalarField& y = turbModel.y()[patchI];
 
-    const fvPatchVectorField& Uw =
-        turbModel.U().boundaryField()[patch().index()];
+    const fvPatchVectorField& Uw = turbModel.U().boundaryField()[patchI];
     const scalarField magUp(mag(Uw.patchInternalField() - Uw));
 
-    const scalarField& nuw = turbModel.nu()().boundaryField()[patch().index()];
+    const tmp<volScalarField> tnu = turbModel.nu();
+    const volScalarField& nu = tnu();
+    const scalarField& nuw = nu.boundaryField()[patchI];
+
     const scalarField& nutw = *this;
 
     tmp<scalarField> tuTau(new scalarField(patch().size(), 0.0));
