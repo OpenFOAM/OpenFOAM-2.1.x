@@ -305,7 +305,7 @@ $(ddtSchemes)/localEulerDdtScheme/localEulerDdtSchemes.C
 $(ddtSchemes)/backwardDdtScheme/backwardDdtSchemes.C
 $(ddtSchemes)/boundedBackwardDdtScheme/boundedBackwardDdtScheme.C
 $(ddtSchemes)/boundedBackwardDdtScheme/boundedBackwardDdtSchemes.C
-$(ddtSchemes)/CrankNicholsonDdtScheme/CrankNicholsonDdtSchemes.C
+$(ddtSchemes)/CrankNicolsonDdtScheme/CrankNicolsonDdtSchemes.C
 
 d2dt2Schemes = finiteVolume/d2dt2Schemes
 $(d2dt2Schemes)/d2dt2Scheme/d2dt2Schemes.C

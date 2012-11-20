@@ -28,7 +28,7 @@ License
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
 #include "EulerDdtScheme.H"
-#include "CrankNicholsonDdtScheme.H"
+#include "CrankNicolsonDdtScheme.H"
 #include "backwardDdtScheme.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
