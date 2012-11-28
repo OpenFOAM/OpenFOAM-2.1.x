@@ -359,6 +359,7 @@ bool kOmegaSST::read()
         beta2_.readIfPresent(coeffDict());
         betaStar_.readIfPresent(coeffDict());
         a1_.readIfPresent(coeffDict());
+        b1_.readIfPresent(coeffDict());
         c1_.readIfPresent(coeffDict());
 
         return true;
