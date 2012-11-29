@@ -631,7 +631,7 @@ DebugSwitches
     muSgsSpalartAllmarasWallFunction 0;
     multiDirRefinement  0;
     multiHoleInjector   0;
-    multiLevel          1;
+    multiLevel          0;
     multivariateSelection 0;
     mutRoughWallFunction 0;
     mutSpalartAllmarasStandardRoughWallFunction  0;
