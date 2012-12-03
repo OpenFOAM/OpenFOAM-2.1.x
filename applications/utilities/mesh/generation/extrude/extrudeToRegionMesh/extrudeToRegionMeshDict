@@ -40,11 +40,20 @@ adaptMesh       true;
 // Sample mode for inter-region communication
 sampleMode      nearestPatchFace;
 
-// Extrude 1D-columns of cells?
-oneD            false;
 
-// If oneD is true. Specify which boundary is wanted between the layers
-//oneDPolyPatchType empty; //wedge
+// 1 D extrusion
+// ~~~~~~~~~~~~~
+
+    // Extrude 1D-columns of cells? This by default duplicates points so can
+    // have overlapping columns (i.e. non space filling)
+    oneD            false;
+
+    //- If oneD: specify which boundary is wanted between the layers
+    //oneDPolyPatchType empty; //wedge
+
+    //- If oneD: specify whether to duplicate points (i.e. disconnect 1D
+    //  columns) or only on non-manifold extrusion areas. Default is false.
+    //  nonManifold true;
 
 
 //- Extrusion model to use. The only logical choice is linearNormal?

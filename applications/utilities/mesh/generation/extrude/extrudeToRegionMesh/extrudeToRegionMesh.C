@@ -1805,18 +1805,26 @@ int main(int argc, char *argv[])
         mappedPatchBase::sampleModeNames_[dict.lookup("sampleMode")];
 
     const Switch oneD(dict.lookup("oneD"));
+    Switch oneDNonManifoldEdges(false);
+    word oneDPatchType(emptyPolyPatch::typeName);
+    if (oneD)
+    {
+        oneDNonManifoldEdges = dict.lookupOrDefault("nonManifold", false);
+        dict.lookup("oneDPolyPatchType") >> oneDPatchType;
+    }
+
     const Switch adaptMesh(dict.lookup("adaptMesh"));
 
     if (hasZones)
     {
-        Pout<< "Extruding zones " << zoneNames
+        Info<< "Extruding zones " << zoneNames
             << " on mesh " << regionName
             << " into shell mesh " << shellRegionName
             << endl;
     }
     else
     {
-        Pout<< "Extruding faceSets " << zoneNames
+        Info<< "Extruding faceSets " << zoneNames
             << " on mesh " << regionName
             << " into shell mesh " << shellRegionName
             << endl;
@@ -1830,6 +1838,34 @@ int main(int argc, char *argv[])
             << "Shell region : " << shellRegionName
             << exit(FatalIOError);
     }
+
+    
+    if (oneD)
+    {
+        if (oneDNonManifoldEdges)
+        {
+            Info<< "Extruding as 1D columns with sides in patch type "
+                << oneDPatchType
+                << " and connected points (except on non-manifold areas)."
+                << endl;
+        }
+        else
+        {
+            Info<< "Extruding as 1D columns with sides in patch type "
+                << oneDPatchType
+                << " and duplicated points (overlapping volumes)."
+                << endl;
+
+
+            WarningIn(args.executable())
+                << "Behaviour of 'oneD' has changed - by default it now"
+                << " creates disconnected columns of cells." << nl
+                << "To revert to the original behaviour and only have"
+                << " disconnected columns at non-manifold extrusions use the"
+                << " 'nonManifold' switch." << endl;
+        }
+    }
+
 
 
 
@@ -1894,7 +1930,7 @@ int main(int argc, char *argv[])
     {
         meshInstance = oldInstance;
     }
-    Pout<< "Writing meshes to " << meshInstance << nl << endl;
+    Info<< "Writing meshes to " << meshInstance << nl << endl;
 
 
     const polyBoundaryMesh& patches = mesh.boundaryMesh();
@@ -2130,7 +2166,7 @@ int main(int argc, char *argv[])
     const labelListList& edgeFaces = extrudePatch.edgeFaces();
 
 
-    Pout<< "extrudePatch :"
+    Info<< "extrudePatch :"
         << " faces:" << extrudePatch.size()
         << " points:" << extrudePatch.nPoints()
         << " edges:" << extrudePatch.nEdges()
@@ -2325,7 +2361,7 @@ int main(int argc, char *argv[])
     (
         mesh,
         zoneNames,
-        (oneD ? dict.lookup("oneDPolyPatchType") : word::null),
+        (oneD ? oneDPatchType : word::null),
 
         regionPatches,
         zoneSidePatch
@@ -2416,10 +2452,18 @@ int main(int argc, char *argv[])
             {
                 ePatches[i] = zoneSidePatch[zoneID[eFaces[i]]];
             }
-            //- Set nonManifoldEdge[edgeI] for non-manifold edges only
-            //  The other option is to have non-manifold edges everywhere
-            //  and generate space overlapping columns of cells.
-            if (eFaces.size() != 2)
+
+            if (oneDNonManifoldEdges)
+            {
+                //- Set nonManifoldEdge[edgeI] for non-manifold edges only
+                //  The other option is to have non-manifold edges everywhere
+                //  and generate space overlapping columns of cells.
+                if (eFaces.size() != 2)
+                {
+                    nonManifoldEdge[edgeI] = 1;
+                }
+            }
+            else
             {
                 nonManifoldEdge[edgeI] = 1;
             }
@@ -2834,7 +2878,7 @@ int main(int argc, char *argv[])
         "point to patch point addressing";
 
 
-    Pout<< "Writing mesh " << regionMesh.name()
+    Info<< "Writing mesh " << regionMesh.name()
         << " to " << regionMesh.facesInstance() << nl
         << endl;
 
@@ -3013,7 +3057,7 @@ int main(int argc, char *argv[])
         // Remove any unused patches
         deleteEmptyPatches(mesh);
 
-        Pout<< "Writing mesh " << mesh.name()
+        Info<< "Writing mesh " << mesh.name()
             << " to " << mesh.facesInstance() << nl
             << endl;
 
