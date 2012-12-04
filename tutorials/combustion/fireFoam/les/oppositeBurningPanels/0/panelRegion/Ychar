@@ -11,7 +11,7 @@ FoamFile
     format      ascii;
     class       volScalarField;
     location    "0";
-    object      Yv;
+    object      Ydefault;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -21,6 +21,7 @@ internalField   uniform 0.5;
 
 boundaryField
 {
+
     ".*"
     {
         type            zeroGradient;
