@@ -42,12 +42,11 @@ Foam::combustionModels::PaSR<CombThermoType>::PaSR
     (
         IOobject
         (
-            "kappa",
+            "PaSR::kappa",
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE,
-            false
+            IOobject::AUTO_WRITE
         ),
         mesh,
         dimensionedScalar("kappa", dimless, 0.0)
