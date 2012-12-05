@@ -331,9 +331,10 @@ public:
 
 int main(int argc, char *argv[])
 {
-#   include "setRootCase.H"
-#   include "createTime.H"
-#   include "createMesh.H"
+    #include "addRegionOption.H"
+    #include "setRootCase.H"
+    #include "createTime.H"
+    #include "createNamedMesh.H"
 
     Info<< "Reading setFieldsDict\n" << endl;
 
