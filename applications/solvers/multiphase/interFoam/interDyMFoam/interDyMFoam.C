@@ -40,6 +40,7 @@ Description
 #include "twoPhaseMixture.H"
 #include "turbulenceModel.H"
 #include "pimpleControl.H"
+#include "IObasicSourceList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

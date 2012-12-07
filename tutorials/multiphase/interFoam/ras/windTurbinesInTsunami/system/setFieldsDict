@@ -9,47 +9,40 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      k;
+    class       dictionary;
+    object      setFieldsDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include        "include/initialConditions"
+defaultFieldValues
+(
+    volScalarFieldValue alpha1 1
+);
 
-dimensions      [0 2 -2 0 0 0 0];
-
-internalField   uniform $turbulentKE;
-
-boundaryField
-{
-    #include "include/ABLConditions"
-
-    outlet
+regions
+(
+    // Set cell values
+    // (does zerogradient on boundaries)
+    boxToCell
     {
-        type            inletOutlet;
-        inletValue      uniform $turbulentKE;
-        value           $internalField;
+        box (0 0 1067) (6e5 5e6 2000);
+
+        fieldValues
+        (
+            volScalarFieldValue alpha1 0
+        );
     }
 
-    inlet
+    // Set patch values (using ==)
+    boxToFace
     {
-        type            uniformFixedValue;
-        uniformValue    constant $turbulentKE;
+        box (581300 0 1067) (581322 5e6 2000);
+
+        fieldValues
+        (
+            volScalarFieldValue alpha1 0
+        );
     }
-
-    "terrain_.*"
-    {
-        type            kqRWallFunction;
-        value           uniform 0.0;
-    }
-
-    ground
-    {
-        type            zeroGradient;
-    }
-
-    #include "include/sideAndTopPatches"
-}
-
+);
 
 // ************************************************************************* //

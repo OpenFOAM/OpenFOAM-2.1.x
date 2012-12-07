@@ -9,46 +9,54 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      k;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include        "include/initialConditions"
-
-dimensions      [0 2 -2 0 0 0 0];
-
-internalField   uniform $turbulentKE;
-
-boundaryField
+ddtSchemes
 {
-    #include "include/ABLConditions"
+    default         Euler;
+}
 
-    outlet
-    {
-        type            inletOutlet;
-        inletValue      uniform $turbulentKE;
-        value           $internalField;
-    }
+gradSchemes
+{
+    default         Gauss linear;
+}
 
-    inlet
-    {
-        type            uniformFixedValue;
-        uniformValue    constant $turbulentKE;
-    }
+divSchemes
+{
+    div(rho*phi,U)  Gauss linearUpwind grad(U);
+    div(phi,alpha)  Gauss vanLeer;
+    div(phirb,alpha) Gauss interfaceCompression;
 
-    "terrain_.*"
-    {
-        type            kqRWallFunction;
-        value           uniform 0.0;
-    }
+    div(phi,k)      Gauss upwind;
+    div(phi,epsilon)  $div(phi,k);
+    div((muEff*dev(T(grad(U))))) Gauss linear;
+}
 
-    ground
-    {
-        type            zeroGradient;
-    }
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
 
-    #include "include/sideAndTopPatches"
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+fluxRequired
+{
+    default         no;
+    p_rgh;
+    pcorr;
+    alpha1;
 }
 
 

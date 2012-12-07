@@ -9,16 +9,17 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      k;
+    class       volVectorField;
+    location    "0";
+    object      U;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include        "include/initialConditions"
 
-dimensions      [0 2 -2 0 0 0 0];
+dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform $turbulentKE;
+internalField   uniform $flowVelocity;
 
 boundaryField
 {
@@ -27,25 +28,34 @@ boundaryField
     outlet
     {
         type            inletOutlet;
-        inletValue      uniform $turbulentKE;
+        inletValue      uniform (0 0 0);
         value           $internalField;
     }
 
     inlet
     {
-        type            uniformFixedValue;
-        uniformValue    constant $turbulentKE;
+        type            atmBoundaryLayerInletVelocity;
+        Uref            $Uref;
+        Href            $Href;
+        n               $windDirection;
+        z               $zDirection;
+        z0              $z0;
+        value           $internalField;
+        zGround         $zGround;
     }
 
     "terrain_.*"
     {
-        type            kqRWallFunction;
-        value           uniform 0.0;
+        type            uniformFixedValue;
+        uniformValue    (0 0 0);
+        value           uniform (0 0 0);
     }
 
     ground
     {
-        type            zeroGradient;
+        type            uniformFixedValue;
+        value           uniform (0 0 0);
+        uniformValue    constant (0 0 0);
     }
 
     #include "include/sideAndTopPatches"

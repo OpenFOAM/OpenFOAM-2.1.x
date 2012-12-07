@@ -10,46 +10,51 @@ FoamFile
     version     2.0;
     format      ascii;
     class       volScalarField;
-    object      k;
+    object      p_rgh;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include        "include/initialConditions"
 
-dimensions      [0 2 -2 0 0 0 0];
+dimensions      [1 -1 -2 0 0 0 0];
 
-internalField   uniform $turbulentKE;
+internalField   uniform $pressure;
 
 boundaryField
 {
-    #include "include/ABLConditions"
+    inlet
+    {
+        type            fixedFluxPressure;
+    }
 
     outlet
     {
-        type            inletOutlet;
-        inletValue      uniform $turbulentKE;
-        value           $internalField;
-    }
-
-    inlet
-    {
-        type            uniformFixedValue;
-        uniformValue    constant $turbulentKE;
+        type            fixedFluxPressure;
     }
 
     "terrain_.*"
     {
-        type            kqRWallFunction;
-        value           uniform 0.0;
+        type            fixedFluxPressure;
     }
 
     ground
     {
-        type            zeroGradient;
+        type            fixedFluxPressure;
     }
 
     #include "include/sideAndTopPatches"
-}
 
+    top
+    {
+        type            totalPressure;
+        p0              uniform 0;
+        U               U;
+        phi             phi;
+        rho             rho;
+        psi             none;
+        gamma           1;
+        value           uniform 0;
+    }
+}
 
 // ************************************************************************* //

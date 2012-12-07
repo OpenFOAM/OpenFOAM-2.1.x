@@ -9,47 +9,27 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      k;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include        "include/initialConditions"
-
-dimensions      [0 2 -2 0 0 0 0];
-
-internalField   uniform $turbulentKE;
-
-boundaryField
+phase1
 {
-    #include "include/ABLConditions"
-
-    outlet
-    {
-        type            inletOutlet;
-        inletValue      uniform $turbulentKE;
-        value           $internalField;
-    }
-
-    inlet
-    {
-        type            uniformFixedValue;
-        uniformValue    constant $turbulentKE;
-    }
-
-    "terrain_.*"
-    {
-        type            kqRWallFunction;
-        value           uniform 0.0;
-    }
-
-    ground
-    {
-        type            zeroGradient;
-    }
-
-    #include "include/sideAndTopPatches"
+    transportModel  Newtonian;
+    nu              nu [ 0 2 -1 0 0 0 0 ]  1e-06;
+    rho             rho [ 1 -3 0 0 0 0 0 ] 1000;
 }
+
+phase2
+{
+    transportModel  Newtonian;
+    nu              nu [ 0 2 -1 0 0 0 0 ]  1.48e-05;
+    rho             rho [ 1 -3 0 0 0 0 0 ] 1;
+}
+
+sigma           sigma [ 1 0 -2 0 0 0 0 ] 0.07;
 
 
 // ************************************************************************* //
