@@ -9,47 +9,26 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      k;
+    class       dictionary;
+    object      RASProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include        "include/initialConditions"
+RASModel            kEpsilon;
 
-dimensions      [0 2 -2 0 0 0 0];
+turbulence          on;
 
-internalField   uniform $turbulentKE;
+printCoeffs         on;
 
-boundaryField
+kEpsilonCoeffs
 {
-    #include "include/ABLConditions"
-
-    outlet
-    {
-        type            inletOutlet;
-        inletValue      uniform $turbulentKE;
-        value           $internalField;
-    }
-
-    inlet
-    {
-        type            uniformFixedValue;
-        uniformValue    constant $turbulentKE;
-    }
-
-    "terrain_.*"
-    {
-        type            kqRWallFunction;
-        value           uniform 0.0;
-    }
-
-    ground
-    {
-        type            zeroGradient;
-    }
-
-    #include "include/sideAndTopPatches"
+    Cmu         0.09;
+    C1          1.44;
+    C2          1.92;
+    C3          -0.33;
+    sigmak      1.0;
+    sigmaEps    1.11; //Original value:1.44
+    Prt         1.0;
 }
-
 
 // ************************************************************************* //

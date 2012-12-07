@@ -9,47 +9,46 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      k;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include        "include/initialConditions"
+application     interFoam;
 
-dimensions      [0 2 -2 0 0 0 0];
+startFrom       startTime;
 
-internalField   uniform $turbulentKE;
+startTime       0;
 
-boundaryField
-{
-    #include "include/ABLConditions"
+stopAt          endTime;
 
-    outlet
-    {
-        type            inletOutlet;
-        inletValue      uniform $turbulentKE;
-        value           $internalField;
-    }
+endTime         100;
 
-    inlet
-    {
-        type            uniformFixedValue;
-        uniformValue    constant $turbulentKE;
-    }
+deltaT          0.01;
 
-    "terrain_.*"
-    {
-        type            kqRWallFunction;
-        value           uniform 0.0;
-    }
+writeControl    adjustableRunTime;
 
-    ground
-    {
-        type            zeroGradient;
-    }
+writeInterval   5;
 
-    #include "include/sideAndTopPatches"
-}
+purgeWrite      0;
+
+writeFormat     binary;
+
+writePrecision  6;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+maxCo           0.5;
+maxAlphaCo      0.5;
+maxDeltaT       1;
 
 
 // ************************************************************************* //
