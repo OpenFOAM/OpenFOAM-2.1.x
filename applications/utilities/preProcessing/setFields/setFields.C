@@ -215,7 +215,11 @@ bool setFaceFieldType
         }
 
         // Override
-        labelList nChanged(field.boundaryField().size(), 0);
+        labelList nChanged
+        (
+            returnReduce(field.boundaryField().size(), maxOp<label>()),
+            0
+        );
         forAll(selectedFaces, i)
         {
             label facei = selectedFaces[i];
