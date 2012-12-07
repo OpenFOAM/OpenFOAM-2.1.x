@@ -45,6 +45,7 @@ Description
 #include "turbulenceModel.H"
 #include "interpolationTable.H"
 #include "pimpleControl.H"
+#include "IObasicSourceList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -37,6 +37,7 @@ Description
 #include "threePhaseInterfaceProperties.H"
 #include "turbulenceModel.H"
 #include "pimpleControl.H"
+#include "IObasicSourceList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
