@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -22,17 +22,18 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    MRFSimpleFoam
+    porousMRFSimpleFoam
 
 Description
-    Steady-state solver for incompressible, turbulent flow of non-Newtonian
-    fluids with MRF regions.
+    Steady-state solver for incompressible, turbulent flow with
+    implicit or explicit porosity treatment and MRF regions.
 
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
 #include "RASModel.H"
+#include "porousZones.H"
 #include "MRFZones.H"
 #include "simpleControl.H"
 #include "IObasicSourceList.H"
@@ -42,14 +43,15 @@ Description
 int main(int argc, char *argv[])
 {
     #include "setRootCase.H"
-
     #include "createTime.H"
     #include "createMesh.H"
-    #include "createFields.H"
-    #include "createMRFZones.H"
-    #include "initContinuityErrs.H"
 
     simpleControl simple(mesh);
+
+    #include "createFields.H"
+    #include "createPorousZones.H"
+    #include "createMRFZones.H"
+    #include "initContinuityErrs.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -59,7 +61,7 @@ int main(int argc, char *argv[])
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        // --- Pressure-velocity SIMPLE corrector
+        // Pressure-velocity SIMPLE corrector
         {
             #include "UEqn.H"
             #include "pEqn.H"
