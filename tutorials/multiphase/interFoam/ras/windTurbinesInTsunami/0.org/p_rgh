@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      p_rgh;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include        "include/initialConditions"
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform $pressure;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedFluxPressure;
+    }
+
+    outlet
+    {
+        type            fixedFluxPressure;
+    }
+
+    "terrain_.*"
+    {
+        type            fixedFluxPressure;
+    }
+
+    ground
+    {
+        type            fixedFluxPressure;
+    }
+
+    #include "include/sideAndTopPatches"
+
+    top
+    {
+        type            totalPressure;
+        p0              uniform 0;
+        U               U;
+        phi             phi;
+        rho             rho;
+        psi             none;
+        gamma           1;
+        value           uniform 0;
+    }
+}
+
+// ************************************************************************* //

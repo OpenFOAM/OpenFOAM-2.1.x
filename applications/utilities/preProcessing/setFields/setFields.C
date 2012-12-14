@@ -215,7 +215,11 @@ bool setFaceFieldType
         }
 
         // Override
-        labelList nChanged(field.boundaryField().size(), 0);
+        labelList nChanged
+        (
+            returnReduce(field.boundaryField().size(), maxOp<label>()),
+            0
+        );
         forAll(selectedFaces, i)
         {
             label facei = selectedFaces[i];
@@ -331,9 +335,10 @@ public:
 
 int main(int argc, char *argv[])
 {
-#   include "setRootCase.H"
-#   include "createTime.H"
-#   include "createMesh.H"
+    #include "addRegionOption.H"
+    #include "setRootCase.H"
+    #include "createTime.H"
+    #include "createNamedMesh.H"
 
     Info<< "Reading setFieldsDict\n" << endl;
 

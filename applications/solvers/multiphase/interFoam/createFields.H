@@ -131,3 +131,5 @@
         );
         p_rgh = p - rho*gh;
     }
+
+    IObasicSourceList sources(mesh);

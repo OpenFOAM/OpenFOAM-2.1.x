@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -237,6 +237,22 @@ int main(int argc, char *argv[])
     (
         dict.lookup("constructFrom")
     );
+
+    // Any merging of small edges
+    const scalar mergeTol(dict.lookupOrDefault<scalar>("mergeTol", 1e-4));
+
+    Info<< "Extruding from " << ExtrudeModeNames[mode]
+        << " using model " << model().type() << endl;
+
+    if (mergeTol > 0)
+    {
+        Info<< "Collapsing edges < " << mergeTol << " of bounding box" << endl;
+    }
+    else
+    {
+        Info<< "Not collapsing any edges after extrusion" << endl;
+    }
+    Info<< endl;
 
 
     // Generated mesh (one of either)
@@ -666,7 +682,7 @@ int main(int argc, char *argv[])
 
     const boundBox& bb = mesh.bounds();
     const vector span = bb.span();
-    const scalar mergeDim = 1E-4 * bb.minDim();
+    const scalar mergeDim = mergeTol * bb.minDim();
 
     Info<< "Mesh bounding box : " << bb << nl
         << "        with span : " << span << nl
@@ -677,6 +693,7 @@ int main(int argc, char *argv[])
     // Collapse edges
     // ~~~~~~~~~~~~~~
 
+    if (mergeDim > 0)
     {
         Info<< "Collapsing edges < " << mergeDim << " ..." << nl << endl;
 

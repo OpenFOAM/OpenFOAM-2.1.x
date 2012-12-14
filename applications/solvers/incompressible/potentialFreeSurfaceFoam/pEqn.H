@@ -37,7 +37,7 @@ while (pimple.correctNonOrthogonal())
 // Explicitly relax pressure for momentum corrector
 p_gh.relax();
 
-p = p_gh + (g & (mesh.C() + zeta - refLevel));
+p = p_gh + (g & mesh.C());
 
 U -= rAU*fvc::grad(p_gh);
 U.correctBoundaryConditions();

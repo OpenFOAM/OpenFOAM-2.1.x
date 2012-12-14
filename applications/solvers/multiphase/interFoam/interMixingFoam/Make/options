@@ -1,14 +1,15 @@
 INTERFOAM = $(FOAM_SOLVERS)/multiphase/interFoam
 
 EXE_INC = \
-    -I$(INTERFOAM) \
+    -I.. \
     -IincompressibleThreePhaseMixture \
     -IthreePhaseInterfaceProperties \
     -I$(LIB_SRC)/transportModels/interfaceProperties/lnInclude \
     -I$(LIB_SRC)/transportModels/twoPhaseInterfaceProperties/alphaContactAngle/alphaContactAngle \
     -I$(LIB_SRC)/turbulenceModels/incompressible/turbulenceModel \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
-    -I$(LIB_SRC)/transportModels
+    -I$(LIB_SRC)/transportModels \
+    -I$(LIB_SRC)/meshTools/lnInclude
 
 EXE_LIBS = \
     -ltwoPhaseInterfaceProperties \
@@ -16,4 +17,5 @@ EXE_LIBS = \
     -lincompressibleTurbulenceModel \
     -lincompressibleRASModels \
     -lincompressibleLESModels \
-    -lfiniteVolume
+    -lfiniteVolume \
+    -lmeshTools

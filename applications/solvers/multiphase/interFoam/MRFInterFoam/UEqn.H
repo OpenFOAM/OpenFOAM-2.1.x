@@ -12,10 +12,13 @@
       - fvm::laplacian(muEff, U)
       - (fvc::grad(U) & fvc::grad(muEff))
     //- fvc::div(muEff*(fvc::interpolate(dev(fvc::grad(U))) & mesh.Sf()))
+     ==
+        sources(rho, U)
     );
-    mrfZones.addCoriolis(rho, UEqn);
 
+    mrfZones.addCoriolis(rho, UEqn);
     UEqn.relax();
+    sources.constrain(UEqn);
 
     if (pimple.momentumPredictor())
     {

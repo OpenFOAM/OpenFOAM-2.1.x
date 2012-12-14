@@ -39,46 +39,6 @@
 
     Info<< "\nReading freeSurfaceProperties\n" << endl;
 
-    IOdictionary freeSurfaceProperties
-    (
-        IOobject
-        (
-            "freeSurfaceProperties",
-            runTime.constant(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )
-    );
-
-    word freeSurfacePatch(freeSurfaceProperties.lookup("freeSurfacePatch"));
-    label freeSurfacePatchI = mesh.boundaryMesh().findPatchID(freeSurfacePatch);
-    if (freeSurfacePatchI < 0)
-    {
-        FatalErrorIn(args.executable())
-            << "Patch " << freeSurfacePatch << " not found. "
-            << "Available patches are:" << mesh.boundaryMesh().names()
-            << exit(FatalError);
-    }
-
-    Info<< "Creating field refLevel\n" << endl;
-    volVectorField refLevel
-    (
-        IOobject
-        (
-            "refLevel",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        mesh,
-        dimensionedVector("zero", dimLength, vector::zero)
-    );
-
-    refLevel.boundaryField()[freeSurfacePatchI]
-        == mesh.C().boundaryField()[freeSurfacePatchI];
-
     Info<< "Creating field zeta\n" << endl;
     volVectorField zeta
     (
@@ -109,8 +69,7 @@
     );
 
     // Force p_gh to be consistent with p
-    // Height is made relative to field 'refLevel'
-    p_gh =  p - (g & (mesh.C() + zeta - refLevel));
+    p_gh = p - (g & mesh.C());
 
 
     label p_ghRefCell = 0;

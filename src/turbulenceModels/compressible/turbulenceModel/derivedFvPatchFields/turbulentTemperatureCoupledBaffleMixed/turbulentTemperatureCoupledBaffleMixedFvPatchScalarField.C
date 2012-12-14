@@ -161,8 +161,6 @@ void turbulentTemperatureCoupledBaffleMixedFvPatchScalarField::updateCoeffs()
         nbrMesh
     ).boundary()[mpp.samplePolyPatch().index()];
 
-    // Force recalculation of mapping and schedule
-    const mapDistribute& distMap = mpp.map();
 
     tmp<scalarField> intFld = patchInternalField();
 
@@ -184,11 +182,11 @@ void turbulentTemperatureCoupledBaffleMixedFvPatchScalarField::updateCoeffs()
 
     // Swap to obtain full local values of neighbour internal field
     scalarField nbrIntFld(nbrField.patchInternalField());
-    distMap.distribute(nbrIntFld);
+    mpp.distribute(nbrIntFld);
 
     // Swap to obtain full local values of neighbour K*delta
     scalarField nbrKDelta(nbrField.K(nbrField)*nbrPatch.deltaCoeffs());
-    distMap.distribute(nbrKDelta);
+    mpp.distribute(nbrKDelta);
 
     tmp<scalarField> myKDelta = K(*this)*patch().deltaCoeffs();
 
