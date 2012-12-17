@@ -142,6 +142,10 @@ Op(minMod, minMod(x, y))
 Op(and, x && y)
 Op(or, x || y)
 Op(eqEq, x == y)
+Op(less, x < y)
+Op(lessEq, x <= y)
+Op(greater, x > y)
+Op(greaterEq, x >= y)
 
 #undef Op
 
