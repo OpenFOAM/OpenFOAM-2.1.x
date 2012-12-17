@@ -74,11 +74,12 @@ public:
             smPoints,
             smCellSet,
             smCellZone,
-            smAll
+            smAll,
+            smMap
         };
 
         //- Word list of selection mode type names
-        static const NamedEnum<selectionModeType, 4> selectionModeTypeNames_;
+        static const NamedEnum<selectionModeType, 5> selectionModeTypeNames_;
 
 
 protected:

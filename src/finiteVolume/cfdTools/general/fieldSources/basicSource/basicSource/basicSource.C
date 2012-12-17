@@ -39,16 +39,17 @@ namespace Foam
     template<> const char* NamedEnum
     <
         basicSource::selectionModeType,
-        4
+        5
         >::names[] =
     {
         "points",
         "cellSet",
         "cellZone",
-        "all"
+        "all",
+        "map"
     };
 
-    const NamedEnum<basicSource::selectionModeType, 4>
+    const NamedEnum<basicSource::selectionModeType, 5>
         basicSource::selectionModeTypeNames_;
 }
 
@@ -75,6 +76,10 @@ void Foam::basicSource::setSelection(const dictionary& dict)
             break;
         }
         case smAll:
+        {
+            break;
+        }
+        case smMap:
         {
             break;
         }
@@ -156,6 +161,12 @@ void Foam::basicSource::setCellSet()
         {
             Info<< indent << "- selecting all cells" << endl;
             cells_ = identity(mesh_.nCells());
+
+            break;
+        }
+        case smMap:
+        {
+            Info<< indent << "- selecting no cells" << endl;
 
             break;
         }
