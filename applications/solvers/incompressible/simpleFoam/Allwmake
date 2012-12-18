@@ -7,5 +7,6 @@ wmake
 wmake SRFSimpleFoam
 wmake MRFSimpleFoam
 wmake porousSimpleFoam
+wmake porousMRFSimpleFoam
 
 # ----------------------------------------------------------------- end-of-file
