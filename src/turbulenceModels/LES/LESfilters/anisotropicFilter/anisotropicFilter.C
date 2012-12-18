@@ -173,9 +173,7 @@ Foam::tmp<Foam::volSymmTensorField> Foam::anisotropicFilter::operator()
             (
                 "anisotropicFilteredSymmTensorField",
                 mesh().time().timeName(),
-                mesh(),
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
+                mesh()
             ),
             mesh(),
             unFilteredField().dimensions()
@@ -209,9 +207,7 @@ Foam::tmp<Foam::volTensorField> Foam::anisotropicFilter::operator()
             (
                 "anisotropicFilteredTensorField",
                 mesh().time().timeName(),
-                mesh(),
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
+                mesh()
             ),
             mesh(),
             unFilteredField().dimensions()
