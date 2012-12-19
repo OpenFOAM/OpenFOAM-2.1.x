@@ -69,6 +69,7 @@ tmp<volScalarField> kOmegaSST::F1(const volScalarField& CDkOmega) const
     return tanh(pow4(arg1));
 }
 
+
 tmp<volScalarField> kOmegaSST::F2() const
 {
     tmp<volScalarField> arg2 = min
