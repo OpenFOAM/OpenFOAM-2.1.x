@@ -27,6 +27,7 @@ License
 
 #include "perfectGas.H"
 #include "isobaricPerfectGas.H"
+#include "incompressible.H"
 
 #include "hConstThermo.H"
 #include "janafThermo.H"
@@ -37,6 +38,8 @@ License
 
 #include "hsRhoThermo.H"
 #include "pureMixture.H"
+
+#include "thermoPhysicsTypes.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -78,6 +81,29 @@ makeBasicRhoThermo
     pureMixture,
     constTransport,
     hConstThermo,
+    incompressible
+);
+
+makeBasicRhoPolyThermo
+(
+    hsRhoThermo,
+    pureMixture,
+    3
+);
+
+makeBasicRhoPolyThermo
+(
+    hsRhoThermo,
+    pureMixture,
+    8
+);
+
+makeBasicRhoThermo
+(
+    hsRhoThermo,
+    pureMixture,
+    constTransport,
+    hConstThermo,
     isobaricPerfectGas
 );
 
@@ -98,7 +124,6 @@ makeBasicRhoThermo
     janafThermo,
     isobaricPerfectGas
 );
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

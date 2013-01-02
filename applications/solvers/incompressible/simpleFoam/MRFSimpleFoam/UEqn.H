@@ -10,8 +10,8 @@
 
     mrfZones.addCoriolis(UEqn());
 
-    sources.constrain(UEqn());
-
     UEqn().relax();
+
+    sources.constrain(UEqn());
 
     solve(UEqn() == -fvc::grad(p));
