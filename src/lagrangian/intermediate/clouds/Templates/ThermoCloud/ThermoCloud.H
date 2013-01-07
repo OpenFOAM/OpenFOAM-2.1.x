@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -277,6 +277,15 @@ public:
 
                     //- Return tmp equivalent particulate scattering factor
                     inline tmp<volScalarField> sigmap() const;
+
+
+        // Check
+
+            //- Maximum temperature
+            inline scalar Tmax() const;
+
+            //- Minimum temperature
+            inline scalar Tmin() const;
 
 
         // Cloud evolution functions
