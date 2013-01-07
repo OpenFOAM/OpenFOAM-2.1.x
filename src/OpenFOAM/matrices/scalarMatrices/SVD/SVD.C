@@ -255,7 +255,7 @@ Foam::SVD::SVD(const scalarRectangularMatrix& A, const scalar minCondition)
             {
                 scalar c = 0.0;
                 s = 1.0;
-                for (label i = l-1; i < k+1; i++)
+                for (label i = l; i < k+1; i++)
                 {
                     scalar f = s*rv1[i];
                     rv1[i] = c*rv1[i];
