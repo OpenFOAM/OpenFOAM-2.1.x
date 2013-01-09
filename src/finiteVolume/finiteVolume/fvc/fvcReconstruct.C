@@ -47,7 +47,7 @@ tmp
         typename outerProduct<vector,Type>::type, fvPatchField, volMesh
     >
 >
-reconstruct
+reconstructt
 (
     const GeometricField<Type, fvsPatchField, surfaceMesh>& ssf
 )
@@ -55,6 +55,21 @@ reconstruct
     typedef typename outerProduct<vector, Type>::type GradType;
 
     const fvMesh& mesh = ssf.mesh();
+
+    surfaceVectorField faceVols
+    (
+        mesh.Sf()/(mesh.magSf()*mesh.nonOrthDeltaCoeffs())
+    );
+
+    faceVols.internalField() *= (1.0 -  mesh.weights().internalField());
+    forAll(faceVols.boundaryField(), patchi)
+    {
+        if (faceVols.boundaryField()[patchi].coupled())
+        {
+            faceVols.boundaryField()[patchi] *=
+                (1.0 -  mesh.weights().boundaryField()[patchi]);
+        }
+    }
 
     tmp<GeometricField<GradType, fvPatchField, volMesh> > treconField
     (
@@ -68,8 +83,7 @@ reconstruct
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
-            inv(surfaceSum(sqr(mesh.Sf())/mesh.magSf()))
-          & surfaceSum((mesh.Sf()/mesh.magSf())*ssf),
+            inv(surfaceSum(mesh.Sf()*faceVols))&surfaceSum(faceVols*ssf),
             zeroGradientFvPatchField<GradType>::typeName
         )
     );
