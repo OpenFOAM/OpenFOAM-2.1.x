@@ -393,6 +393,53 @@ const surfaceVectorField& fvMesh::Cf() const
 }
 
 
+tmp<surfaceVectorField> fvMesh::delta() const
+{
+    if (debug)
+    {
+        Info<< "void fvMesh::delta() : "
+            << "calculating face deltas"
+            << endl;
+    }
+
+    tmp<surfaceVectorField> tdelta
+    (
+        new surfaceVectorField
+        (
+            IOobject
+            (
+                "delta",
+                pointsInstance(),
+                meshSubDir,
+                *this,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            *this,
+            dimLength
+        )
+    );
+    surfaceVectorField& delta = tdelta();
+
+    const volVectorField& C = this->C();
+    const labelUList& owner = this->owner();
+    const labelUList& neighbour = this->neighbour();
+
+    forAll(owner, facei)
+    {
+        delta[facei] = C[neighbour[facei]] - C[owner[facei]];
+    }
+
+    forAll(delta.boundaryField(), patchi)
+    {
+        delta.boundaryField()[patchi] = boundary()[patchi].delta();
+    }
+
+    return tdelta;
+}
+
+
 const surfaceScalarField& fvMesh::phi() const
 {
     if (!phiPtr_)

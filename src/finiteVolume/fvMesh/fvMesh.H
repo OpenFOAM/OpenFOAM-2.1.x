@@ -312,6 +312,9 @@ public:
             //- Return face centres as surfaceVectorField
             const surfaceVectorField& Cf() const;
 
+            //- Return face deltas as surfaceVectorField
+            tmp<surfaceVectorField> delta() const;
+
 
         // Edit
 
