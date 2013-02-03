@@ -49,8 +49,6 @@
         }
     }
 
-    #include "continuityErrs.H"
-
     p == p_rgh + rho*gh;
 
     if (p_rgh.needReference())
