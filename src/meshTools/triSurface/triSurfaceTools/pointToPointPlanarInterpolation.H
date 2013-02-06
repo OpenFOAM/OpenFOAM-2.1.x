@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012-2013 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -59,6 +59,9 @@ class pointToPointPlanarInterpolation
         //- Coordinate system
         coordinateSystem referenceCS_;
 
+        //- Number of source points (for checking)
+        label nPoints_;
+
         //- Current interpolation addressing to face centres of underlying
         //  patch
         List<FixedList<label, 3> > nearestVertex_;
@@ -112,6 +115,12 @@ public:
         const coordinateSystem& referenceCS() const
         {
             return referenceCS_;
+        }
+
+        //- Number of source points
+        label sourceSize() const
+        {
+            return nPoints_;
         }
 
         //  patch
