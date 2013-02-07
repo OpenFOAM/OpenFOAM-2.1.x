@@ -28,7 +28,7 @@ gradSchemes
 divSchemes
 {
     default         none;
-    div(rhoFlux,rho) Gauss limitedLinear 1;
+    div(rhoFlux,rho) Gauss upwind;
 }
 
 laplacianSchemes
