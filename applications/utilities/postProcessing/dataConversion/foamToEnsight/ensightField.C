@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -201,7 +201,7 @@ void writePatchField
                 << pTraits<Type>::typeName
                 << " per element:            1       "
                 << setw(15) << pfName
-                << (' ' + prepend + "***." + pfName).c_str()
+                << (' ' + prepend + "****." + pfName).c_str()
                 << nl;
         }
 
@@ -344,7 +344,7 @@ void ensightField
                     << pTraits<Type>::typeName
                     << " per element:            1       "
                     << setw(15) << vf.name()
-                    << (' ' + prepend + "***." + vf.name()).c_str()
+                    << (' ' + prepend + "****." + vf.name()).c_str()
                     << nl;
             }
 
@@ -558,7 +558,7 @@ void ensightPointField
                     << pTraits<Type>::typeName
                     << " per node:            1       "
                     << setw(15) << pf.name()
-                    << (' ' + prepend + "***." + pf.name()).c_str()
+                    << (' ' + prepend + "****." + pf.name()).c_str()
                     << nl;
             }
 

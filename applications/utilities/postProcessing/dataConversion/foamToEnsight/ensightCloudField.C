@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -68,7 +68,7 @@ void ensightCloudField
         ensightCaseFile.setf(ios_base::left);
         ensightCaseFile
             << ("c" + fieldObject.name()).c_str()
-            << (' ' + prepend + "***." + cloudName
+            << (' ' + prepend + "****." + cloudName
               + "." + fieldObject.name()).c_str()
             << nl;
     }
