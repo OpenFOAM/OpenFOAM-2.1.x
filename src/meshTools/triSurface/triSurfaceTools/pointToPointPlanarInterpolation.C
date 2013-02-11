@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012-2013 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -219,7 +219,8 @@ Foam::pointToPointPlanarInterpolation::pointToPointPlanarInterpolation
 )
 :
     perturb_(perturb),
-    referenceCS_(calcCoordinateSystem(sourcePoints))
+    referenceCS_(calcCoordinateSystem(sourcePoints)),
+    nPoints_(sourcePoints.size())
 
 {
     calcWeights(sourcePoints, destPoints);
@@ -235,7 +236,8 @@ Foam::pointToPointPlanarInterpolation::pointToPointPlanarInterpolation
 )
 :
     perturb_(perturb),
-    referenceCS_(referenceCS)
+    referenceCS_(referenceCS),
+    nPoints_(sourcePoints.size())
 {
     calcWeights(sourcePoints, destPoints);
 }
