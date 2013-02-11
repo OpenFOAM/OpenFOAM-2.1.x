@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -239,7 +239,11 @@ void Foam::cyclicAMIPolyPatch::resetAMI() const
         AMIPtr_.clear();
 
         const polyPatch& nbr = neighbPatch();
-        pointField nbrPoints = neighbPatch().localPoints();
+        pointField nbrPoints
+        (
+            neighbPatch().boundaryMesh().mesh().points(),
+            neighbPatch().meshPoints()
+        );
 
         if (debug)
         {
@@ -327,6 +331,9 @@ void Foam::cyclicAMIPolyPatch::initMovePoints
 )
 {
     polyPatch::initMovePoints(pBufs, p);
+
+    // See below. Clear out any local geometry
+    primitivePatch::movePoints(p);
 }
 
 
@@ -340,6 +347,10 @@ void Foam::cyclicAMIPolyPatch::movePoints
 
     calcTransforms();
 
+    // Note: resetAMI is called whilst in geometry update. So the slave
+    // side might not have reached 'movePoints'. Is explicitly handled by
+    // - clearing geometry of neighbour inside initMovePoints
+    // - not using localPoints() inside resetAMI
     resetAMI();
 }
 
