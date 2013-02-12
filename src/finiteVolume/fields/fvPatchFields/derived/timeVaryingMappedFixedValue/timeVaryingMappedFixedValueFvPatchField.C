@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -209,6 +209,7 @@ template<class Type>
 void timeVaryingMappedFixedValueFvPatchField<Type>::checkTable()
 {
     // Initialise
+
     if (mapperPtr_.empty())
     {
         pointIOField samplePoints
@@ -338,6 +339,18 @@ void timeVaryingMappedFixedValueFvPatchField<Type>::checkTable()
                 )
             );
 
+            if (vals.size() != mapperPtr_().sourceSize())
+            {
+                FatalErrorIn
+                (
+                    "timeVaryingMappedFixedValueFvPatchField<Type>::"
+                    "checkTable()"
+                )   << "Number of values (" << vals.size()
+                    << ") differs from the number of points ("
+                    <<  mapperPtr_().sourceSize()
+                    << ") in file " << vals.objectPath() << exit(FatalError);
+            }
+
             startAverage_ = vals.average();
             startSampledValues_ = mapperPtr_().interpolate(vals);
         }
@@ -382,6 +395,19 @@ void timeVaryingMappedFixedValueFvPatchField<Type>::checkTable()
                     false
                 )
             );
+
+            if (vals.size() != mapperPtr_().sourceSize())
+            {
+                FatalErrorIn
+                (
+                    "timeVaryingMappedFixedValueFvPatchField<Type>::"
+                    "checkTable()"
+                )   << "Number of values (" << vals.size()
+                    << ") differs from the number of points ("
+                    <<  mapperPtr_().sourceSize()
+                    << ") in file " << vals.objectPath() << exit(FatalError);
+            }
+
             endAverage_ = vals.average();
             endSampledValues_ = mapperPtr_().interpolate(vals);
         }

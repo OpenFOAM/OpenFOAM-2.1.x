@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -56,6 +56,21 @@ reconstruct
 
     const fvMesh& mesh = ssf.mesh();
 
+    surfaceVectorField faceVols
+    (
+        mesh.Sf()/(mesh.magSf()*mesh.nonOrthDeltaCoeffs())
+    );
+
+    faceVols.internalField() *= (1.0 -  mesh.weights().internalField());
+    forAll(faceVols.boundaryField(), patchi)
+    {
+        if (faceVols.boundaryField()[patchi].coupled())
+        {
+            faceVols.boundaryField()[patchi] *=
+                (1.0 -  mesh.weights().boundaryField()[patchi]);
+        }
+    }
+
     tmp<GeometricField<GradType, fvPatchField, volMesh> > treconField
     (
         new GeometricField<GradType, fvPatchField, volMesh>
@@ -68,8 +83,7 @@ reconstruct
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
-            inv(surfaceSum(sqr(mesh.Sf())/mesh.magSf()))
-          & surfaceSum((mesh.Sf()/mesh.magSf())*ssf),
+            inv(surfaceSum(mesh.Sf()*faceVols))&surfaceSum(faceVols*ssf),
             zeroGradientFvPatchField<GradType>::typeName
         )
     );
