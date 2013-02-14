@@ -94,13 +94,13 @@ inline Foam::scalar Foam::isobaricPerfectGas::rho(scalar p, scalar T) const
 
 inline Foam::scalar Foam::isobaricPerfectGas::psi(scalar, scalar T) const
 {
-    return 1.0/(this->R()*T);
+    return 0.0;
 }
 
 
 inline Foam::scalar Foam::isobaricPerfectGas::Z(scalar, scalar) const
 {
-    return 1.0;
+    return 0.0;
 }
 
 
