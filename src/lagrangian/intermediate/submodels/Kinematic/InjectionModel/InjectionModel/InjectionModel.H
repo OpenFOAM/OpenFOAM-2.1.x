@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2012 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2013 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -147,7 +147,7 @@ protected:
         (
             const scalar time,
             label& newParcels,
-            scalar& newVolume
+            scalar& newVolumeFraction
         );
 
         //- Find the cell that contains the supplied position
@@ -166,7 +166,7 @@ protected:
         virtual scalar setNumberOfParticles
         (
             const label parcels,
-            const scalar volume,
+            const scalar volumeFraction,
             const scalar diameter,
             const scalar rho
         );

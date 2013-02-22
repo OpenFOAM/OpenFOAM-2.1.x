@@ -49,12 +49,12 @@ bool Foam::InjectionModel<CloudType>::prepareForNextTimeStep
 (
     const scalar time,
     label& newParcels,
-    scalar& newVolume
+    scalar& newVolumeFraction
 )
 {
     // Initialise values
     newParcels = 0;
-    newVolume = 0.0;
+    newVolumeFraction = 0.0;
     bool validInjection = false;
 
     // Return if not started injection event
@@ -72,9 +72,9 @@ bool Foam::InjectionModel<CloudType>::prepareForNextTimeStep
     newParcels = this->parcelsToInject(t0, t1);
 
     // Volume of parcels to inject
-    newVolume = this->volumeToInject(t0, t1);
+    newVolumeFraction = this->volumeToInject(t0, t1)/volumeTotal_;
 
-    if (newVolume > 0)
+    if (newVolumeFraction > 0)
     {
         if (newParcels > 0)
         {
@@ -196,7 +196,7 @@ template<class CloudType>
 Foam::scalar Foam::InjectionModel<CloudType>::setNumberOfParticles
 (
     const label parcels,
-    const scalar volume,
+    const scalar volumeFraction,
     const scalar diameter,
     const scalar rho
 )
@@ -206,10 +206,10 @@ Foam::scalar Foam::InjectionModel<CloudType>::setNumberOfParticles
     {
         case pbMass:
         {
-            nP =
-                volume/volumeTotal_
-               *massTotal_/rho
-               /(parcels*pi/6.0*pow3(diameter));
+            scalar volumep = pi/6.0*pow3(diameter);
+            scalar volumeTot = massTotal_/rho;
+
+            nP = (volumeFraction*volumeTot + delayedVolume_)/(parcels*volumep);
             break;
         }
         case pbNumber:
@@ -479,11 +479,10 @@ void Foam::InjectionModel<CloudType>::inject(TrackData& td)
     scalar massAdded = 0.0;
 
     label newParcels = 0;
-    scalar newVolume = 0.0;
+    scalar newVolumeFraction = 0.0;
 
-    if (prepareForNextTimeStep(time, newParcels, newVolume))
+    if (prepareForNextTimeStep(time, newParcels, newVolumeFraction))
     {
-        newVolume += delayedVolume_;
         scalar delayedVolume = 0;
 
         const scalar trackTime = this->owner().solution().trackTime();
@@ -564,7 +563,7 @@ void Foam::InjectionModel<CloudType>::inject(TrackData& td)
                         setNumberOfParticles
                         (
                             newParcels,
-                            newVolume,
+                            newVolumeFraction,
                             pPtr->d(),
                             pPtr->rho()
                         );
@@ -582,6 +581,7 @@ void Foam::InjectionModel<CloudType>::inject(TrackData& td)
                     }
                 }
             }
+
         }
 
         delayedVolume_ = delayedVolume;
@@ -619,7 +619,7 @@ void Foam::InjectionModel<CloudType>::injectSteadyState
     for (label parcelI = 0; parcelI < newParcels; parcelI++)
     {
         // Volume to inject is split equally amongst all parcel streams
-        scalar newVolume = volumeTotal_/newParcels;
+        scalar newVolumeFraction = 1.0/scalar(newParcels);
 
         // Determine the injection position and owner cell,
         // tetFace and tetPt
@@ -677,7 +677,7 @@ void Foam::InjectionModel<CloudType>::injectSteadyState
                 setNumberOfParticles
                 (
                     1,
-                    newVolume,
+                    newVolumeFraction,
                     pPtr->d(),
                     pPtr->rho()
                 );
