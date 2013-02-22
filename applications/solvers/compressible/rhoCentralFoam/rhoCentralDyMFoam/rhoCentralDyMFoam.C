@@ -166,7 +166,6 @@ int main(int argc, char *argv[])
         mesh.movePoints(motionPtr->newPoints());
 
         phi = aphiv_pos*rho_pos + aphiv_neg*rho_neg;
-        Info<< phi.boundaryField()[0] << endl;
 
         surfaceVectorField phiUp
         (
