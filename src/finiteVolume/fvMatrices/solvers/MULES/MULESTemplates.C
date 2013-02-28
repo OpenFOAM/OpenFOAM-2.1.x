@@ -601,12 +601,13 @@ void Foam::MULES::limiter
         {
             fvsPatchScalarField& lambdaPf = lambdaBf[patchi];
             const scalarField& phiCorrfPf = phiCorrBf[patchi];
+            const fvPatchScalarField& psiPf = psiBf[patchi];
 
             if (isA<wedgeFvPatch>(mesh.boundary()[patchi]))
             {
                 lambdaPf = 0;
             }
-            else
+            else if (psiPf.coupled())
             {
                 const labelList& pFaceCells =
                     mesh.boundary()[patchi].faceCells();
@@ -624,6 +625,32 @@ void Foam::MULES::limiter
                     {
                         lambdaPf[pFacei] =
                             min(lambdaPf[pFacei], lambdam[pfCelli]);
+                    }
+                }
+            }
+            else
+            {
+                const labelList& pFaceCells =
+                    mesh.boundary()[patchi].faceCells();
+                const scalarField& phiBDPf = phiBDBf[patchi];
+
+                forAll(lambdaPf, pFacei)
+                {
+                    // Limit outlet faces only
+                    if (phiBDPf[pFacei] > 0)
+                    {
+                        label pfCelli = pFaceCells[pFacei];
+
+                        if (phiCorrfPf[pFacei] > 0.0)
+                        {
+                            lambdaPf[pFacei] =
+                                min(lambdaPf[pFacei], lambdap[pfCelli]);
+                        }
+                        else
+                        {
+                            lambdaPf[pFacei] =
+                                min(lambdaPf[pFacei], lambdam[pfCelli]);
+                        }
                     }
                 }
             }
