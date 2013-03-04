@@ -62,7 +62,7 @@ Foam::TimeDataEntry<Type>::TimeDataEntry
     name_(tde.name_),
     entry_()
 {
-    if (entry_.valid())
+    if (tde.entry_.valid())
     {
         entry_.reset(tde.entry_->clone().ptr());
     }
